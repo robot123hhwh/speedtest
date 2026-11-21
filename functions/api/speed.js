@@ -8,9 +8,10 @@ export async function onRequest(context) {
     "Pragma": "no-cache",
     "Expires": "0",
     "Access-Control-Allow-Origin": "*",
+    "Timing-Allow-Origin": "*",
   };
 
-  // 0. Connection & Edge Metadata endpoint
+  // 0. Connection & Edge Metadata
   if (mode === "meta") {
     const cf = request.cf || {};
     const ip = request.headers.get("cf-connecting-ip") || "Unknown";
@@ -32,16 +33,16 @@ export async function onRequest(context) {
     );
   }
 
-  // 1. Ping / Jitter / Packet Loss endpoint
+  // 1. Ultra-fast Ping endpoint
   if (mode === "ping") {
-    return new Response("pong", { status: 200, headers });
+    return new Response("", { status: 204, headers });
   }
 
   // 2. Download stream endpoint
   if (mode === "down") {
     const mb = Math.min(parseInt(url.searchParams.get("mb") || "50", 10), 100);
     const totalBytes = mb * 1024 * 1024;
-    const chunkSize = 65536; // 64KB
+    const chunkSize = 65536;
     const chunk = new Uint8Array(chunkSize);
     crypto.getRandomValues(chunk);
 
@@ -72,20 +73,12 @@ export async function onRequest(context) {
     });
   }
 
-  // 3. Upload sink endpoint
+  // 3. Fast Upload Sink (drains body via arrayBuffer without HTTP/3 stream stall)
   if (mode === "up" && request.method === "POST") {
-    const reader = request.body?.getReader();
-    let received = 0;
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        received += value.byteLength;
-      }
-    }
-    return new Response(JSON.stringify({ received }), {
+    const buf = await request.arrayBuffer();
+    return new Response(String(buf.byteLength), {
       status: 200,
-      headers: { ...headers, "Content-Type": "application/json" },
+      headers: { ...headers, "Content-Type": "text/plain" },
     });
   }
 
