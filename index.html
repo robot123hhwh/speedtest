@@ -22,11 +22,7 @@
       --bad: #ef4444;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background-color: var(--bg);
@@ -55,7 +51,6 @@
       overflow: hidden;
     }
 
-    /* Top Bar */
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -74,11 +69,7 @@
       letter-spacing: 0.04em;
     }
 
-    .cross-mark {
-      color: var(--text);
-      font-size: 14px;
-      opacity: 0.9;
-    }
+    .cross-mark { color: var(--text); font-size: 14px; opacity: 0.9; }
 
     .edge-pill {
       display: flex;
@@ -100,7 +91,6 @@
       box-shadow: 0 0 8px var(--good);
     }
 
-    /* Hero Section */
     .hero {
       padding: 28px 24px 20px;
       display: grid;
@@ -110,17 +100,9 @@
       border-bottom: 1px solid var(--border);
     }
 
-    @media (max-width: 640px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-    }
+    @media (max-width: 640px) { .hero { grid-template-columns: 1fr; } }
 
-    .readout-box {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+    .readout-box { display: flex; flex-direction: column; justify-content: center; }
 
     .phase-tag {
       display: inline-flex;
@@ -133,9 +115,7 @@
       margin-bottom: 10px;
     }
 
-    .phase-tag.active {
-      color: var(--text);
-    }
+    .phase-tag.active { color: var(--text); }
 
     .big-num {
       font-size: 64px;
@@ -163,7 +143,6 @@
       border-radius: 6px;
     }
 
-    /* Live SVG Graph */
     .graph-box {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -185,100 +164,36 @@
       letter-spacing: 0.08em;
     }
 
-    .legend {
-      display: flex;
-      gap: 12px;
-    }
+    .legend { display: flex; gap: 12px; }
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .swatch-dl { width: 8px; height: 2px; background: var(--dl-color); }
+    .swatch-ul { width: 8px; height: 2px; background: var(--ul-color); border-bottom: 1px dashed var(--ul-color); }
 
-    .legend span {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
+    svg#chart { width: 100%; height: 105px; overflow: visible; }
 
-    .swatch-dl {
-      width: 8px;
-      height: 2px;
-      background: var(--dl-color);
-    }
+    .progress-track { width: 100%; height: 3px; background: var(--bg); }
+    .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.12s linear; }
 
-    .swatch-ul {
-      width: 8px;
-      height: 2px;
-      background: var(--ul-color);
-      border-bottom: 1px dashed var(--ul-color);
-    }
-
-    svg#chart {
-      width: 100%;
-      height: 105px;
-      overflow: visible;
-    }
-
-    /* Progress Bar */
-    .progress-track {
-      width: 100%;
-      height: 3px;
-      background: var(--bg);
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--accent);
-      transition: width 0.12s linear;
-    }
-
-    /* Primary Metrics Grid */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       border-bottom: 1px solid var(--border);
     }
 
-    @media (max-width: 640px) {
-      .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+    @media (max-width: 640px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
 
-    .metric-cell {
-      padding: 18px 20px;
-      border-right: 1px solid var(--border);
-    }
-
-    .metric-cell:last-child {
-      border-right: none;
-    }
+    .metric-cell { padding: 18px 20px; border-right: 1px solid var(--border); }
+    .metric-cell:last-child { border-right: none; }
 
     @media (max-width: 640px) {
       .metric-cell:nth-child(2) { border-right: none; }
-      .metric-cell:nth-child(1),
-      .metric-cell:nth-child(2) { border-bottom: 1px solid var(--border); }
+      .metric-cell:nth-child(1), .metric-cell:nth-child(2) { border-bottom: 1px solid var(--border); }
     }
 
-    .m-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
+    .m-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; }
+    .m-val { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .m-sub { font-size: 11px; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
 
-    .m-val {
-      font-size: 22px;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .m-sub {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Detailed Telemetry Section */
     .details-section {
       padding: 18px 24px;
       background: var(--bg);
@@ -289,39 +204,12 @@
       font-size: 12px;
     }
 
-    @media (max-width: 640px) {
-      .details-section {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+    @media (max-width: 640px) { .details-section { grid-template-columns: repeat(2, 1fr); } }
 
-    .detail-item {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .d-key {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-    }
-
-    .d-val {
-      color: var(--text);
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ip-toggle {
-      cursor: pointer;
-      border-bottom: 1px dashed var(--dim);
-      display: inline-block;
-      width: fit-content;
-    }
+    .detail-item { display: flex; flex-direction: column; gap: 3px; }
+    .d-key { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .d-val { color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ip-toggle { cursor: pointer; border-bottom: 1px dashed var(--dim); display: inline-block; width: fit-content; }
 
     .grade-badge {
       display: inline-block;
@@ -333,13 +221,7 @@
       border: 1px solid var(--border-bright);
     }
 
-    /* Footer Controls */
-    .footer {
-      padding: 18px 24px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
+    .footer { padding: 18px 24px; display: flex; gap: 12px; align-items: center; }
 
     .btn-primary {
       flex: 1;
@@ -357,18 +239,9 @@
       transition: transform 0.1s, opacity 0.15s;
     }
 
-    .btn-primary:hover:not(:disabled) {
-      opacity: 0.92;
-    }
-
-    .btn-primary:active:not(:disabled) {
-      transform: scale(0.99);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
+    .btn-primary:hover:not(:disabled) { opacity: 0.92; }
+    .btn-primary:active:not(:disabled) { transform: scale(0.99); }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
 
     .btn-secondary {
       padding: 14px 16px;
@@ -380,22 +253,14 @@
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      transition: border-color 0.15s;
     }
 
-    .btn-secondary:hover:not(:disabled) {
-      border-color: var(--border-bright);
-    }
-
-    .btn-secondary:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
+    .btn-secondary:hover:not(:disabled) { border-color: var(--border-bright); }
+    .btn-secondary:disabled { opacity: 0.35; cursor: not-allowed; }
   </style>
 </head>
 <body>
   <div class="shell">
-    <!-- Top Header -->
     <div class="topbar">
       <div class="brand">
         <span class="cross-mark">✠</span>
@@ -407,7 +272,6 @@
       </div>
     </div>
 
-    <!-- Hero Readout + Live Graph -->
     <div class="hero">
       <div class="readout-box">
         <div class="phase-tag" id="phase">● STANDBY</div>
@@ -440,7 +304,6 @@
       <div class="progress-fill" id="progress"></div>
     </div>
 
-    <!-- Primary 4 Cards -->
     <div class="metrics-grid">
       <div class="metric-cell">
         <div class="m-label">Download</div>
@@ -464,7 +327,6 @@
       </div>
     </div>
 
-    <!-- Deep Telemetry Details -->
     <div class="details-section">
       <div class="detail-item">
         <span class="d-key">Loaded Ping (DL / UL)</span>
@@ -492,7 +354,6 @@
       </div>
     </div>
 
-    <!-- Action Bar -->
     <div class="footer">
       <button class="btn-primary" id="start-btn" onclick="runTest()">RUN DIAGNOSTIC</button>
       <button class="btn-secondary" id="copy-btn" onclick="copyResults()" disabled>COPY</button>
@@ -559,16 +420,24 @@
     }
     loadMeta();
 
+    // True wire-level RTT using Resource Timing API (strips JS event-loop delay)
     async function probePing() {
+      const endpoint = `${location.origin}/cdn-cgi/trace?t=${Date.now()}-${Math.random()}`;
       const t0 = performance.now();
-      const res = await fetch(`/api/speed?mode=ping&t=${Date.now()}-${Math.random()}`, {
-        cache: "no-store",
-      });
-      if (!res.ok) throw new Error("Ping failed");
-      return performance.now() - t0;
+      const res = await fetch(endpoint, { cache: "no-store" });
+      await res.text();
+      const fallbackRtt = performance.now() - t0;
+
+      const entries = performance.getEntriesByName(endpoint);
+      if (entries.length > 0) {
+        const e = entries[entries.length - 1];
+        const wireRtt = e.responseStart - e.requestStart;
+        if (wireRtt > 0.5) return wireRtt;
+      }
+      return fallbackRtt;
     }
 
-    async function measurePing(samples = 16) {
+    async function measurePing(samples = 18) {
       $("phase").textContent = "● MEASURING LATENCY & LOSS";
       $("phase").classList.add("active");
       $("live-unit").textContent = "ms";
@@ -576,8 +445,10 @@
       const times = [];
       let failed = 0;
 
-      // Warmup
-      try { await probePing(); } catch {}
+      // Warmup connection & TLS session
+      for (let w = 0; w < 3; w++) {
+        try { await probePing(); } catch {}
+      }
 
       for (let i = 0; i < samples; i++) {
         try {
@@ -588,12 +459,15 @@
           failed++;
         }
         $("progress").style.width = `${((i + 1) / samples) * 20}%`;
-        await new Promise((r) => setTimeout(r, 45));
+        await new Promise((r) => setTimeout(r, 35));
       }
 
-      const avg = times.reduce((a, b) => a + b, 0) / times.length;
-      const min = Math.min(...times);
-      const max = Math.max(...times);
+      // Use median/trimmed mean to ignore single OS scheduling blips
+      const sorted = [...times].sort((a, b) => a - b);
+      const trimmed = sorted.length > 4 ? sorted.slice(1, -1) : sorted;
+      const avg = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+      const min = sorted[0];
+      const max = sorted[sorted.length - 1];
 
       let jitterSum = 0;
       for (let i = 1; i < times.length; i++) {
@@ -620,10 +494,9 @@
       const startTime = performance.now();
       let active = true;
 
-      // Background loaded-ping probe during download saturation
       const pingProbe = (async () => {
         while (active) {
-          await new Promise((r) => setTimeout(r, 700));
+          await new Promise((r) => setTimeout(r, 750));
           if (!active) break;
           try {
             const rtt = await probePing();
@@ -685,7 +558,7 @@
       return { mbps: finalMbps, loadedPing: avgLoadedPing };
     }
 
-    async function measureUpload(durationMs = 8000, streams = 3) {
+    async function measureUpload(durationMs = 8000, streams = 4) {
       $("phase").textContent = "● TESTING UPLOAD";
       $("live-unit").textContent = "Mbps";
 
@@ -695,13 +568,14 @@
       const startTime = performance.now();
       let active = true;
 
-      const payloadSize = 2 * 1024 * 1024;
+      // 512KB chunks prevent HTTP/3 QUIC stream stalls on Cloudflare Pages
+      const payloadSize = 512 * 1024;
       const payload = new Uint8Array(payloadSize);
       crypto.getRandomValues(payload.subarray(0, 65536));
 
       const pingProbe = (async () => {
         while (active) {
-          await new Promise((r) => setTimeout(r, 700));
+          await new Promise((r) => setTimeout(r, 750));
           if (!active) break;
           try {
             const rtt = await probePing();
@@ -713,18 +587,20 @@
       const worker = async (id) => {
         while (performance.now() - startTime < durationMs) {
           try {
-            const res = await fetch(`/api/speed?mode=up&s=${id}-${Date.now()}`, {
+            const res = await fetch(`/api/speed?mode=up&s=${id}-${Date.now()}-${Math.random()}`, {
               method: "POST",
               body: payload,
               cache: "no-store",
             });
             if (res.ok) {
+              await res.text();
               phaseBytes += payloadSize;
               updateDataCounter(payloadSize);
             }
-          } catch {}
+          } catch {
+            await new Promise((r) => setTimeout(r, 50));
+          }
         }
-        active = false;
       };
 
       const ticker = setInterval(() => {
@@ -740,7 +616,9 @@
         }
       }, 200);
 
-      await Promise.all([...Array.from({ length: streams }, (_, i) => worker(i)), pingProbe]);
+      await Promise.all(Array.from({ length: streams }, (_, i) => worker(i)));
+      active = false;
+      await pingProbe;
       clearInterval(ticker);
 
       const totalSec = (performance.now() - startTime) / 1000;
