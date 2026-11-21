@@ -10,16 +10,38 @@ export async function onRequest(context) {
     "Access-Control-Allow-Origin": "*",
   };
 
-  // 1. Ping / Jitter endpoint
+  // 0. Connection & Edge Metadata endpoint
+  if (mode === "meta") {
+    const cf = request.cf || {};
+    const ip = request.headers.get("cf-connecting-ip") || "Unknown";
+    return new Response(
+      JSON.stringify({
+        ip,
+        colo: cf.colo || "AUTO",
+        city: cf.city || "Unknown",
+        country: cf.country || "",
+        isp: cf.asOrganization || "Unknown ISP",
+        asn: cf.asn ? `AS${cf.asn}` : "",
+        httpProtocol: cf.httpProtocol || "HTTP/2",
+        tlsVersion: cf.tlsVersion || "TLSv1.3",
+      }),
+      {
+        status: 200,
+        headers: { ...headers, "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  // 1. Ping / Jitter / Packet Loss endpoint
   if (mode === "ping") {
     return new Response("pong", { status: 200, headers });
   }
 
-  // 2. Download stream endpoint (streams random chunks up to requested MB)
+  // 2. Download stream endpoint
   if (mode === "down") {
-    const mb = Math.min(parseInt(url.searchParams.get("mb") || "25", 10), 100);
+    const mb = Math.min(parseInt(url.searchParams.get("mb") || "50", 10), 100);
     const totalBytes = mb * 1024 * 1024;
-    const chunkSize = 65536; // 64KB chunks
+    const chunkSize = 65536; // 64KB
     const chunk = new Uint8Array(chunkSize);
     crypto.getRandomValues(chunk);
 
@@ -50,7 +72,7 @@ export async function onRequest(context) {
     });
   }
 
-  // 3. Upload sink endpoint (consumes incoming stream cleanly)
+  // 3. Upload sink endpoint
   if (mode === "up" && request.method === "POST") {
     const reader = request.body?.getReader();
     let received = 0;
