@@ -544,7 +544,7 @@
       clearInterval(ticker);
 
       const totalSec = (performance.now() - startTime) / 1000;
-      const finalMbps = (phaseBytes * 8) / (totalSec * 1_000_000);
+      const finalMbps = totalSec > 0 ? (phaseBytes * 8) / (totalSec * 1_000_000) : 0;
       const avgLoadedPing = loadedPings.length
         ? loadedPings.reduce((a, b) => a + b, 0) / loadedPings.length
         : 0;
@@ -556,7 +556,7 @@
       return { mbps: finalMbps, loadedPing: avgLoadedPing };
     }
 
-    async function measureUpload(durationMs = 8000, streams = 8) {
+    async function measureUpload(durationMs = 8000, streams = 6) {
       $("phase").textContent = "● TESTING UPLOAD";
       $("live-unit").textContent = "Mbps";
 
@@ -566,8 +566,8 @@
       const startTime = performance.now();
       let active = true;
 
-      // 1.5MB chunks across 8 concurrent streams for higher upstream window utilization
-      const payloadSize = 1536 * 1024;
+      // 256KB chunks avoid Safari's 64KB keepalive limit and keep POSTs fast
+      const payloadSize = 256 * 1024;
       const payload = new Uint8Array(payloadSize);
       crypto.getRandomValues(payload.subarray(0, 65536));
 
@@ -589,7 +589,6 @@
               method: "POST",
               body: payload,
               cache: "no-store",
-              keepalive: true,
             });
             if (res.ok) {
               await res.text();
@@ -621,7 +620,7 @@
       clearInterval(ticker);
 
       const totalSec = (performance.now() - startTime) / 1000;
-      const finalMbps = (phaseBytes * 8) / (totalSec * 1_000_000);
+      const finalMbps = totalSec > 0 ? (phaseBytes * 8) / (totalSec * 1_000_000) : 0;
       const avgLoadedPing = loadedPings.length
         ? loadedPings.reduce((a, b) => a + b, 0) / loadedPings.length
         : 0;
