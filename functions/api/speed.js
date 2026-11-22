@@ -43,11 +43,11 @@ export async function onRequest(context) {
     return new Response(null, { status: 204, headers });
   }
 
-  // 3. Download stream endpoint
+  // 3. Fallback Download stream endpoint
   if (mode === "down") {
-    const mb = Math.min(Math.max(parseInt(url.searchParams.get("mb") || "50", 10) || 50, 1), 100);
+    const mb = Math.min(Math.max(parseInt(url.searchParams.get("mb") || "25", 10) || 25, 1), 50);
     const totalBytes = mb * 1024 * 1024;
-    const chunkSize = 65536; // 64KB chunks
+    const chunkSize = 65536;
     const chunk = new Uint8Array(chunkSize);
     crypto.getRandomValues(chunk);
 
@@ -75,22 +75,14 @@ export async function onRequest(context) {
     });
   }
 
-  // 4. Zero-allocation Streaming Upload Sink (prevents Worker RAM/GC stalls on 500+ Mbps)
+  // 4. Fallback Upload sink (native arrayBuffer drain avoids JS loop CPU 1102 limits)
   if (mode === "up" && request.method === "POST") {
-    let received = 0;
+    let bytes = 0;
     if (request.body) {
-      const reader = request.body.getReader();
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          received += value.byteLength;
-        }
-      } catch {
-        // Client aborted stream at end of test window — normal
-      }
+      const buf = await request.arrayBuffer();
+      bytes = buf.byteLength;
     }
-    return new Response(JSON.stringify({ ok: true, bytes: received }), {
+    return new Response(JSON.stringify({ ok: true, bytes }), {
       status: 200,
       headers: { ...headers, "Content-Type": "application/json" },
     });

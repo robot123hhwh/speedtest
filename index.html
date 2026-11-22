@@ -4,84 +4,100 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>speedtest // robot123.xyz</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23050505'/%3E%3Cpath d='M7 22a11 11 0 1 1 18 0' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M16 17l5.5-5.5' stroke='%2322c55e' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='17' r='2' fill='%23fff'/%3E%3C/svg%3E" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23050506'/%3E%3Cpath d='M7 22a11 11 0 1 1 18 0' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M16 17l5.5-5.5' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='17' r='2' fill='%23fff'/%3E%3C/svg%3E" />
 
-  <!-- Leaflet Map CSS & JS -->
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
     :root {
-      --bg: #050506;
-      --surface: #0b0b0e;
-      --surface-2: #131318;
-      --surface-3: #1a1a22;
-      --border: #202028;
-      --border-bright: #383846;
-      --text: #f4f4f7;
-      --muted: #7c7c8a;
-      --dim: #4c4c58;
+      --bg: #040406;
+      --surface: #0a0a0e;
+      --surface-2: #121218;
+      --surface-3: #191922;
+      --border: rgba(255, 255, 255, 0.075);
+      --border-bright: rgba(255, 255, 255, 0.16);
+      --text: #f5f5f8;
+      --muted: #848496;
+      --dim: #4c4c5c;
       --accent: #ffffff;
-      --accent-glow: rgba(255, 255, 255, 0.35);
       --dl-color: #ffffff;
       --ul-color: #38bdf8;
+      --ping-color: #f59e0b;
+      --jitter-color: #a78bfa;
       --good: #22c55e;
       --warn: #eab308;
       --orange: #f97316;
       --bad: #ef4444;
-      --aura: rgba(255, 255, 255, 0.045);
+      --phase-color: #ffffff;
+      --aura-1: rgba(255, 255, 255, 0.055);
+      --aura-2: rgba(56, 189, 248, 0.03);
+      --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background-color: var(--bg);
-      background-image:
-        radial-gradient(circle at 50% -10%, var(--aura) 0%, transparent 65%),
-        linear-gradient(rgba(255, 255, 255, 0.016) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.016) 1px, transparent 1px);
-      background-size: 100% 100%, 32px 32px, 32px 32px;
       color: var(--text);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-family: var(--font-sans);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 28px 20px;
       -webkit-font-smoothing: antialiased;
-      transition: background-color 0.4s ease;
+      position: relative;
+      overflow-x: hidden;
     }
 
-    /* Phase-reactive ambient aura */
-    body[data-phase="ping"] { --aura: rgba(234, 179, 8, 0.08); }
-    body[data-phase="download"] { --aura: rgba(255, 255, 255, 0.09); }
-    body[data-phase="upload"] { --aura: rgba(56, 189, 248, 0.11); }
-    body[data-phase="done"] { --aura: rgba(34, 197, 94, 0.08); }
+    /* Ambient background mesh + architectural grid */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 68% 48% at 50% -8%, var(--aura-1) 0%, transparent 70%),
+        radial-gradient(ellipse 45% 38% at 85% 95%, var(--aura-2) 0%, transparent 70%),
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    body[data-phase="ping"]     { --phase-color: var(--ping-color); --aura-1: rgba(245, 158, 11, 0.12); --aura-2: rgba(245, 158, 11, 0.04); }
+    body[data-phase="download"] { --phase-color: var(--dl-color);   --aura-1: rgba(255, 255, 255, 0.12); --aura-2: rgba(255, 255, 255, 0.04); }
+    body[data-phase="upload"]   { --phase-color: var(--ul-color);   --aura-1: rgba(56, 189, 248, 0.15);  --aura-2: rgba(56, 189, 248, 0.06); }
+    body[data-phase="done"]     { --phase-color: var(--good);       --aura-1: rgba(34, 197, 94, 0.10);   --aura-2: rgba(56, 189, 248, 0.05); }
 
     @keyframes enter-up {
-      from { opacity: 0; transform: translateY(14px) scale(0.99); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes pulse-glow {
-      0%, 100% { text-shadow: 0 0 12px var(--accent-glow); opacity: 0.9; }
-      50% { text-shadow: 0 0 28px var(--accent-glow); opacity: 1; }
+      from { opacity: 0; transform: translateY(16px) scale(0.99); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes ripple {
-      0% { transform: scale(1); opacity: 0.85; }
-      100% { transform: scale(2.8); opacity: 0; }
+      0%   { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(2.9); opacity: 0; }
     }
 
     @keyframes shimmer {
-      0% { background-position: -200% 0; }
+      0%   { background-position: -200% 0; }
       100% { background-position: 200% 0; }
     }
 
     @keyframes value-lock {
-      0% { transform: scale(0.92); opacity: 0.6; }
-      60% { transform: scale(1.04); opacity: 1; }
+      0%   { transform: scale(0.9); opacity: 0.5; }
+      55%  { transform: scale(1.045); opacity: 1; }
       100% { transform: scale(1); opacity: 1; }
     }
 
@@ -89,18 +105,38 @@
       to { stroke-dashoffset: -24; }
     }
 
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.85); }
+    }
+
     .shell {
-      width: 100%;
-      max-width: 1040px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow:
-        0 32px 100px rgba(0, 0, 0, 0.92),
-        0 0 0 1px rgba(255, 255, 255, 0.03) inset;
-      overflow: hidden;
-      animation: enter-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
       position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1080px;
+      background: linear-gradient(180deg, rgba(16, 16, 22, 0.92) 0%, rgba(10, 10, 14, 0.96) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow:
+        0 40px 120px rgba(0, 0, 0, 0.92),
+        0 1px 0 rgba(255, 255, 255, 0.07) inset;
+      overflow: hidden;
+      animation: enter-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* Subtle top edge sheen */
+    .shell::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      pointer-events: none;
+      z-index: 5;
     }
 
     /* Topbar */
@@ -112,7 +148,6 @@
       padding: 16px 26px;
       border-bottom: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.012);
-      font-size: 12px;
       flex-wrap: wrap;
     }
 
@@ -120,23 +155,37 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.04em;
     }
 
-    .cross-mark {
-      font-size: 15px;
-      opacity: 0.9;
-      display: inline-block;
-      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-bright);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s;
     }
 
-    .brand:hover .cross-mark { transform: rotate(90deg); }
+    .brand:hover .brand-mark {
+      transform: rotate(90deg);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .brand-dim { color: var(--muted); font-weight: 500; }
 
     .topbar-right {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .unit-toggle {
@@ -144,18 +193,17 @@
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 999px;
-      padding: 2px;
-      font-size: 10px;
+      padding: 3px;
     }
 
     .unit-toggle button {
       background: transparent;
       border: none;
       color: var(--muted);
-      font-family: inherit;
+      font-family: var(--font-mono);
       font-size: 10px;
       font-weight: 700;
-      padding: 4px 9px;
+      padding: 4px 10px;
       border-radius: 999px;
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
@@ -167,14 +215,15 @@
     }
 
     .edge-pill {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 5px 12px;
+      padding: 6px 13px;
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 999px;
-      color: var(--muted);
+      color: var(--text);
+      font-family: var(--font-mono);
       font-size: 11px;
     }
 
@@ -203,105 +252,248 @@
       inset: 0;
       border-radius: 50%;
       background: var(--good);
-      animation: ripple 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+      animation: ripple 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
 
-    /* Hero */
-    .hero {
-      padding: 28px 26px 24px;
+    /* Phase Stepper Bar */
+    .pipeline {
       display: grid;
-      grid-template-columns: 1.05fr 1.2fr 1.05fr;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 26px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.22);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    @media (max-width: 640px) {
+      .pipeline { padding: 10px 16px; font-size: 10px; gap: 6px; }
+      .pipe-summary { display: none; }
+    }
+
+    .pipe-step {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 11px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      color: var(--dim);
+      transition: all 0.3s ease;
+    }
+
+    .pipe-left { display: flex; align-items: center; gap: 7px; }
+
+    .pipe-idx {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--dim);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .pipe-step.is-active {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-bright);
+    }
+
+    .pipe-step.is-active .pipe-idx {
+      border-color: var(--phase-color);
+      color: var(--phase-color);
+      box-shadow: 0 0 12px var(--phase-color);
+    }
+
+    .pipe-step.is-done {
+      color: var(--muted);
+    }
+
+    .pipe-step.is-done .pipe-idx {
+      background: rgba(34, 197, 94, 0.16);
+      border-color: var(--good);
+      color: var(--good);
+    }
+
+    .pipe-summary {
+      font-size: 10px;
+      color: var(--text);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pipe-line {
+      width: 24px;
+      height: 1px;
+      background: var(--border);
+      transition: background 0.4s;
+    }
+
+    .pipe-line.is-lit { background: rgba(34, 197, 94, 0.55); }
+
+    /* Hero Section */
+    .hero {
+      padding: 26px 26px 24px;
+      display: grid;
+      grid-template-columns: 270px 1.25fr 1fr;
       gap: 20px;
       align-items: stretch;
       border-bottom: 1px solid var(--border);
     }
 
-    @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr 1fr; }
-      #map-box { grid-column: span 2; height: 195px; }
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 260px 1fr; }
+      #map-box { grid-column: span 2; height: 210px; }
     }
-    @media (max-width: 640px) {
-      .hero { grid-template-columns: 1fr; }
+
+    @media (max-width: 680px) {
+      .hero { grid-template-columns: 1fr; padding: 20px 18px; }
       #map-box { grid-column: span 1; }
     }
 
-    .readout-box {
+    /* Gauge Panel */
+    .gauge-panel {
+      background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.03) 0%, rgba(4, 4, 6, 0.65) 75%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 12px 12px;
       display: flex;
       flex-direction: column;
+      align-items: center;
       justify-content: center;
       position: relative;
+      min-height: 222px;
+      transition: border-color 0.3s;
     }
 
-    .phase-tag {
+    .gauge-panel:hover { border-color: var(--border-bright); }
+
+    .gauge-svg {
+      width: 230px;
+      height: 192px;
+      overflow: visible;
+    }
+
+    .gauge-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+
+    .gauge-arc {
+      fill: none;
+      stroke: var(--phase-color);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke 0.35s ease;
+    }
+
+    .gauge-tick-label {
+      fill: var(--dim);
+      font-family: var(--font-mono);
+      font-size: 8px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .gauge-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 20px;
+      pointer-events: none;
+    }
+
+    .phase-pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-size: 11px;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 600;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 12px;
-      transition: color 0.3s;
+      margin-bottom: 6px;
     }
 
     .phase-dot {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--muted);
+      background: var(--dim);
       transition: background 0.3s, box-shadow 0.3s;
     }
 
-    body[data-phase="ping"] .phase-dot { background: var(--warn); box-shadow: 0 0 10px var(--warn); }
-    body[data-phase="download"] .phase-dot { background: var(--dl-color); box-shadow: 0 0 10px var(--dl-color); }
-    body[data-phase="upload"] .phase-dot { background: var(--ul-color); box-shadow: 0 0 10px var(--ul-color); }
-    body[data-phase="done"] .phase-dot { background: var(--good); box-shadow: 0 0 10px var(--good); }
-
-    .big-num {
-      font-size: 68px;
-      font-weight: 700;
-      letter-spacing: -0.05em;
-      line-height: 0.92;
-      font-variant-numeric: tabular-nums;
-      transition: color 0.3s, text-shadow 0.3s;
+    body[data-phase="ping"] .phase-dot,
+    body[data-phase="download"] .phase-dot,
+    body[data-phase="upload"] .phase-dot {
+      background: var(--phase-color);
+      box-shadow: 0 0 10px var(--phase-color);
+      animation: pulse-dot 1.2s ease-in-out infinite;
     }
 
-    body[data-phase="upload"] .big-num { color: var(--ul-color); --accent-glow: rgba(56, 189, 248, 0.35); }
-    body[data-phase="ping"] .big-num { color: var(--warn); --accent-glow: rgba(234, 179, 8, 0.32); }
+    body[data-phase="done"] .phase-dot {
+      background: var(--good);
+      box-shadow: 0 0 10px var(--good);
+    }
 
-    .anim-pulse { animation: pulse-glow 1.6s infinite ease-in-out; }
+    .big-num {
+      font-family: var(--font-mono);
+      font-size: 46px;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      transition: color 0.3s;
+    }
+
+    body[data-phase="upload"] .big-num { color: var(--ul-color); }
+    body[data-phase="ping"]   .big-num { color: var(--ping-color); }
 
     .big-unit {
-      font-size: 13px;
+      font-family: var(--font-mono);
+      font-size: 11px;
       color: var(--muted);
-      margin-top: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      margin-top: 4px;
+      letter-spacing: 0.06em;
     }
 
     .sub-metric {
-      font-size: 11px;
+      margin-top: 14px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
       background: var(--surface-2);
       border: 1px solid var(--border);
-      padding: 4px 9px;
-      border-radius: 6px;
-      color: var(--text);
+      padding: 3px 9px;
+      border-radius: 999px;
       font-variant-numeric: tabular-nums;
     }
 
-    /* Graph & Map Containers */
+    /* Panels (Chart & Map) */
     .panel-box {
-      background: var(--bg);
+      background: rgba(4, 4, 6, 0.72);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 13px 14px;
+      border-radius: 16px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      height: 175px;
+      min-height: 222px;
       transition: border-color 0.25s ease;
     }
 
@@ -311,6 +503,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-family: var(--font-mono);
       font-size: 10px;
       color: var(--muted);
       text-transform: uppercase;
@@ -319,38 +512,62 @@
       position: relative;
     }
 
-    /* Chart */
-    .legend { display: flex; gap: 10px; align-items: center; }
+    .legend { display: flex; gap: 12px; align-items: center; }
     .legend span { display: inline-flex; align-items: center; gap: 5px; }
-    .swatch-dl { width: 9px; height: 2px; background: var(--dl-color); border-radius: 2px; }
-    .swatch-ul { width: 9px; height: 2px; background: var(--ul-color); border-radius: 2px; }
+    .swatch-dl { width: 10px; height: 2.5px; background: var(--dl-color); border-radius: 2px; }
+    .swatch-ul { width: 10px; height: 2.5px; background: var(--ul-color); border-radius: 2px; }
 
     .chart-wrap {
       position: relative;
       flex: 1;
       display: flex;
       align-items: flex-end;
-      margin-top: 6px;
+      margin-top: 10px;
+      cursor: crosshair;
     }
 
-    .chart-scale {
+    .chart-y-labels {
       position: absolute;
       top: 0;
       right: 0;
+      bottom: 2px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-family: var(--font-mono);
       font-size: 9px;
       color: var(--dim);
-      font-variant-numeric: tabular-nums;
       pointer-events: none;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
     }
+
+    .chart-tooltip {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      background: rgba(12, 12, 18, 0.92);
+      border: 1px solid var(--border-bright);
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: var(--text);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 4;
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      gap: 10px;
+    }
+
+    .chart-tooltip.visible { opacity: 1; }
 
     svg#chart {
       width: 100%;
-      height: 122px;
+      height: 158px;
       overflow: visible;
-    }
-
-    .chart-head-dot {
-      transition: opacity 0.25s;
     }
 
     /* Map */
@@ -359,35 +576,47 @@
       overflow: hidden;
     }
 
+    #map-box::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 15px;
+      box-shadow: inset 0 0 28px rgba(4, 4, 6, 0.85);
+      pointer-events: none;
+      z-index: 600;
+    }
+
     #map-overlay-title {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 11px;
+      left: 11px;
+      font-family: var(--font-mono);
       font-size: 10px;
-      color: rgba(255, 255, 255, 0.9);
+      color: rgba(255, 255, 255, 0.88);
       text-transform: uppercase;
       letter-spacing: 0.08em;
       z-index: 1000;
-      background: rgba(5, 5, 6, 0.72);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      padding: 4px 8px;
-      border-radius: 6px;
+      background: rgba(6, 6, 10, 0.76);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 4px 9px;
+      border-radius: 7px;
       pointer-events: none;
     }
 
     #map-route-pill {
       position: absolute;
-      bottom: 10px;
-      left: 10px;
+      bottom: 11px;
+      left: 11px;
+      font-family: var(--font-mono);
       font-size: 10px;
       color: var(--text);
       z-index: 1000;
-      background: rgba(5, 5, 6, 0.78);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 4px 8px;
-      border-radius: 6px;
+      background: rgba(6, 6, 10, 0.82);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      padding: 4px 9px;
+      border-radius: 7px;
       pointer-events: none;
       font-variant-numeric: tabular-nums;
     }
@@ -395,29 +624,21 @@
     #map {
       width: 100%;
       height: 100%;
-      border-radius: 11px;
-      background: #0a0b0e;
+      min-height: 220px;
+      border-radius: 15px;
+      background: #090a0e;
       z-index: 1;
     }
 
-    /* Crisp dark styling for ArcGIS Dark Gray & OSM fallback */
-    #map .leaflet-tile-pane {
-      filter: brightness(1.05) contrast(1.22) saturate(0.2);
-    }
+    #map .leaflet-tile-pane { filter: brightness(1.05) contrast(1.24) saturate(0.18); }
+    #map.osm-dark .leaflet-tile-pane { filter: grayscale(100%) invert(100%) brightness(0.75) contrast(1.25); }
+    .leaflet-container { background: #090a0e !important; }
 
-    #map.osm-dark .leaflet-tile-pane {
-      filter: grayscale(100%) invert(100%) brightness(0.75) contrast(1.25);
-    }
-
-    .leaflet-container { background: #0a0b0e !important; }
-
-    /* Animated flight path */
     .flight-path {
       stroke-dasharray: 5 7;
-      animation: dash-flow 1.2s linear infinite;
+      animation: dash-flow 1.15s linear infinite;
     }
 
-    /* Custom pulsing map beacons */
     .beacon-client, .beacon-server {
       position: relative;
       width: 12px;
@@ -426,7 +647,7 @@
     }
     .beacon-client {
       background: #ffffff;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.95);
       border: 2px solid #050506;
     }
     .beacon-client::after {
@@ -438,8 +659,8 @@
       animation: ripple 2s ease-out infinite;
     }
     .beacon-server {
-      background: #eab308;
-      box-shadow: 0 0 12px rgba(234, 179, 8, 0.95);
+      background: #f59e0b;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.95);
       border: 2px solid #050506;
     }
     .beacon-server::after {
@@ -447,7 +668,7 @@
       position: absolute;
       inset: -4px;
       border-radius: 50%;
-      border: 1.5px solid rgba(234, 179, 8, 0.8);
+      border: 1.5px solid rgba(245, 158, 11, 0.8);
       animation: ripple 2s ease-out 0.6s infinite;
     }
 
@@ -455,22 +676,20 @@
     .progress-track {
       width: 100%;
       height: 3px;
-      background: var(--bg);
+      background: rgba(255, 255, 255, 0.04);
       overflow: hidden;
     }
 
     .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #ffffff 0%, #38bdf8 50%, #ffffff 100%);
+      background: linear-gradient(90deg, #ffffff 0%, #38bdf8 50%, #22c55e 100%);
       background-size: 200% 100%;
       transition: width 0.14s linear;
-      box-shadow: 0 0 14px var(--accent-glow);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
     }
 
-    .progress-fill.running {
-      animation: shimmer 1.6s linear infinite;
-    }
+    .progress-fill.running { animation: shimmer 1.4s linear infinite; }
 
     /* Metrics Grid */
     .metrics-grid {
@@ -478,7 +697,8 @@
       grid-template-columns: repeat(4, 1fr);
       border-bottom: 1px solid var(--border);
     }
-    @media (max-width: 640px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    @media (max-width: 680px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
 
     .metric-cell {
       padding: 20px 24px;
@@ -495,63 +715,116 @@
       right: 0;
       height: 2px;
       background: transparent;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .metric-cell.is-active {
-      background: rgba(255, 255, 255, 0.025);
-    }
-
-    .metric-cell.is-active::before {
-      background: var(--accent);
-      box-shadow: 0 0 12px var(--accent-glow);
-    }
-
-    .metric-cell.is-active[data-card="ul"]::before {
-      background: var(--ul-color);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
-    }
-
-    .metric-cell.is-active[data-card="ping"]::before {
-      background: var(--warn);
-      box-shadow: 0 0 12px rgba(234, 179, 8, 0.5);
-    }
+    .metric-cell.is-active { background: rgba(255, 255, 255, 0.025); }
+    .metric-cell.is-active[data-card="dl"]::before { background: var(--dl-color); box-shadow: 0 0 14px rgba(255,255,255,0.5); }
+    .metric-cell.is-active[data-card="ul"]::before { background: var(--ul-color); box-shadow: 0 0 14px rgba(56,189,248,0.6); }
+    .metric-cell.is-active[data-card="ping"]::before { background: var(--ping-color); box-shadow: 0 0 14px rgba(245,158,11,0.6); }
 
     .metric-cell:last-child { border-right: none; }
 
-    @media (max-width: 640px) {
+    @media (max-width: 680px) {
       .metric-cell:nth-child(2) { border-right: none; }
       .metric-cell:nth-child(1), .metric-cell:nth-child(2) { border-bottom: 1px solid var(--border); }
     }
 
+    .m-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
     .m-label {
+      font-family: var(--font-mono);
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--muted);
-      margin-bottom: 8px;
+    }
+
+    .m-icon {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      opacity: 0.85;
     }
 
     .m-val {
-      font-size: 24px;
+      font-family: var(--font-mono);
+      font-size: 25px;
       font-weight: 700;
+      letter-spacing: -0.03em;
       font-variant-numeric: tabular-nums;
       display: inline-block;
     }
 
-    .m-val.locked { animation: value-lock 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+    .m-val.locked { animation: value-lock 0.38s cubic-bezier(0.16, 1, 0.3, 1); }
 
     .m-sub {
+      font-family: var(--font-mono);
       font-size: 11px;
       color: var(--muted);
       margin-top: 6px;
       font-variant-numeric: tabular-nums;
     }
 
+    /* Real-World Connection Profile Strip */
+    .profile-strip {
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 16px 26px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.015);
+      animation: enter-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .profile-strip.visible { display: grid; }
+
+    @media (max-width: 780px) { .profile-strip { grid-template-columns: repeat(2, 1fr); } }
+
+    .prof-card {
+      background: rgba(4, 4, 6, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .prof-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .prof-badge {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .prof-desc {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
     /* Telemetry Details */
     .details-section {
-      padding: 20px 26px;
-      background: var(--bg);
+      padding: 18px 26px;
+      background: rgba(4, 4, 6, 0.55);
       border-bottom: 1px solid var(--border);
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -559,28 +832,30 @@
       font-size: 12px;
     }
 
-    @media (max-width: 640px) { .details-section { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 680px) { .details-section { grid-template-columns: repeat(2, 1fr); } }
 
-    .detail-item { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .d-key { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
-    .d-val { color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .detail-item { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .d-key { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+    .d-val { font-family: var(--font-mono); color: var(--text); font-weight: 500; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ip-toggle { cursor: pointer; border-bottom: 1px dashed var(--dim); display: inline-block; width: fit-content; transition: color 0.15s; }
     .ip-toggle:hover { color: var(--accent); }
+
+    .grade-wrap { display: inline-flex; align-items: center; gap: 8px; }
 
     .grade-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       padding: 2px 9px;
       border-radius: 5px;
       font-size: 11px;
       font-weight: 700;
       background: var(--surface-2);
       border: 1px solid var(--border-bright);
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .grade-badge.pop { animation: value-lock 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .grade-delta { font-size: 10px; color: var(--muted); }
 
     /* Footer Controls */
     .footer {
@@ -591,27 +866,40 @@
     }
 
     .btn-primary {
+      position: relative;
+      overflow: hidden;
       flex: 1;
       padding: 15px 24px;
       background: var(--accent);
       color: #050506;
       border: 1px solid transparent;
-      border-radius: 10px;
-      font-family: inherit;
+      border-radius: 12px;
+      font-family: var(--font-mono);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: transform 0.12s, opacity 0.15s, box-shadow 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.12s, box-shadow 0.25s, background 0.2s, color 0.2s, border-color 0.2s;
     }
 
-    .btn-primary:hover:not(:disabled) {
-      box-shadow: 0 0 24px rgba(255, 255, 255, 0.22);
-      transform: translateY(-1px);
+    .btn-primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle 120px at var(--mx, 50%) var(--my, 50%), rgba(56, 189, 248, 0.25), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
     }
 
-    .btn-primary:active:not(:disabled) { transform: scale(0.985); }
+    .btn-primary:hover::after { opacity: 1; }
+    .btn-primary:hover { box-shadow: 0 0 28px rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
+    .btn-primary:active { transform: scale(0.988); }
 
     .btn-primary.is-stop {
       background: rgba(239, 68, 68, 0.12);
@@ -621,7 +909,21 @@
 
     .btn-primary.is-stop:hover {
       background: rgba(239, 68, 68, 0.2);
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.22);
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.22);
+    }
+
+    .kbd-hint {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.14);
+      border: 1px solid rgba(0, 0, 0, 0.18);
+      letter-spacing: 0.04em;
+    }
+
+    .btn-primary.is-stop .kbd-hint {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(239, 68, 68, 0.3);
     }
 
     .btn-secondary {
@@ -629,33 +931,31 @@
       background: var(--surface-2);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      font-family: inherit;
+      border-radius: 12px;
+      font-family: var(--font-mono);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       transition: border-color 0.15s, background 0.15s, transform 0.1s;
     }
 
-    .btn-secondary:hover:not(:disabled) {
-      border-color: var(--border-bright);
-      background: var(--surface-3);
-    }
-
+    .btn-secondary:hover:not(:disabled) { border-color: var(--border-bright); background: var(--surface-3); }
     .btn-secondary:active:not(:disabled) { transform: scale(0.98); }
     .btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    /* Recent History Strip */
+    /* Recent History Panel */
     .history-panel {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      max-width: 1040px;
+      max-width: 1080px;
       margin-top: 14px;
-      background: var(--surface);
+      background: rgba(10, 10, 14, 0.9);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 14px 22px;
       display: none;
-      animation: enter-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: enter-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     .history-panel.visible { display: block; }
@@ -665,6 +965,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
+      font-family: var(--font-mono);
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
@@ -675,7 +976,7 @@
       background: none;
       border: none;
       color: var(--muted);
-      font-family: inherit;
+      font-family: var(--font-mono);
       font-size: 10px;
       cursor: pointer;
       text-transform: uppercase;
@@ -684,24 +985,24 @@
 
     .history-clear:hover { color: var(--text); }
 
-    .history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .history-list { display: flex; flex-direction: column; gap: 6px; }
 
     .history-row {
       display: grid;
-      grid-template-columns: 1.1fr 1fr 1fr 0.9fr 0.5fr;
+      grid-template-columns: 1.1fr 1fr 1fr 0.9fr 0.45fr;
       gap: 10px;
       align-items: center;
-      padding: 8px 12px;
-      background: var(--bg);
+      padding: 8px 13px;
+      background: rgba(4, 4, 6, 0.72);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 9px;
+      font-family: var(--font-mono);
       font-size: 11px;
       font-variant-numeric: tabular-nums;
+      transition: border-color 0.2s;
     }
+
+    .history-row:hover { border-color: var(--border-bright); }
 
     @media (max-width: 640px) {
       .history-row { grid-template-columns: 1fr 1fr 0.8fr 0.45fr; }
@@ -717,8 +1018,12 @@
 </head>
 <body data-phase="idle">
   <div class="shell">
+    <!-- Topbar -->
     <div class="topbar">
-      <div class="brand"><span class="cross-mark">✠</span><span>speedtest.robot123.xyz</span></div>
+      <div class="brand">
+        <span class="brand-mark">✠</span>
+        <span>speedtest<span class="brand-dim">.robot123.xyz</span></span>
+      </div>
       <div class="topbar-right">
         <div class="unit-toggle" role="group" aria-label="Speed unit">
           <button id="unit-mbps" class="active" onclick="setUnit('Mbps')">Mbps</button>
@@ -731,13 +1036,49 @@
       </div>
     </div>
 
+    <!-- 3-Stage Diagnostic Pipeline -->
+    <div class="pipeline">
+      <div class="pipe-step" id="step-ping">
+        <span class="pipe-left"><span class="pipe-idx" id="idx-ping">1</span><span>LATENCY</span></span>
+        <span class="pipe-summary" id="sum-ping">—</span>
+      </div>
+      <div class="pipe-line" id="line-1"></div>
+      <div class="pipe-step" id="step-dl">
+        <span class="pipe-left"><span class="pipe-idx" id="idx-dl">2</span><span>DOWNLOAD</span></span>
+        <span class="pipe-summary" id="sum-dl">—</span>
+      </div>
+      <div class="pipe-line" id="line-2"></div>
+      <div class="pipe-step" id="step-ul">
+        <span class="pipe-left"><span class="pipe-idx" id="idx-ul">3</span><span>UPLOAD</span></span>
+        <span class="pipe-summary" id="sum-ul">—</span>
+      </div>
+    </div>
+
+    <!-- Hero: Gauge + Throughput Curve + Routing Map -->
     <div class="hero">
-      <div class="readout-box">
-        <div class="phase-tag" id="phase"><span class="phase-dot"></span><span id="phase-text">STANDBY</span></div>
-        <div class="big-num" id="live-speed">0.0</div>
-        <div class="big-unit">
-          <span id="live-unit">Mbps</span>
-          <span class="sub-metric" id="live-sub">0.0 MB transferred</span>
+      <div class="gauge-panel">
+        <svg class="gauge-svg" viewBox="0 0 220 185" aria-hidden="true">
+          <defs>
+            <filter id="arc-glow" x="-25%" y="-25%" width="150%" height="150%">
+              <feGaussianBlur stdDeviation="3.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <g id="gauge-ticks"></g>
+          <path class="gauge-track" d="M 38.99 149 A 82 82 0 1 1 181.01 149" />
+          <path id="gauge-arc" class="gauge-arc" d="M 38.99 149 A 82 82 0 1 1 181.01 149"
+                stroke-dasharray="343.48" stroke-dashoffset="343.48" filter="url(#arc-glow)" />
+          <circle id="gauge-tip" cx="38.99" cy="149" r="4.5" fill="#ffffff" opacity="0" filter="url(#arc-glow)" />
+        </svg>
+
+        <div class="gauge-center">
+          <div class="phase-pill"><span class="phase-dot"></span><span id="phase-text">STANDBY</span></div>
+          <div class="big-num" id="live-speed">0.0</div>
+          <div class="big-unit" id="live-unit">Mbps</div>
+          <div class="sub-metric" id="live-sub">0.0 MB</div>
         </div>
       </div>
 
@@ -749,8 +1090,13 @@
             <span><i class="swatch-ul"></i>UL</span>
           </div>
         </div>
-        <div class="chart-wrap">
-          <span class="chart-scale" id="chart-scale"></span>
+        <div class="chart-wrap" id="chart-wrap">
+          <div class="chart-tooltip" id="chart-tooltip"></div>
+          <div class="chart-y-labels">
+            <span id="y-max"></span>
+            <span id="y-mid"></span>
+            <span>0</span>
+          </div>
           <svg id="chart" viewBox="0 0 300 100" preserveAspectRatio="none">
             <defs>
               <linearGradient id="dl-grad" x1="0" y1="0" x2="0" y2="1">
@@ -758,18 +1104,19 @@
                 <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
               </linearGradient>
               <linearGradient id="ul-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.22" />
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.26" />
                 <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
               </linearGradient>
             </defs>
-            <line x1="0" y1="25" x2="300" y2="25" stroke="#18181f" stroke-width="1" />
-            <line x1="0" y1="50" x2="300" y2="50" stroke="#18181f" stroke-width="1" />
-            <line x1="0" y1="75" x2="300" y2="75" stroke="#18181f" stroke-width="1" />
+            <line x1="0" y1="25" x2="300" y2="25" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
+            <line x1="0" y1="50" x2="300" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
+            <line x1="0" y1="75" x2="300" y2="75" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
             <path id="dl-area" fill="url(#dl-grad)" d="" />
             <path id="ul-area" fill="url(#ul-grad)" d="" />
             <path id="dl-line" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="" />
             <path id="ul-line" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="" />
-            <circle id="chart-dot" class="chart-head-dot" cx="0" cy="100" r="3.5" fill="#ffffff" opacity="0" />
+            <line id="chart-cursor" x1="0" y1="0" x2="0" y2="100" stroke="rgba(255,255,255,0.22)" stroke-width="1" stroke-dasharray="2 2" opacity="0" />
+            <circle id="chart-dot" cx="0" cy="100" r="3.5" fill="#ffffff" opacity="0" />
           </svg>
         </div>
       </div>
@@ -781,46 +1128,57 @@
       </div>
     </div>
 
+    <!-- Progress Hairline -->
     <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
 
+    <!-- 4-Column Metric Grid -->
     <div class="metrics-grid">
       <div class="metric-cell" data-card="dl">
-        <div class="m-label">Download</div>
+        <div class="m-head"><span class="m-label">Download</span><span class="m-icon" style="color:var(--dl-color)">↓</span></div>
         <div class="m-val" id="dl-res">—</div>
         <div class="m-sub" id="dl-peak">Peak: —</div>
       </div>
       <div class="metric-cell" data-card="ul">
-        <div class="m-label">Upload</div>
+        <div class="m-head"><span class="m-label">Upload</span><span class="m-icon" style="color:var(--ul-color)">↑</span></div>
         <div class="m-val" id="ul-res">—</div>
         <div class="m-sub" id="ul-peak">Peak: —</div>
       </div>
       <div class="metric-cell" data-card="ping">
-        <div class="m-label">Idle Ping</div>
+        <div class="m-head"><span class="m-label">Idle Ping</span><span class="m-icon" style="color:var(--ping-color)">◎</span></div>
         <div class="m-val" id="ping-res">—</div>
         <div class="m-sub" id="ping-range">Min/Max: —</div>
       </div>
       <div class="metric-cell" data-card="jitter">
-        <div class="m-label">Jitter / Loss</div>
+        <div class="m-head"><span class="m-label">Jitter / Loss</span><span class="m-icon" style="color:var(--jitter-color)">∿</span></div>
         <div class="m-val" id="jitter-res">—</div>
         <div class="m-sub" id="loss-res">Loss: 0.0%</div>
       </div>
     </div>
 
+    <!-- Real-World Connection Profile (reveals on completion) -->
+    <div class="profile-strip" id="profile-strip"></div>
+
+    <!-- Telemetry Details -->
     <div class="details-section">
       <div class="detail-item"><span class="d-key">Loaded Ping (DL / UL)</span><span class="d-val" id="loaded-ping">— / — ms</span></div>
       <div class="detail-item"><span class="d-key">Bufferbloat Grade</span><span class="d-val" id="bloat-grade"><span class="grade-badge">—</span></span></div>
       <div class="detail-item"><span class="d-key">Total Data Used</span><span class="d-val" id="data-used">0.0 MB</span></div>
       <div class="detail-item"><span class="d-key">ISP / Network</span><span class="d-val" id="meta-isp">Detecting...</span></div>
       <div class="detail-item"><span class="d-key">Client IP (Click to toggle)</span><span class="d-val ip-toggle" id="meta-ip" onclick="toggleIp()">•••.•••.•••.•••</span></div>
-      <div class="detail-item"><span class="d-key">Server POP / Protocol</span><span class="d-val" id="meta-proto">—</span></div>
+      <div class="detail-item"><span class="d-key">Server POP / Engine</span><span class="d-val" id="meta-proto">—</span></div>
     </div>
 
+    <!-- Footer Controls -->
     <div class="footer">
-      <button class="btn-primary" id="start-btn" onclick="toggleTest()">RUN DIAGNOSTIC</button>
+      <button class="btn-primary" id="start-btn" onclick="toggleTest()">
+        <span id="start-btn-text">RUN DIAGNOSTIC</span>
+        <span class="kbd-hint">SPACE</span>
+      </button>
       <button class="btn-secondary" id="copy-btn" onclick="copyResults()" disabled>COPY</button>
     </div>
   </div>
 
+  <!-- Persisted Recent Runs -->
   <div class="history-panel" id="history-panel">
     <div class="history-head">
       <span>RECENT RUNS</span>
@@ -835,12 +1193,13 @@
     // State
     let clientMeta = { ip: "Hidden", isp: "Unknown", colo: "AKL", city: "Christchurch", lat: -43.532, lon: 172.636, httpProtocol: "HTTP/3", tlsVersion: "TLSv1.3" };
     let ipVisible = false;
-    let speedUnit = "Mbps"; // "Mbps" | "MB/s"
+    let speedUnit = "Mbps";
+    let useEdgeDirect = true; // Native Cloudflare Edge (HTTP/2 TCP, no Worker CPU 503 cap) with automatic /api/speed fallback
     let totalBytesTransferred = 0;
     let dlPoints = [];
     let ulPoints = [];
     let lastSummary = "";
-    let lastResults = null; // Stores raw Mbps values for unit switching
+    let lastResults = null;
     let leafletMap = null;
     let activeTileLayer = null;
     let isRunning = false;
@@ -848,31 +1207,93 @@
     let activeXhrs = new Set();
     let runToken = 0;
 
-    // Smooth 60fps animated number display
+    // 60fps Animated Readout & Arc Gauge
+    const GAUGE_CX = 110, GAUGE_CY = 108, GAUGE_R = 82, GAUGE_LEN = 343.48;
+    const GAUGE_STOPS = [
+      { mbps: 0,    frac: 0.00, label: "0" },
+      { mbps: 10,   frac: 0.15, label: "10" },
+      { mbps: 50,   frac: 0.33, label: "50" },
+      { mbps: 100,  frac: 0.48, label: "100" },
+      { mbps: 250,  frac: 0.66, label: "250" },
+      { mbps: 500,  frac: 0.83, label: "500" },
+      { mbps: 1000, frac: 1.00, label: "1G" },
+    ];
+
+    function buildGaugeTicks() {
+      const g = $("gauge-ticks");
+      let html = "";
+      for (const s of GAUGE_STOPS) {
+        const deg = 150 + s.frac * 240;
+        const rad = (deg * Math.PI) / 180;
+        const x1 = GAUGE_CX + 90 * Math.cos(rad);
+        const y1 = GAUGE_CY + 90 * Math.sin(rad);
+        const x2 = GAUGE_CX + 95 * Math.cos(rad);
+        const y2 = GAUGE_CY + 95 * Math.sin(rad);
+        const lx = GAUGE_CX + 104 * Math.cos(rad);
+        const ly = GAUGE_CY + 104 * Math.sin(rad);
+        html += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" stroke-linecap="round"/>`;
+        html += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" class="gauge-tick-label">${s.label}</text>`;
+      }
+      g.innerHTML = html;
+    }
+    buildGaugeTicks();
+
+    function speedToGaugeFrac(mbps) {
+      if (mbps <= 0) return 0;
+      if (mbps >= 1000) return 1;
+      for (let i = 0; i < GAUGE_STOPS.length - 1; i++) {
+        const a = GAUGE_STOPS[i], b = GAUGE_STOPS[i + 1];
+        if (mbps <= b.mbps) {
+          const t = (mbps - a.mbps) / (b.mbps - a.mbps);
+          return a.frac + t * (b.frac - a.frac);
+        }
+      }
+      return 1;
+    }
+
     let targetDisplayVal = 0;
     let currentDisplayVal = 0;
+    let currentGaugeFrac = 0;
     let displayIsPing = false;
 
-    function animateReadout() {
+    function animateFrame() {
       const diff = targetDisplayVal - currentDisplayVal;
-      if (Math.abs(diff) > 0.05) {
-        currentDisplayVal += diff * 0.22;
-      } else {
-        currentDisplayVal = targetDisplayVal;
-      }
+      currentDisplayVal = Math.abs(diff) > 0.04 ? currentDisplayVal + diff * 0.2 : targetDisplayVal;
+
       const shown = displayIsPing ? currentDisplayVal : convertSpeed(currentDisplayVal);
       $("live-speed").textContent = shown.toFixed(1);
-      requestAnimationFrame(animateReadout);
-    }
-    requestAnimationFrame(animateReadout);
 
-    function convertSpeed(mbps) {
-      return speedUnit === "MB/s" ? mbps / 8 : mbps;
-    }
+      const targetFrac = displayIsPing
+        ? Math.min(Math.max(currentDisplayVal / 120, 0), 1)
+        : speedToGaugeFrac(currentDisplayVal);
+      currentGaugeFrac += (targetFrac - currentGaugeFrac) * 0.18;
 
-    function formatSpeed(mbps) {
-      return `${convertSpeed(mbps).toFixed(1)} ${speedUnit}`;
+      const arc = $("gauge-arc");
+      const tip = $("gauge-tip");
+      arc.setAttribute("stroke-dashoffset", (GAUGE_LEN * (1 - currentGaugeFrac)).toFixed(2));
+
+      if (currentGaugeFrac > 0.008) {
+        const rad = ((150 + currentGaugeFrac * 240) * Math.PI) / 180;
+        tip.setAttribute("cx", (GAUGE_CX + GAUGE_R * Math.cos(rad)).toFixed(1));
+        tip.setAttribute("cy", (GAUGE_CY + GAUGE_R * Math.sin(rad)).toFixed(1));
+        tip.setAttribute("fill", getComputedStyle(document.body).getPropertyValue("--phase-color").trim() || "#ffffff");
+        tip.setAttribute("opacity", "1");
+      } else {
+        tip.setAttribute("opacity", "0");
+      }
+      requestAnimationFrame(animateFrame);
     }
+    requestAnimationFrame(animateFrame);
+
+    // Mouse-tracking glow on CTA button
+    $("start-btn").addEventListener("mousemove", (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+      e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+    });
+
+    function convertSpeed(mbps) { return speedUnit === "MB/s" ? mbps / 8 : mbps; }
+    function formatSpeed(mbps)  { return `${convertSpeed(mbps).toFixed(1)} ${speedUnit}`; }
 
     function setUnit(unit) {
       speedUnit = unit;
@@ -880,70 +1301,53 @@
       $("unit-mbs").classList.toggle("active", unit === "MB/s");
       if (!displayIsPing) $("live-unit").textContent = unit;
       if (lastResults) {
-        if (lastResults.dl != null) {
-          $("dl-res").textContent = formatSpeed(lastResults.dl);
-          $("dl-peak").textContent = `Peak: ${formatSpeed(lastResults.dlPeak)}`;
-        }
-        if (lastResults.ul != null) {
-          $("ul-res").textContent = formatSpeed(lastResults.ul);
-          $("ul-peak").textContent = `Peak: ${formatSpeed(lastResults.ulPeak)}`;
-        }
+        $("dl-res").textContent = formatSpeed(lastResults.dl);
+        $("dl-peak").textContent = `Peak: ${formatSpeed(lastResults.dlPeak)}`;
+        $("ul-res").textContent = formatSpeed(lastResults.ul);
+        $("ul-peak").textContent = `Peak: ${formatSpeed(lastResults.ulPeak)}`;
+        $("sum-dl").textContent = formatSpeed(lastResults.dl);
+        $("sum-ul").textContent = formatSpeed(lastResults.ul);
       }
       renderChart();
       renderHistory();
     }
 
-    // Expanded Global Cloudflare POP Coordinates
+    // Global Cloudflare POP Coordinates
     const edgeCoords = {
-      // NZ & AU
       AKL: [-36.8485, 174.7633], CHC: [-43.5320, 172.6306], WLG: [-41.2865, 174.7762],
       SYD: [-33.8688, 151.2093], MEL: [-37.8136, 144.9631], BNE: [-27.4698, 153.0251],
       PER: [-31.9505, 115.8605], ADL: [-34.9285, 138.6007], CBR: [-35.2809, 149.1300],
-      // Asia
-      SIN: [1.3521, 103.8198], NRT: [35.6762, 139.6503], KIX: [34.6937, 135.5023],
-      HKG: [22.3193, 114.1694], ICN: [37.5665, 126.9780], TPE: [25.0330, 121.5654],
-      BOM: [19.0760, 72.8777], DEL: [28.7041, 77.1025], BKK: [13.7563, 100.5018],
-      // North America
+      SIN: [1.3521, 103.8198],   NRT: [35.6762, 139.6503],  KIX: [34.6937, 135.5023],
+      HKG: [22.3193, 114.1694],  ICN: [37.5665, 126.9780],  TPE: [25.0330, 121.5654],
+      BOM: [19.0760, 72.8777],   DEL: [28.7041, 77.1025],   BKK: [13.7563, 100.5018],
       LAX: [34.0522, -118.2437], SJC: [37.3382, -121.8863], SEA: [47.6062, -122.3321],
-      DFW: [32.7767, -96.7970], ORD: [41.8781, -87.6298], IAD: [38.9072, -77.0369],
-      EWR: [40.7128, -74.0060], MIA: [25.7617, -80.1918], ATL: [33.7490, -84.3880],
-      DEN: [39.7392, -104.9903], YYZ: [43.6532, -79.3832], YVR: [49.2827, -123.1207],
-      // Europe
-      LHR: [51.5074, -0.1278], FRA: [50.1109, 8.6821], AMS: [52.3676, 4.9041],
-      CDG: [48.8566, 2.3522], MAD: [40.4168, -3.7038], MXP: [45.4642, 9.1900],
-      ZRH: [47.3769, 8.5417], ARN: [59.3293, 18.0686], DUB: [53.3498, -6.2603],
-      WAW: [52.2297, 21.0122], VIE: [48.2082, 16.3738],
-      // South America & Middle East
-      GRU: [-23.5505, -46.6333], EZE: [-34.6037, -58.3816], SCL: [-33.4489, -70.6693],
-      DXB: [25.2048, 55.2708], JNB: [-26.2041, 28.0473]
+      DFW: [32.7767, -96.7970],  ORD: [41.8781, -87.6298],  IAD: [38.9072, -77.0369],
+      EWR: [40.7128, -74.0060],  MIA: [25.7617, -80.1918],  ATL: [33.7490, -84.3880],
+      DEN: [39.7392, -104.9903], YYZ: [43.6532, -79.3832],  YVR: [49.2827, -123.1207],
+      LHR: [51.5074, -0.1278],   FRA: [50.1109, 8.6821],    AMS: [52.3676, 4.9041],
+      CDG: [48.8566, 2.3522],    MAD: [40.4168, -3.7038],   MXP: [45.4642, 9.1900],
+      ZRH: [47.3769, 8.5417],    ARN: [59.3293, 18.0686],   DUB: [53.3498, -6.2603],
+      WAW: [52.2297, 21.0122],   VIE: [48.2082, 16.3738],   GRU: [-23.5505, -46.6333],
+      EZE: [-34.6037, -58.3816], SCL: [-33.4489, -70.6693], DXB: [25.2048, 55.2708],
+      JNB: [-26.2041, 28.0473]
     };
 
     function haversineKm([lat1, lon1], [lat2, lon2]) {
       const toRad = (d) => (d * Math.PI) / 180;
-      const R = 6371;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
+      const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
       const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-      return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+      return Math.round(6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
     }
 
     function curvedArcPoints(start, end, segments = 28) {
-      const [lat1, lon1] = start;
-      const [lat2, lon2] = end;
-      const midLat = (lat1 + lat2) / 2;
-      const midLon = (lon1 + lon2) / 2;
-      const dx = lon2 - lon1;
-      const dy = lat2 - lat1;
-      const dist = Math.hypot(dx, dy);
+      const [lat1, lon1] = start, [lat2, lon2] = end;
+      const dx = lon2 - lon1, dy = lat2 - lat1, dist = Math.hypot(dx, dy);
       if (dist < 0.05) return [start, end];
-      // Subtle perpendicular curve offset
-      const offset = dist * 0.16;
-      const ctrlLat = midLat + (dx / dist) * offset;
-      const ctrlLon = midLon - (dy / dist) * offset;
+      const ctrlLat = (lat1 + lat2) / 2 + (dx / dist) * (dist * 0.16);
+      const ctrlLon = (lon1 + lon2) / 2 - (dy / dist) * (dist * 0.16);
       const pts = [];
       for (let i = 0; i <= segments; i++) {
-        const t = i / segments;
-        const inv = 1 - t;
+        const t = i / segments, inv = 1 - t;
         pts.push([
           inv * inv * lat1 + 2 * inv * t * ctrlLat + t * t * lat2,
           inv * inv * lon1 + 2 * inv * t * ctrlLon + t * t * lon2,
@@ -963,25 +1367,19 @@
 
       if (!leafletMap) {
         leafletMap = L.map("map", {
-          zoomControl: false,
-          attributionControl: false,
-          dragging: false,
-          scrollWheelZoom: false,
-          doubleClickZoom: false,
-          boxZoom: false,
-          keyboard: false,
+          zoomControl: false, attributionControl: false, dragging: false,
+          scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false,
         }).setView(clientPos, 5);
 
-        // Reliable dark basemap (ArcGIS World Dark Gray Base — no referer watermarks)
-        let fellBackToOsm = false;
+        let fellBack = false;
         activeTileLayer = L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
           { maxZoom: 16, crossOrigin: true }
         ).addTo(leafletMap);
 
         activeTileLayer.on("tileerror", () => {
-          if (fellBackToOsm) return;
-          fellBackToOsm = true;
+          if (fellBack) return;
+          fellBack = true;
           leafletMap.removeLayer(activeTileLayer);
           $("map").classList.add("osm-dark");
           activeTileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(leafletMap);
@@ -990,26 +1388,19 @@
         new ResizeObserver(() => leafletMap && leafletMap.invalidateSize()).observe($("map"));
       }
 
-      // Clear previous markers & polylines
-      leafletMap.eachLayer((layer) => {
-        if (layer !== activeTileLayer) leafletMap.removeLayer(layer);
-      });
+      leafletMap.eachLayer((layer) => { if (layer !== activeTileLayer) leafletMap.removeLayer(layer); });
 
       const clientIcon = L.divIcon({ className: "", html: `<div class="beacon-client"></div>`, iconSize: [12, 12], iconAnchor: [6, 6] });
       const serverIcon = L.divIcon({ className: "", html: `<div class="beacon-server"></div>`, iconSize: [12, 12], iconAnchor: [6, 6] });
 
       const arcPts = curvedArcPoints(clientPos, serverPos);
-      const glowLine = L.polyline(arcPts, { color: "#eab308", weight: 5, opacity: 0.16 }).addTo(leafletMap);
-      const flightLine = L.polyline(arcPts, { color: "#eab308", weight: 2, opacity: 0.9, className: "flight-path" }).addTo(leafletMap);
-
+      L.polyline(arcPts, { color: "#f59e0b", weight: 5, opacity: 0.16 }).addTo(leafletMap);
+      const flightLine = L.polyline(arcPts, { color: "#f59e0b", weight: 2, opacity: 0.92, className: "flight-path" }).addTo(leafletMap);
       L.marker(clientPos, { icon: clientIcon }).addTo(leafletMap);
       L.marker(serverPos, { icon: serverIcon }).addTo(leafletMap);
 
-      if (distKm > 15) {
-        leafletMap.fitBounds(flightLine.getBounds(), { padding: [34, 34], maxZoom: 6 });
-      } else {
-        leafletMap.setView(clientPos, 7);
-      }
+      if (distKm > 15) leafletMap.fitBounds(flightLine.getBounds(), { padding: [36, 36], maxZoom: 6 });
+      else leafletMap.setView(clientPos, 7);
 
       setTimeout(() => leafletMap && leafletMap.invalidateSize(), 120);
     }
@@ -1022,40 +1413,38 @@
     function updateDataCounter(bytes) {
       totalBytesTransferred += bytes;
       const mb = (totalBytesTransferred / (1024 * 1024)).toFixed(1);
-      $("live-sub").textContent = `${mb} MB transferred`;
+      $("live-sub").textContent = `${mb} MB`;
       $("data-used").textContent = `${mb} MB`;
     }
 
-    // Smooth SVG path builder (Catmull-Rom -> Cubic Bezier)
+    // Smooth SVG Path Builder + Interactive Hover Scrubbing
     function buildSmoothPath(points, maxVal) {
       if (points.length === 0) return { line: "", area: "", last: null };
       const coords = points.length === 1
-        ? [{ x: 0, y: 98 - (points[0] / maxVal) * 88 }, { x: 300, y: 98 - (points[0] / maxVal) * 88 }]
+        ? [{ x: 0, y: 96 - (points[0] / maxVal) * 86 }, { x: 300, y: 96 - (points[0] / maxVal) * 86 }]
         : points.map((v, i) => ({
             x: (i / (points.length - 1)) * 300,
-            y: Math.max(4, Math.min(98, 98 - (v / maxVal) * 88)),
+            y: Math.max(4, Math.min(97, 97 - (v / maxVal) * 88)),
           }));
 
       let d = `M ${coords[0].x.toFixed(1)} ${coords[0].y.toFixed(1)}`;
       for (let i = 0; i < coords.length - 1; i++) {
-        const p0 = coords[Math.max(0, i - 1)];
-        const p1 = coords[i];
-        const p2 = coords[i + 1];
-        const p3 = coords[Math.min(coords.length - 1, i + 2)];
+        const p0 = coords[Math.max(0, i - 1)], p1 = coords[i];
+        const p2 = coords[i + 1], p3 = coords[Math.min(coords.length - 1, i + 2)];
         const cp1x = p1.x + (p2.x - p0.x) / 6;
-        const cp1y = Math.max(4, Math.min(98, p1.y + (p2.y - p0.y) / 6));
+        const cp1y = Math.max(4, Math.min(97, p1.y + (p2.y - p0.y) / 6));
         const cp2x = p2.x - (p3.x - p1.x) / 6;
-        const cp2y = Math.max(4, Math.min(98, p2.y - (p3.y - p1.y) / 6));
+        const cp2y = Math.max(4, Math.min(97, p2.y - (p3.y - p1.y) / 6));
         d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
       }
       const last = coords[coords.length - 1];
-      const area = `${d} L ${last.x.toFixed(1)} 100 L ${coords[0].x.toFixed(1)} 100 Z`;
-      return { line: d, area, last };
+      return { line: d, area: `${d} L ${last.x.toFixed(1)} 100 L ${coords[0].x.toFixed(1)} 100 Z`, last };
     }
 
     function renderChart(activeSeries = null) {
       const allVals = [...dlPoints, ...ulPoints, 10];
-      const maxVal = Math.max(...allVals) * 1.15;
+      const peak = Math.max(...allVals);
+      const maxVal = peak * 1.15;
 
       const dl = buildSmoothPath(dlPoints, maxVal);
       const ul = buildSmoothPath(ulPoints, maxVal);
@@ -1065,9 +1454,13 @@
       $("ul-line").setAttribute("d", ul.line);
       $("ul-area").setAttribute("d", ul.area);
 
-      $("chart-scale").textContent = (dlPoints.length || ulPoints.length)
-        ? `MAX ${formatSpeed(maxVal / 1.15)}`
-        : "";
+      if (dlPoints.length || ulPoints.length) {
+        $("y-max").textContent = `${convertSpeed(maxVal).toFixed(0)} ${speedUnit}`;
+        $("y-mid").textContent = `${convertSpeed(maxVal / 2).toFixed(0)}`;
+      } else {
+        $("y-max").textContent = "";
+        $("y-mid").textContent = "";
+      }
 
       const dot = $("chart-dot");
       const activeHead = activeSeries === "dl" ? dl.last : activeSeries === "ul" ? ul.last : null;
@@ -1081,14 +1474,58 @@
       }
     }
 
+    // Interactive chart hover scrub
+    $("chart-wrap").addEventListener("mousemove", (e) => {
+      if (!dlPoints.length && !ulPoints.length) return;
+      const rect = $("chart").getBoundingClientRect();
+      const frac = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+      const xSvg = (frac * 300).toFixed(1);
+      const cursor = $("chart-cursor");
+      cursor.setAttribute("x1", xSvg);
+      cursor.setAttribute("x2", xSvg);
+      cursor.setAttribute("opacity", "1");
+
+      const parts = [];
+      if (dlPoints.length) {
+        const v = dlPoints[Math.round(frac * (dlPoints.length - 1))];
+        parts.push(`<span style="color:#fff">↓ ${formatSpeed(v)}</span>`);
+      }
+      if (ulPoints.length) {
+        const v = ulPoints[Math.round(frac * (ulPoints.length - 1))];
+        parts.push(`<span style="color:#38bdf8">↑ ${formatSpeed(v)}</span>`);
+      }
+      const tip = $("chart-tooltip");
+      tip.innerHTML = parts.join("");
+      tip.classList.add("visible");
+    });
+
+    $("chart-wrap").addEventListener("mouseleave", () => {
+      $("chart-cursor").setAttribute("opacity", "0");
+      $("chart-tooltip").classList.remove("visible");
+    });
+
+    // Edge Engine Detection & Metadata
+    async function probeEdgeDirect() {
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 2000);
+        const r = await fetch("https://speed.cloudflare.com/__down?bytes=1", { cache: "no-store", signal: ctrl.signal });
+        clearTimeout(t);
+        useEdgeDirect = r.ok;
+      } catch {
+        useEdgeDirect = false;
+      }
+    }
+
     async function loadMeta() {
+      await probeEdgeDirect();
       try {
         const res = await fetch("/api/speed?mode=meta", { cache: "no-store" });
         if (res.ok) {
           clientMeta = await res.json();
           $("edge-badge").textContent = `POP: ${clientMeta.colo} (${clientMeta.city})`;
           $("meta-isp").textContent = `${clientMeta.isp} ${clientMeta.asn ? `(${clientMeta.asn})` : ""}`;
-          $("meta-proto").textContent = `${clientMeta.colo} • ${clientMeta.httpProtocol} / ${clientMeta.tlsVersion}`;
+          $("meta-proto").textContent = `${clientMeta.colo} • ${useEdgeDirect ? "CF Edge Direct (H2)" : clientMeta.httpProtocol} / ${clientMeta.tlsVersion}`;
           initMap();
           return;
         }
@@ -1098,13 +1535,30 @@
     }
     loadMeta();
 
+    function updatePipeline(stage, summaries = {}) {
+      const stages = ["ping", "dl", "ul"];
+      const activeIdx = stages.indexOf(stage);
+      stages.forEach((s, i) => {
+        const el = $(`step-${s}`);
+        const idxEl = $(`idx-${s}`);
+        const isDone = stage === "done" || (activeIdx !== -1 && i < activeIdx);
+        const isActive = s === stage;
+        el.classList.toggle("is-active", isActive);
+        el.classList.toggle("is-done", isDone);
+        idxEl.textContent = isDone ? "✓" : String(i + 1);
+      });
+      $("line-1").classList.toggle("is-lit", activeIdx >= 1 || stage === "done");
+      $("line-2").classList.toggle("is-lit", activeIdx >= 2 || stage === "done");
+      if (summaries.ping) $("sum-ping").textContent = summaries.ping;
+      if (summaries.dl) $("sum-dl").textContent = summaries.dl;
+      if (summaries.ul) $("sum-ul").textContent = summaries.ul;
+    }
+
     function setPhase(phaseKey, text, activeCard = null) {
       document.body.dataset.phase = phaseKey;
       $("phase-text").textContent = text;
       const isTesting = phaseKey === "ping" || phaseKey === "download" || phaseKey === "upload";
-      $("live-speed").classList.toggle("anim-pulse", isTesting);
       $("progress").classList.toggle("running", isTesting);
-
       document.querySelectorAll(".metric-cell").forEach((el) => {
         el.classList.toggle("is-active", el.dataset.card === activeCard);
       });
@@ -1141,18 +1595,15 @@
     }
 
     function abortAllNetwork() {
-      for (const c of activeAbortControllers) {
-        try { c.abort(); } catch {}
-      }
+      for (const c of activeAbortControllers) { try { c.abort(); } catch {} }
       activeAbortControllers.clear();
-      for (const xhr of activeXhrs) {
-        try { xhr.abort(); } catch {}
-      }
+      for (const xhr of activeXhrs) { try { xhr.abort(); } catch {} }
       activeXhrs.clear();
     }
 
     async function measurePing(token, samples = 20) {
-      setPhase("ping", "MEASURING LATENCY & LOSS", "ping");
+      setPhase("ping", "MEASURING PING", "ping");
+      updatePipeline("ping");
       displayIsPing = true;
       $("live-unit").textContent = "ms";
 
@@ -1161,21 +1612,21 @@
       const ctrl = makeAbortController();
 
       for (let w = 0; w < 4; w++) {
-        if (token !== runToken) return 0;
+        if (token !== runToken) return { median: 0, jitter: 0, lossPct: 0 };
         try { await probePing(ctrl.signal); } catch {}
       }
 
       for (let i = 0; i < samples; i++) {
-        if (token !== runToken) return 0;
+        if (token !== runToken) return { median: 0, jitter: 0, lossPct: 0 };
         try {
           const rtt = await probePing(ctrl.signal);
           times.push(rtt);
           targetDisplayVal = rtt;
         } catch {
-          if (token !== runToken) return 0;
+          if (token !== runToken) return { median: 0, jitter: 0, lossPct: 0 };
           failed++;
         }
-        $("progress").style.width = `${((i + 1) / samples) * 20}%`;
+        $("progress").style.width = `${((i + 1) / samples) * 18}%`;
         await new Promise((r) => setTimeout(r, 25));
       }
 
@@ -1183,55 +1634,53 @@
       const sorted = [...times].sort((a, b) => a - b);
       const mid = Math.floor(sorted.length / 2);
       const median = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-      const min = sorted[0];
-      const max = sorted[sorted.length - 1];
+      const min = sorted[0], max = sorted[sorted.length - 1];
 
       let jitterSum = 0;
       for (let i = 1; i < times.length; i++) jitterSum += Math.abs(times[i] - times[i - 1]);
       const jitter = times.length > 1 ? jitterSum / (times.length - 1) : 0;
-      const lossPct = ((failed / samples) * 100).toFixed(1);
+      const lossPct = (failed / samples) * 100;
 
       lockMetric("ping-res", `${median.toFixed(1)} ms`);
       $("ping-range").textContent = `${min.toFixed(1)} / ${max.toFixed(1)} ms`;
       lockMetric("jitter-res", `${jitter.toFixed(1)} ms`);
-      $("loss-res").textContent = `Loss: ${lossPct}%`;
-      return median;
+      $("loss-res").textContent = `Loss: ${lossPct.toFixed(1)}%`;
+      updatePipeline("dl", { ping: `${median.toFixed(1)} ms` });
+      return { median, jitter, lossPct };
     }
 
     async function measureDownload(token, durationMs = 8000, streams = 6) {
-      setPhase("download", "TESTING DOWNLOAD", "dl");
+      setPhase("download", "DOWNLOADING", "dl");
       displayIsPing = false;
       $("live-unit").textContent = speedUnit;
       targetDisplayVal = 0;
       currentDisplayVal = 0;
 
-      let phaseBytes = 0;
-      let peakMbps = 0;
-      const loadedPings = [];
-      const history = []; // { t, bytes }
+      let phaseBytes = 0, peakMbps = 0;
+      const loadedPings = [], history = [];
       const startTime = performance.now();
       const warmupMs = 1400;
-      let warmupBytes = null;
-      let warmupTime = null;
-      let active = true;
+      let warmupBytes = null, warmupTime = null, active = true;
 
       const pingCtrl = makeAbortController();
       const pingProbe = (async () => {
         while (active && token === runToken) {
-          await new Promise((r) => setTimeout(r, 750));
+          await new Promise((r) => setTimeout(r, 700));
           if (!active || token !== runToken) break;
           try { loadedPings.push(await probePing(pingCtrl.signal)); } catch {}
         }
       })();
 
+      const dlUrl = (id) => useEdgeDirect
+        ? `https://speed.cloudflare.com/__down?bytes=52428800&r=${id}-${Date.now()}-${Math.random().toString(36).slice(2)}`
+        : `/api/speed?mode=down&mb=50&s=${id}-${Date.now()}`;
+
       const worker = async (id) => {
         while (active && token === runToken) {
           const controller = makeAbortController();
           try {
-            const res = await fetch(`/api/speed?mode=down&mb=100&s=${id}-${Date.now()}`, {
-              cache: "no-store",
-              signal: controller.signal,
-            });
+            const res = await fetch(dlUrl(id), { cache: "no-store", signal: controller.signal });
+            if (!res.ok || !res.body) { await new Promise((r) => setTimeout(r, 40)); continue; }
             const reader = res.body.getReader();
             while (active && token === runToken) {
               const { done, value } = await reader.read();
@@ -1259,22 +1708,27 @@
           warmupTime = now;
         }
 
-        // Rolling 600ms instantaneous throughput for responsive chart
         const cutoff = now - 600;
         while (history.length > 2 && history[0].t < cutoff) history.shift();
         if (elapsed > 250 && history.length >= 2) {
           const dt = (now - history[0].t) / 1000;
           const db = phaseBytes - history[0].bytes;
           const instMbps = dt > 0 ? (db * 8) / (dt * 1_000_000) : 0;
-          if (elapsed > 700 && instMbps > peakMbps) peakMbps = instMbps;
+          if (elapsed > 1000 && instMbps > peakMbps) peakMbps = instMbps;
           dlPoints.push(instMbps);
           renderChart("dl");
           targetDisplayVal = instMbps;
-          $("progress").style.width = `${20 + Math.min(elapsed / durationMs, 1) * 40}%`;
+          $("progress").style.width = `${18 + Math.min(elapsed / durationMs, 1) * 41}%`;
         }
       }, 150);
 
+      const cutoffTimer = setTimeout(() => {
+        active = false;
+        abortAllNetwork();
+      }, durationMs + 120);
+
       await Promise.all([...Array.from({ length: streams }, (_, i) => worker(i)), pingProbe]);
+      clearTimeout(cutoffTimer);
       clearInterval(ticker);
       if (token !== runToken) return { mbps: 0, peak: 0, loadedPing: 0 };
 
@@ -1289,55 +1743,57 @@
       renderChart(null);
       lockMetric("dl-res", formatSpeed(finalMbps));
       $("dl-peak").textContent = `Peak: ${formatSpeed(finalPeak)}`;
+      updatePipeline("ul", { dl: formatSpeed(finalMbps) });
       return { mbps: finalMbps, peak: finalPeak, loadedPing: avgPing };
     }
 
-    // Pre-generate incompressible random payload buffers (1MB, 4MB, 8MB)
-    const uploadBuffers = {};
-    function getUploadBuffer(mb) {
-      if (uploadBuffers[mb]) return uploadBuffers[mb];
+    // Pre-generate incompressible random payload blobs (text/plain avoids CORS preflight)
+    const uploadBlobs = {};
+    function getUploadBlob(mb) {
+      if (uploadBlobs[mb]) return uploadBlobs[mb];
       const size = mb * 1024 * 1024;
       const buf = new Uint8Array(size);
       const seed = new Uint8Array(65536);
       crypto.getRandomValues(seed);
-      for (let offset = 0; offset < size; offset += 65536) {
-        buf.set(seed, offset);
-      }
-      uploadBuffers[mb] = buf;
-      return buf;
+      for (let offset = 0; offset < size; offset += 65536) buf.set(seed, offset);
+      uploadBlobs[mb] = new Blob([buf], { type: "text/plain" });
+      return uploadBlobs[mb];
     }
 
-    async function measureUpload(token, durationMs = 8500, streams = 8, dlHintMbps = 100) {
-      setPhase("upload", "TESTING UPLOAD", "ul");
+    async function measureUpload(token, durationMs = 8500, dlHintMbps = 100) {
+      setPhase("upload", "UPLOADING", "ul");
       displayIsPing = false;
       $("live-unit").textContent = speedUnit;
       targetDisplayVal = 0;
       currentDisplayVal = 0;
 
-      // Adaptive chunk sizing: larger chunks slash HTTP RTT overhead on 300-1000 Mbps fiber
-      let chunkMb = dlHintMbps >= 300 ? 8 : dlHintMbps >= 80 ? 4 : 2;
-      getUploadBuffer(chunkMb); // Pre-build before timer starts
+      // Edge Direct: 6 streams x 6MB (or 4MB/2MB) over pure HTTP/2 TCP — unlocks 500+ Mbps fiber!
+      // Fallback (/api/speed): 4 streams x 1MB so Free-Plan Pages Function never hits 10ms CPU 503.
+      const streams = useEdgeDirect ? 6 : 4;
+      const chunkMb = useEdgeDirect
+        ? (dlHintMbps >= 250 ? 6 : dlHintMbps >= 80 ? 4 : 2)
+        : 1;
+      const blob = getUploadBlob(chunkMb);
 
-      let phaseBytes = 0;
-      let peakMbps = 0;
-      const loadedPings = [];
-      const history = [];
+      let phaseBytes = 0, peakMbps = 0;
+      const loadedPings = [], history = [];
       const startTime = performance.now();
       const warmupMs = 1500;
-      let warmupBytes = null;
-      let warmupTime = null;
-      let active = true;
+      let warmupBytes = null, warmupTime = null, active = true;
 
       const pingCtrl = makeAbortController();
       const pingProbe = (async () => {
         while (active && token === runToken) {
-          await new Promise((r) => setTimeout(r, 750));
+          await new Promise((r) => setTimeout(r, 700));
           if (!active || token !== runToken) break;
           try { loadedPings.push(await probePing(pingCtrl.signal)); } catch {}
         }
       })();
 
-      // XHR worker with real-time xhr.upload.onprogress byte tracking
+      const upUrl = (id) => useEdgeDirect
+        ? `https://speed.cloudflare.com/__up?r=${id}-${Date.now()}-${Math.random().toString(36).slice(2)}`
+        : `/api/speed?mode=up&s=${id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
       const sendOneChunk = (id) =>
         new Promise((resolve) => {
           if (!active || token !== runToken) return resolve();
@@ -1345,13 +1801,10 @@
           activeXhrs.add(xhr);
           let lastLoaded = 0;
 
-          xhr.open("POST", `/api/speed?mode=up&s=${id}-${Date.now()}-${Math.random().toString(36).slice(2)}`, true);
+          xhr.open("POST", upUrl(id), true);
 
           xhr.upload.onprogress = (e) => {
-            if (!active || token !== runToken) {
-              xhr.abort();
-              return;
-            }
+            if (!active || token !== runToken) { xhr.abort(); return; }
             const delta = e.loaded - lastLoaded;
             if (delta > 0) {
               lastLoaded = e.loaded;
@@ -1360,20 +1813,20 @@
             }
           };
 
-          const finish = () => {
+          const finish = (delay = 0) => {
             activeXhrs.delete(xhr);
-            resolve();
+            if (delay) setTimeout(resolve, delay);
+            else resolve();
           };
 
-          xhr.onload = finish;
-          xhr.onerror = () => setTimeout(finish, 30);
-          xhr.onabort = finish;
-          xhr.send(getUploadBuffer(chunkMb));
+          xhr.onload = () => finish(xhr.status >= 200 && xhr.status < 300 ? 0 : 60);
+          xhr.onerror = () => finish(60);
+          xhr.onabort = () => finish(0);
+          xhr.send(blob);
         });
 
       const worker = async (id) => {
-        // Stagger second half of streams slightly to prevent initial QUIC/TCP burst stall
-        if (id >= streams / 2) await new Promise((r) => setTimeout(r, 150));
+        if (id >= Math.ceil(streams / 2)) await new Promise((r) => setTimeout(r, 120));
         while (active && token === runToken && performance.now() - startTime < durationMs) {
           await sendOneChunk(id);
         }
@@ -1396,20 +1849,17 @@
           const dt = (now - history[0].t) / 1000;
           const db = phaseBytes - history[0].bytes;
           const instMbps = dt > 0 ? (db * 8) / (dt * 1_000_000) : 0;
-          if (elapsed > 1000 && instMbps > peakMbps) peakMbps = instMbps;
+          if (elapsed > 1400 && instMbps > peakMbps) peakMbps = instMbps;
           ulPoints.push(instMbps);
           renderChart("ul");
           targetDisplayVal = instMbps;
-          $("progress").style.width = `${60 + Math.min(elapsed / durationMs, 1) * 40}%`;
+          $("progress").style.width = `${59 + Math.min(elapsed / durationMs, 1) * 41}%`;
         }
       }, 150);
 
-      // Hard cutoff timer so in-flight XHRs terminate right on schedule
       const cutoffTimer = setTimeout(() => {
         active = false;
-        for (const xhr of activeXhrs) {
-          try { xhr.abort(); } catch {}
-        }
+        for (const xhr of activeXhrs) { try { xhr.abort(); } catch {} }
       }, durationMs);
 
       await Promise.all(Array.from({ length: streams }, (_, i) => worker(i)));
@@ -1432,41 +1882,69 @@
       renderChart(null);
       lockMetric("ul-res", formatSpeed(finalMbps));
       $("ul-peak").textContent = `Peak: ${formatSpeed(finalPeak)}`;
+      updatePipeline("done", { ul: formatSpeed(finalMbps) });
       return { mbps: finalMbps, peak: finalPeak, loadedPing: avgPing };
     }
 
     function computeBufferbloatGrade(idlePing, dlLoaded, ulLoaded) {
       const maxDelta = Math.max(dlLoaded - idlePing, ulLoaded - idlePing, 0);
-      if (maxDelta < 10) return { grade: "A+", color: "#22c55e" };
-      if (maxDelta < 30) return { grade: "A", color: "#22c55e" };
-      if (maxDelta < 60) return { grade: "B", color: "#eab308" };
-      if (maxDelta < 120) return { grade: "C", color: "#f97316" };
-      return { grade: "D", color: "#ef4444" };
+      if (maxDelta < 10)  return { grade: "A+", color: "#22c55e", delta: maxDelta };
+      if (maxDelta < 30)  return { grade: "A",  color: "#22c55e", delta: maxDelta };
+      if (maxDelta < 60)  return { grade: "B",  color: "#eab308", delta: maxDelta };
+      if (maxDelta < 120) return { grade: "C",  color: "#f97316", delta: maxDelta };
+      return { grade: "D", color: "#ef4444", delta: maxDelta };
+    }
+
+    function renderProfile(dl, ul, ping, jitter, lossPct) {
+      const rate = (tier) => {
+        if (tier === 3) return { text: "OPTIMAL", bg: "rgba(34,197,94,0.14)", color: "#22c55e" };
+        if (tier === 2) return { text: "GREAT",   bg: "rgba(56,189,248,0.14)", color: "#38bdf8" };
+        if (tier === 1) return { text: "FAIR",    bg: "rgba(234,179,8,0.14)",  color: "#eab308" };
+        return { text: "LIMITED", bg: "rgba(239,68,68,0.14)", color: "#ef4444" };
+      };
+
+      const streamTier = dl >= 100 ? 3 : dl >= 35 ? 2 : dl >= 15 ? 1 : 0;
+      const gameTier   = ping <= 25 && jitter <= 6 && lossPct === 0 ? 3 : ping <= 45 && jitter <= 12 ? 2 : ping <= 80 ? 1 : 0;
+      const cloudTier  = ul >= 200 ? 3 : ul >= 50 ? 2 : ul >= 15 ? 1 : 0;
+      const callTier   = ul >= 15 && dl >= 15 && jitter <= 10 && lossPct < 1 ? 3 : ul >= 5 && jitter <= 20 ? 2 : 1;
+
+      const items = [
+        { title: "4K HDR Streaming", badge: rate(streamTier), desc: `${Math.max(1, Math.floor(dl / 25))}x concurrent 4K streams` },
+        { title: "Competitive Gaming", badge: rate(gameTier), desc: `${ping.toFixed(0)} ms RTT · ${jitter.toFixed(1)} ms jitter` },
+        { title: "Cloud / 4K Upload", badge: rate(cloudTier), desc: `1 GB file in ~${ul > 0 ? Math.max(1, Math.round((1024 * 8) / ul)) : "—"}s` },
+        { title: "Video Calls", badge: rate(callTier), desc: lossPct === 0 ? "Zero packet loss detected" : `${lossPct.toFixed(1)}% packet loss` },
+      ];
+
+      const strip = $("profile-strip");
+      strip.innerHTML = items.map((i) => `
+        <div class="prof-card">
+          <div class="prof-top">
+            <span>${i.title}</span>
+            <span class="prof-badge" style="background:${i.badge.bg};color:${i.badge.color}">${i.badge.text}</span>
+          </div>
+          <div class="prof-desc">${i.desc}</div>
+        </div>
+      `).join("");
+      strip.classList.add("visible");
     }
 
     // History persistence
     function getHistory() {
       try { return JSON.parse(localStorage.getItem("st_history_v1") || "[]"); } catch { return []; }
     }
-
     function saveHistory(entry) {
       const list = [entry, ...getHistory()].slice(0, 5);
       try { localStorage.setItem("st_history_v1", JSON.stringify(list)); } catch {}
       renderHistory();
     }
-
     function clearHistory() {
       try { localStorage.removeItem("st_history_v1"); } catch {}
       renderHistory();
     }
-
     function renderHistory() {
       const list = getHistory();
       const panel = $("history-panel");
-      if (!list.length) {
-        panel.classList.remove("visible");
-        return;
-      }
+      if (!list.length) { panel.classList.remove("visible"); return; }
       panel.classList.add("visible");
       $("history-list").innerHTML = list.map((item) => `
         <div class="history-row">
@@ -1486,9 +1964,9 @@
         isRunning = false;
         abortAllNetwork();
         setPhase("idle", "CANCELLED");
-        const btn = $("start-btn");
-        btn.classList.remove("is-stop");
-        btn.textContent = "RUN DIAGNOSTIC";
+        updatePipeline("idle");
+        $("start-btn").classList.remove("is-stop");
+        $("start-btn-text").textContent = "RUN DIAGNOSTIC";
         return;
       }
       runTest();
@@ -1498,10 +1976,9 @@
       const token = ++runToken;
       isRunning = true;
 
-      const btn = $("start-btn");
-      const copyBtn = $("copy-btn");
+      const btn = $("start-btn"), copyBtn = $("copy-btn");
       btn.classList.add("is-stop");
-      btn.textContent = "STOP DIAGNOSTIC";
+      $("start-btn-text").textContent = "STOP DIAGNOSTIC";
       copyBtn.disabled = true;
 
       totalBytesTransferred = 0;
@@ -1509,8 +1986,11 @@
       ulPoints = [];
       lastResults = null;
       renderChart();
-
-      $("live-sub").textContent = "0.0 MB transferred";
+      $("profile-strip").classList.remove("visible");
+      $("sum-ping").textContent = "—";
+      $("sum-dl").textContent = "—";
+      $("sum-ul").textContent = "—";
+      $("live-sub").textContent = "0.0 MB";
       $("data-used").textContent = "0.0 MB";
       $("dl-res").textContent = "—"; $("dl-peak").textContent = "Peak: —";
       $("ul-res").textContent = "—"; $("ul-peak").textContent = "Peak: —";
@@ -1521,13 +2001,13 @@
       $("progress").style.width = "0%";
 
       try {
-        const idlePing = await measurePing(token);
+        const pingRes = await measurePing(token);
         if (token !== runToken) return;
 
         const dl = await measureDownload(token);
         if (token !== runToken) return;
 
-        const ul = await measureUpload(token, 8500, 8, dl.mbps);
+        const ul = await measureUpload(token, 8500, dl.mbps);
         if (token !== runToken) return;
 
         lastResults = { dl: dl.mbps, dlPeak: dl.peak, ul: ul.mbps, ulPeak: ul.peak };
@@ -1536,26 +2016,27 @@
         const ulPingStr = ul.loadedPing ? `${ul.loadedPing.toFixed(0)} ms` : "—";
         $("loaded-ping").textContent = `${dlPingStr} / ${ulPingStr}`;
 
-        const bloat = computeBufferbloatGrade(idlePing, dl.loadedPing || idlePing, ul.loadedPing || idlePing);
-        $("bloat-grade").innerHTML = `<span class="grade-badge pop" style="color:${bloat.color};border-color:${bloat.color}">${bloat.grade}</span>`;
+        const bloat = computeBufferbloatGrade(pingRes.median, dl.loadedPing || pingRes.median, ul.loadedPing || pingRes.median);
+        $("bloat-grade").innerHTML = `<span class="grade-wrap"><span class="grade-badge pop" style="color:${bloat.color};border-color:${bloat.color}">${bloat.grade}</span><span class="grade-delta">+${bloat.delta.toFixed(0)} ms peak</span></span>`;
         $("progress").style.width = "100%";
 
-        setPhase("done", "DIAGNOSTIC COMPLETE");
+        setPhase("done", "COMPLETE");
+        renderProfile(dl.mbps, ul.mbps, pingRes.median, pingRes.jitter, pingRes.lossPct);
 
         lastSummary = [
           `speedtest.robot123.xyz [${clientMeta.colo}]`,
           `DL: ${dl.mbps.toFixed(1)} Mbps | UL: ${ul.mbps.toFixed(1)} Mbps`,
-          `Ping: ${idlePing.toFixed(1)} ms | Loaded: ${dlPingStr} / ${ulPingStr} (${bloat.grade})`,
+          `Ping: ${pingRes.median.toFixed(1)} ms | Jitter: ${pingRes.jitter.toFixed(1)} ms | Loaded: ${dlPingStr} / ${ulPingStr} (${bloat.grade})`,
           `ISP: ${clientMeta.isp}`,
         ].join("\n");
 
         const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        saveHistory({ time: nowStr, dl: dl.mbps, ul: ul.mbps, ping: idlePing, grade: bloat.grade, color: bloat.color });
+        saveHistory({ time: nowStr, dl: dl.mbps, ul: ul.mbps, ping: pingRes.median, grade: bloat.grade, color: bloat.color });
 
         copyBtn.disabled = false;
       } catch (err) {
         if (token === runToken) {
-          setPhase("idle", "ERROR — RETRY");
+          setPhase("idle", "ERROR");
           console.error(err);
         }
       } finally {
@@ -1563,7 +2044,7 @@
           isRunning = false;
           abortAllNetwork();
           btn.classList.remove("is-stop");
-          btn.textContent = "RUN AGAIN";
+          $("start-btn-text").textContent = "RUN AGAIN";
         }
       }
     }
@@ -1576,7 +2057,6 @@
       setTimeout(() => (btn.textContent = "COPY"), 1500);
     }
 
-    // Spacebar shortcut to start/stop
     document.addEventListener("keydown", (e) => {
       if (e.code === "Space" && e.target === document.body) {
         e.preventDefault();
