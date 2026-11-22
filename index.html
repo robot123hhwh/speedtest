@@ -1028,6 +1028,159 @@
     .grade-badge.pop { animation: value-lock 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     .grade-delta { font-size: 10px; color: var(--muted); }
 
+    .d-key-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .bloat-toggle-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .bloat-toggle-btn:hover {
+      color: var(--text);
+      border-color: var(--border-bright);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    /* Bufferbloat Grade Guide */
+    .bloat-guide {
+      padding: 15px 26px 18px;
+      background: rgba(3, 4, 7, 0.72);
+      border-bottom: 1px solid var(--border);
+      animation: enter-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .bloat-guide.is-hidden { display: none; }
+
+    .bg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 11px;
+    }
+
+    .bg-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--muted);
+    }
+
+    .bg-explainer {
+      font-size: 11px;
+      color: var(--dim);
+    }
+
+    .bg-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 9px;
+    }
+
+    @media (max-width: 900px) { .bg-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 580px) { .bg-grid { grid-template-columns: 1fr; } }
+
+    .bg-card {
+      background: rgba(11, 12, 18, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.25s, background 0.25s, opacity 0.25s, transform 0.2s;
+    }
+
+    .bg-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-1px);
+    }
+
+    .bg-grid.has-active .bg-card:not(.is-current) {
+      opacity: 0.5;
+    }
+
+    .bg-grid.has-active .bg-card:not(.is-current):hover {
+      opacity: 0.92;
+    }
+
+    .bg-card.is-current {
+      background: rgba(18, 20, 30, 0.96);
+      border-color: var(--g-color, var(--border-bright));
+      box-shadow: 0 0 22px -10px var(--g-color, transparent), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+    }
+
+    .bg-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .bg-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      border: 1px solid var(--g-color);
+      color: var(--g-color);
+      background: color-mix(in srgb, var(--g-color) 13%, transparent);
+    }
+
+    .bg-ms {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bg-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .bg-yours {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--g-color);
+      text-transform: uppercase;
+    }
+
+    .bg-card.is-current .bg-yours { display: inline; }
+
+    .bg-desc {
+      font-size: 10.8px;
+      color: var(--muted);
+      line-height: 1.42;
+    }
+
     /* Footer Controls */
     .footer {
       padding: 18px 26px;
@@ -1396,11 +1549,52 @@
     <!-- Telemetry Details -->
     <div class="details-section">
       <div class="detail-item"><span class="d-key">Loaded Ping (DL / UL)</span><span class="d-val" id="loaded-ping">— / — ms</span></div>
-      <div class="detail-item"><span class="d-key">Bufferbloat Grade</span><span class="d-val" id="bloat-grade"><span class="grade-badge">—</span></span></div>
+      <div class="detail-item">
+        <span class="d-key-row">
+          <span class="d-key">Bufferbloat Grade</span>
+          <button class="bloat-toggle-btn" id="bloat-toggle-btn" onclick="toggleBloatGuide()">HIDE GUIDE</button>
+        </span>
+        <span class="d-val" id="bloat-grade" style="cursor:pointer" onclick="toggleBloatGuide()" title="Click to toggle Bufferbloat Grade guide"><span class="grade-badge">—</span></span>
+      </div>
       <div class="detail-item"><span class="d-key">Total Data Used</span><span class="d-val" id="data-used">0.0 MB</span></div>
       <div class="detail-item"><span class="d-key">ISP / Network</span><span class="d-val" id="meta-isp">Detecting...</span></div>
       <div class="detail-item"><span class="d-key">Client IP (Click to toggle)</span><span class="d-val ip-toggle" id="meta-ip" onclick="toggleIp()">•••.•••.•••.•••</span></div>
       <div class="detail-item"><span class="d-key">Server POP / Engine</span><span class="d-val" id="meta-proto">—</span></div>
+    </div>
+
+    <!-- Bufferbloat Grade Guide -->
+    <div class="bloat-guide" id="bloat-guide">
+      <div class="bg-header">
+        <span class="bg-title">Bufferbloat Grade Reference</span>
+        <span class="bg-explainer">Measures extra ping added when your connection is under heavy download/upload load</span>
+      </div>
+      <div class="bg-grid" id="bg-grid">
+        <div class="bg-card" data-grade="A+" style="--g-color:#22c55e">
+          <div class="bg-top"><span class="bg-pill">A+</span><span class="bg-ms">&lt; +10 ms</span></div>
+          <div class="bg-name"><span>Zero Bloat</span><span class="bg-yours">● YOURS</span></div>
+          <div class="bg-desc">Latency stays rock-solid under full load. Ideal for competitive gaming, VoIP, and simultaneous 4K transfers.</div>
+        </div>
+        <div class="bg-card" data-grade="A" style="--g-color:#22c55e">
+          <div class="bg-top"><span class="bg-pill">A</span><span class="bg-ms">+10–29 ms</span></div>
+          <div class="bg-name"><span>Minimal</span><span class="bg-yours">● YOURS</span></div>
+          <div class="bg-desc">Well-managed queues. Gaming and video calls remain smooth even while large downloads run in the background.</div>
+        </div>
+        <div class="bg-card" data-grade="B" style="--g-color:#eab308">
+          <div class="bg-top"><span class="bg-pill">B</span><span class="bg-ms">+30–59 ms</span></div>
+          <div class="bg-name"><span>Mild Lag</span><span class="bg-yours">● YOURS</span></div>
+          <div class="bg-desc">Noticeable ping rise when maxed out. Everyday browsing is fine, though twitchy games may stutter during downloads.</div>
+        </div>
+        <div class="bg-card" data-grade="C" style="--g-color:#f97316">
+          <div class="bg-top"><span class="bg-pill">C</span><span class="bg-ms">+60–119 ms</span></div>
+          <div class="bg-name"><span>Moderate</span><span class="bg-yours">● YOURS</span></div>
+          <div class="bg-desc">Router buffers pile up under load. Expect lag spikes in games and brief audio/video hitches when others saturate the line.</div>
+        </div>
+        <div class="bg-card" data-grade="D" style="--g-color:#ef4444">
+          <div class="bg-top"><span class="bg-pill">D</span><span class="bg-ms">+120+ ms</span></div>
+          <div class="bg-name"><span>Severe</span><span class="bg-yours">● YOURS</span></div>
+          <div class="bg-desc">Heavy traffic floods router queues, causing severe lag spikes or call drops. Enabling SQM / QoS on your router fixes this.</div>
+        </div>
+      </div>
     </div>
 
     <!-- Footer Controls -->
@@ -2569,6 +2763,22 @@
       return { mbps: finalMbps, peak: finalPeak, consistency, loadedPing: medLoadedPing };
     }
 
+    function toggleBloatGuide() {
+      const guide = $("bloat-guide");
+      const btn = $("bloat-toggle-btn");
+      const hidden = guide.classList.toggle("is-hidden");
+      btn.textContent = hidden ? "SHOW GUIDE" : "HIDE GUIDE";
+    }
+
+    function highlightBloatGrade(grade) {
+      const grid = $("bg-grid");
+      if (!grid) return;
+      grid.classList.toggle("has-active", Boolean(grade));
+      grid.querySelectorAll(".bg-card").forEach((card) => {
+        card.classList.toggle("is-current", Boolean(grade) && card.dataset.grade === grade);
+      });
+    }
+
     function computeBufferbloatGrade(idlePing, dlLoaded, ulLoaded) {
       const maxDelta = Math.max(dlLoaded - idlePing, ulLoaded - idlePing, 0);
       if (maxDelta < 10)  return { grade: "A+", color: "#22c55e", delta: maxDelta };
@@ -2781,6 +2991,7 @@
       $("bar-ping").style.width = "0%"; $("bar-jitter").style.width = "0%";
       $("loaded-ping").textContent = "— / — ms";
       $("bloat-grade").innerHTML = `<span class="grade-badge">—</span>`;
+      highlightBloatGrade(null);
       $("progress").style.width = "0%";
 
       try {
@@ -2799,6 +3010,7 @@
 
         const bloat = computeBufferbloatGrade(pingRes.median, dl.loadedPing || pingRes.median, ul.loadedPing || pingRes.median);
         $("bloat-grade").innerHTML = `<span class="grade-wrap"><span class="grade-badge pop" style="color:${bloat.color};border-color:${bloat.color}">${bloat.grade}</span><span class="grade-delta">+${bloat.delta.toFixed(0)} ms peak</span></span>`;
+        highlightBloatGrade(bloat.grade);
         $("progress").style.width = "100%";
 
         setPhase("done", "COMPLETE");
