@@ -771,6 +771,180 @@
       font-variant-numeric: tabular-nums;
     }
 
+    /* Network Quality Score Banner */
+    .quality-banner {
+      display: none;
+      grid-template-columns: 1.15fr 1.35fr;
+      gap: 20px;
+      align-items: center;
+      padding: 18px 26px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0%, rgba(4, 4, 6, 0.45) 100%);
+      animation: enter-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .quality-banner.visible { display: grid; }
+
+    @media (max-width: 780px) {
+      .quality-banner { grid-template-columns: 1fr; gap: 16px; }
+    }
+
+    .q-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .q-ring-wrap {
+      position: relative;
+      width: 78px;
+      height: 78px;
+      flex-shrink: 0;
+    }
+
+    .q-ring-svg {
+      width: 78px;
+      height: 78px;
+      transform: rotate(-90deg);
+    }
+
+    .q-ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 6;
+    }
+
+    .q-ring-fg {
+      fill: none;
+      stroke: var(--good);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 201.06;
+      stroke-dashoffset: 201.06;
+      transition: stroke-dashoffset 0.9s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s;
+    }
+
+    .q-ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+    }
+
+    .q-score-num {
+      font-size: 23px;
+      font-weight: 700;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .q-score-max {
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .q-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .q-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .q-tier-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .q-tier-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 5px;
+      border: 1px solid currentColor;
+      letter-spacing: 0.06em;
+    }
+
+    .q-tier-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .q-verdict {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .q-breakdown {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .q-breakdown { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .q-pillar {
+      background: rgba(4, 4, 6, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .q-p-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .q-p-pts {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .q-p-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .q-p-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     /* Real-World Connection Profile Strip */
     .profile-strip {
       display: none;
@@ -989,7 +1163,7 @@
 
     .history-row {
       display: grid;
-      grid-template-columns: 1.1fr 1fr 1fr 0.9fr 0.45fr;
+      grid-template-columns: 1fr 1fr 1fr 0.8fr 0.7fr 0.45fr;
       gap: 10px;
       align-items: center;
       padding: 8px 13px;
@@ -1005,9 +1179,11 @@
     .history-row:hover { border-color: var(--border-bright); }
 
     @media (max-width: 640px) {
-      .history-row { grid-template-columns: 1fr 1fr 0.8fr 0.45fr; }
+      .history-row { grid-template-columns: 1fr 1fr 0.75fr 0.65fr 0.4fr; }
       .history-row .h-time { display: none; }
     }
+
+    .h-score { font-weight: 700; text-align: right; }
 
     .h-time { color: var(--muted); }
     .h-dl { color: var(--dl-color); font-weight: 600; }
@@ -1153,6 +1329,31 @@
         <div class="m-val" id="jitter-res">—</div>
         <div class="m-sub" id="loss-res">Loss: 0.0%</div>
       </div>
+    </div>
+
+    <!-- Network Quality Score (reveals on completion) -->
+    <div class="quality-banner" id="quality-banner">
+      <div class="q-left">
+        <div class="q-ring-wrap">
+          <svg class="q-ring-svg" viewBox="0 0 78 78" aria-hidden="true">
+            <circle class="q-ring-bg" cx="39" cy="39" r="32" />
+            <circle class="q-ring-fg" id="q-ring-fg" cx="39" cy="39" r="32" />
+          </svg>
+          <div class="q-ring-center">
+            <span class="q-score-num" id="q-score-num">0</span>
+            <span class="q-score-max">/ 100</span>
+          </div>
+        </div>
+        <div class="q-info">
+          <span class="q-eyebrow">Network Quality Score</span>
+          <div class="q-tier-row">
+            <span class="q-tier-badge" id="q-tier-badge">—</span>
+            <span class="q-tier-title" id="q-tier-title">—</span>
+          </div>
+          <div class="q-verdict" id="q-verdict"></div>
+        </div>
+      </div>
+      <div class="q-breakdown" id="q-breakdown"></div>
     </div>
 
     <!-- Real-World Connection Profile (reveals on completion) -->
@@ -1895,6 +2096,104 @@
       return { grade: "D", color: "#ef4444", delta: maxDelta };
     }
 
+    function computeNetworkQualityScore(dl, ul, idlePing, jitter, lossPct, bloatDelta) {
+      // Weighted 100-point composite score across 5 real-world pillars
+      const dlPts   = Math.min(25, 25 * (Math.log10(Math.max(dl, 1) + 1) / Math.log10(601)));
+      const ulPts   = Math.min(25, 25 * (Math.log10(Math.max(ul, 1) + 1) / Math.log10(401)));
+      const pingPts = Math.max(0, Math.min(20, 20 - Math.max(0, idlePing - 10) * 0.16));
+      const jitPts  = Math.max(0, 10 - Math.max(0, jitter - 1) * 0.45);
+      const lossPts = Math.max(0, 5 - lossPct * 2.5);
+      const stabPts = jitPts + lossPts;
+      const loadPts = Math.max(0, Math.min(15, 15 - Math.max(0, bloatDelta - 8) * 0.12));
+
+      const score = Math.max(0, Math.min(100, Math.round(dlPts + ulPts + pingPts + stabPts + loadPts)));
+
+      let tier = { letter: "F", title: "Poor Connection", color: "#ef4444" };
+      if (score >= 90)      tier = { letter: "S", title: "Elite Fiber",     color: "#22c55e" };
+      else if (score >= 80) tier = { letter: "A", title: "Excellent",       color: "#22c55e" };
+      else if (score >= 68) tier = { letter: "B", title: "Very Good",       color: "#38bdf8" };
+      else if (score >= 52) tier = { letter: "C", title: "Fair",            color: "#eab308" };
+      else if (score >= 35) tier = { letter: "D", title: "Congested",       color: "#f97316" };
+
+      const pillars = [
+        { label: "DL",   pts: Math.round(dlPts),   max: 25, pct: (dlPts / 25) * 100,   color: "#ffffff" },
+        { label: "UL",   pts: Math.round(ulPts),   max: 25, pct: (ulPts / 25) * 100,   color: "#38bdf8" },
+        { label: "PING", pts: Math.round(pingPts), max: 20, pct: (pingPts / 20) * 100, color: "#f59e0b" },
+        { label: "STAB", pts: Math.round(stabPts), max: 15, pct: (stabPts / 15) * 100, color: "#a78bfa" },
+        { label: "LOAD", pts: Math.round(loadPts), max: 15, pct: (loadPts / 15) * 100, color: bloatDelta < 30 ? "#22c55e" : bloatDelta < 60 ? "#eab308" : "#ef4444" },
+      ];
+
+      // Dynamic human verdict highlighting strength & any bottleneck
+      let verdict = "";
+      if (score >= 90) {
+        verdict = "Top-tier throughput, crisp low latency, and rock-solid responsiveness under load.";
+      } else if (loadPts < 8 && dl >= 100 && ul >= 50) {
+        verdict = `Strong bandwidth (${dl.toFixed(0)}/${ul.toFixed(0)} Mbps), held back by +${bloatDelta.toFixed(0)} ms bufferbloat under saturation.`;
+      } else if (lossPct > 0.5) {
+        verdict = `Detected ${lossPct.toFixed(1)}% packet loss — may cause stutter in gaming or live calls.`;
+      } else if (ul < 20 && dl >= 100) {
+        verdict = "Fast downloads, but asymmetric upload speed limits heavy cloud sync and streaming.";
+      } else if (idlePing > 55) {
+        verdict = `High idle latency (${idlePing.toFixed(0)} ms) to ${clientMeta.colo} reduces real-time responsiveness.`;
+      } else if (score >= 75) {
+        verdict = "Fast, reliable connection well-suited for 4K streaming, gaming, and large transfers.";
+      } else {
+        verdict = "Usable for everyday browsing and HD video; heavier uploads or gaming may see lag.";
+      }
+
+      return { score, tier, pillars, verdict };
+    }
+
+    function renderQualityScore(q) {
+      const banner = $("quality-banner");
+      const ring = $("q-ring-fg");
+      const numEl = $("q-score-num");
+      const badge = $("q-tier-badge");
+      const title = $("q-tier-title");
+      const verdictEl = $("q-verdict");
+      const breakdown = $("q-breakdown");
+
+      const circumference = 201.06; // 2 * PI * 32
+      ring.style.stroke = q.tier.color;
+      ring.style.strokeDashoffset = String(circumference);
+      numEl.style.color = q.tier.color;
+      numEl.textContent = "0";
+
+      badge.textContent = `TIER ${q.tier.letter}`;
+      badge.style.color = q.tier.color;
+      badge.style.background = `${q.tier.color}1c`;
+      title.textContent = q.tier.title;
+      verdictEl.textContent = q.verdict;
+
+      breakdown.innerHTML = q.pillars.map((p, idx) => `
+        <div class="q-pillar">
+          <div class="q-p-head"><span>${p.label}</span><span class="q-p-pts">${p.pts}/${p.max}</span></div>
+          <div class="q-p-track"><div class="q-p-fill" id="q-bar-${idx}" style="background:${p.color};width:0%"></div></div>
+        </div>
+      `).join("");
+
+      banner.classList.add("visible");
+
+      // Animate SVG score ring, number count-up, and sub-bars smoothly
+      const start = performance.now();
+      const dur = 850;
+      requestAnimationFrame(() => {
+        ring.style.strokeDashoffset = (circumference * (1 - q.score / 100)).toFixed(2);
+        q.pillars.forEach((p, idx) => {
+          const bar = $(`q-bar-${idx}`);
+          if (bar) bar.style.width = `${Math.max(4, p.pct).toFixed(1)}%`;
+        });
+      });
+
+      function tickCount(now) {
+        const t = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        numEl.textContent = String(Math.round(q.score * eased));
+        if (t < 1) requestAnimationFrame(tickCount);
+      }
+      requestAnimationFrame(tickCount);
+    }
+
     function renderProfile(dl, ul, ping, jitter, lossPct) {
       const rate = (tier) => {
         if (tier === 3) return { text: "OPTIMAL", bg: "rgba(34,197,94,0.14)", color: "#22c55e" };
@@ -1952,6 +2251,7 @@
           <span class="h-dl">↓ ${formatSpeed(item.dl)}</span>
           <span class="h-ul">↑ ${formatSpeed(item.ul)}</span>
           <span class="h-ping">${item.ping.toFixed(1)} ms</span>
+          <span class="h-score" style="color:${item.scoreColor || '#94a3b8'}">${item.score != null ? `${item.score}/100` : "—"}</span>
           <span class="h-grade" style="color:${item.color}">${item.grade}</span>
         </div>
       `).join("");
@@ -1986,6 +2286,7 @@
       ulPoints = [];
       lastResults = null;
       renderChart();
+      $("quality-banner").classList.remove("visible");
       $("profile-strip").classList.remove("visible");
       $("sum-ping").textContent = "—";
       $("sum-dl").textContent = "—";
@@ -2021,17 +2322,19 @@
         $("progress").style.width = "100%";
 
         setPhase("done", "COMPLETE");
+        const quality = computeNetworkQualityScore(dl.mbps, ul.mbps, pingRes.median, pingRes.jitter, pingRes.lossPct, bloat.delta);
+        renderQualityScore(quality);
         renderProfile(dl.mbps, ul.mbps, pingRes.median, pingRes.jitter, pingRes.lossPct);
 
         lastSummary = [
-          `speedtest.robot123.xyz [${clientMeta.colo}]`,
+          `speedtest.robot123.xyz [${clientMeta.colo}] — Quality Score: ${quality.score}/100 (Tier ${quality.tier.letter} · ${quality.tier.title})`,
           `DL: ${dl.mbps.toFixed(1)} Mbps | UL: ${ul.mbps.toFixed(1)} Mbps`,
           `Ping: ${pingRes.median.toFixed(1)} ms | Jitter: ${pingRes.jitter.toFixed(1)} ms | Loaded: ${dlPingStr} / ${ulPingStr} (${bloat.grade})`,
           `ISP: ${clientMeta.isp}`,
         ].join("\n");
 
         const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        saveHistory({ time: nowStr, dl: dl.mbps, ul: ul.mbps, ping: pingRes.median, grade: bloat.grade, color: bloat.color });
+        saveHistory({ time: nowStr, dl: dl.mbps, ul: ul.mbps, ping: pingRes.median, grade: bloat.grade, color: bloat.color, score: quality.score, scoreColor: quality.tier.color });
 
         copyBtn.disabled = false;
       } catch (err) {
