@@ -5,44 +5,39 @@ export async function onRequest(context) {
 
   const headers = {
     "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-    "Pragma": "no-cache",
-    "Expires": "0",
     "Access-Control-Allow-Origin": "*",
     "Timing-Allow-Origin": "*",
   };
 
-  // 0. Connection & Edge Metadata
+  // 1. Connection, Geo-Coordinates & Edge Metadata
   if (mode === "meta") {
     const cf = request.cf || {};
-    const ip = request.headers.get("cf-connecting-ip") || "Unknown";
     return new Response(
       JSON.stringify({
-        ip,
+        ip: request.headers.get("cf-connecting-ip") || "Unknown",
         colo: cf.colo || "AUTO",
         city: cf.city || "Unknown",
-        country: cf.country || "",
         isp: cf.asOrganization || "Unknown ISP",
         asn: cf.asn ? `AS${cf.asn}` : "",
+        lat: cf.latitude || -43.532, // Falls back to Christchurch coords if masked
+        lon: cf.longitude || 172.636,
         httpProtocol: cf.httpProtocol || "HTTP/2",
         tlsVersion: cf.tlsVersion || "TLSv1.3",
       }),
-      {
-        status: 200,
-        headers: { ...headers, "Content-Type": "application/json" },
-      }
+      { status: 200, headers: { ...headers, "Content-Type": "application/json" } }
     );
   }
 
-  // 1. Ultra-fast Ping endpoint
+  // 2. Ultra-fast Ping endpoint
   if (mode === "ping") {
     return new Response("", { status: 204, headers });
   }
 
-  // 2. Download stream endpoint
+  // 3. Download stream endpoint
   if (mode === "down") {
     const mb = Math.min(parseInt(url.searchParams.get("mb") || "50", 10), 100);
     const totalBytes = mb * 1024 * 1024;
-    const chunkSize = 65536;
+    const chunkSize = 65536; // 64KB chunks
     const chunk = new Uint8Array(chunkSize);
     crypto.getRandomValues(chunk);
 
@@ -54,32 +49,24 @@ export async function onRequest(context) {
           return;
         }
         const remaining = totalBytes - sent;
-        if (remaining < chunkSize) {
-          controller.enqueue(chunk.subarray(0, remaining));
-          sent += remaining;
-        } else {
-          controller.enqueue(chunk);
-          sent += chunkSize;
-        }
+        const size = Math.min(remaining, chunkSize);
+        controller.enqueue(chunk.subarray(0, size));
+        sent += size;
       },
     });
 
     return new Response(stream, {
       status: 200,
-      headers: {
-        ...headers,
-        "Content-Type": "application/octet-stream",
-      },
+      headers: { ...headers, "Content-Type": "application/octet-stream" },
     });
   }
 
-  // 3. Fast Upload Sink (drains body via arrayBuffer without HTTP/3 stream stall)
+  // 4. Max-Throughput Upload Sink (Reads buffer instantly to unlock 500+ Mbps)
   if (mode === "up" && request.method === "POST") {
-    const buf = await request.arrayBuffer();
-    return new Response(String(buf.byteLength), {
-      status: 200,
-      headers: { ...headers, "Content-Type": "text/plain" },
-    });
+    if (request.body) {
+      await request.arrayBuffer(); 
+    }
+    return new Response("ok", { status: 200, headers });
   }
 
   return new Response("Invalid mode", { status: 400, headers });
