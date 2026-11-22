@@ -111,7 +111,7 @@
       z-index: 1;
       width: 100%;
       max-width: 1120px;
-      background: linear-gradient(180deg, rgba(16, 16, 24, 0.93) 0%, rgba(9, 9, 14, 0.97) 100%);
+      background: linear-gradient(180deg, rgba(16, 17, 25, 0.94) 0%, rgba(9, 9, 14, 0.98) 100%);
       backdrop-filter: blur(24px);
       border: 1px solid var(--border);
       border-radius: 24px;
@@ -120,6 +120,17 @@
         0 1px 0 rgba(255, 255, 255, 0.08) inset;
       overflow: hidden;
       animation: enter-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    body[data-phase="ping"] .shell,
+    body[data-phase="download"] .shell,
+    body[data-phase="upload"] .shell {
+      border-color: rgba(255, 255, 255, 0.14);
+      box-shadow:
+        0 45px 130px rgba(0, 0, 0, 0.94),
+        0 0 60px -20px var(--aura-1),
+        0 1px 0 rgba(255, 255, 255, 0.1) inset;
     }
 
     .shell::before {
@@ -367,7 +378,7 @@
     /* Gauge Panel */
     .gauge-panel {
       background:
-        radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.038) 0%, rgba(4, 4, 7, 0.8) 72%),
+        radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.04) 0%, rgba(4, 4, 7, 0.84) 72%),
         radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
       background-size: 100% 100%, 16px 16px;
       border: 1px solid var(--border);
@@ -378,13 +389,14 @@
       align-items: center;
       justify-content: center;
       position: relative;
-      min-height: 248px;
+      height: 260px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
       transition: border-color 0.3s, box-shadow 0.3s;
     }
 
     .gauge-panel:hover {
       border-color: var(--border-bright);
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
     }
 
     .gauge-svg {
@@ -498,15 +510,16 @@
 
     /* Panels (Chart & Map) */
     .panel-box {
-      background: rgba(4, 4, 7, 0.78);
+      background: rgba(4, 5, 9, 0.84);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 15px 17px;
+      padding: 15px 17px 13px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      min-height: 248px;
+      height: 260px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
       transition: border-color 0.25s ease;
     }
 
@@ -527,62 +540,50 @@
 
     .legend { display: flex; gap: 12px; align-items: center; }
     .legend span { display: inline-flex; align-items: center; gap: 5px; }
-    .swatch-dl { width: 10px; height: 2.5px; background: var(--dl-color); border-radius: 2px; }
-    .swatch-ul { width: 10px; height: 2.5px; background: var(--ul-color); border-radius: 2px; }
+    .swatch-dl { width: 10px; height: 2.5px; background: var(--dl-color); border-radius: 2px; box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+    .swatch-ul { width: 10px; height: 2.5px; background: var(--ul-color); border-radius: 2px; box-shadow: 0 0 6px rgba(56,189,248,0.6); }
 
     .chart-wrap {
       position: relative;
       flex: 1;
-      display: flex;
-      align-items: flex-end;
-      margin-top: 10px;
+      width: 100%;
+      min-height: 0;
+      margin-top: 8px;
       cursor: crosshair;
     }
 
-    .chart-y-labels {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 2px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 9px;
-      color: var(--dim);
-      pointer-events: none;
-      text-align: right;
-      font-variant-numeric: tabular-nums;
+    canvas#chart-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
 
     .chart-tooltip {
       position: absolute;
-      top: 4px;
-      left: 4px;
+      top: 6px;
+      left: 8px;
       font-family: var(--font-mono);
       font-size: 10px;
-      background: rgba(10, 10, 16, 0.94);
+      background: rgba(9, 10, 16, 0.94);
+      backdrop-filter: blur(8px);
       border: 1px solid var(--border-bright);
-      border-radius: 7px;
-      padding: 4px 9px;
+      border-radius: 8px;
+      padding: 5px 10px;
       color: var(--text);
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.15s;
-      z-index: 4;
+      transition: opacity 0.14s ease;
+      z-index: 6;
       font-variant-numeric: tabular-nums;
       display: flex;
+      align-items: center;
       gap: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+      white-space: nowrap;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
     }
 
     .chart-tooltip.visible { opacity: 1; }
-
-    svg#chart {
-      width: 100%;
-      height: 178px;
-      overflow: visible;
-    }
+    .chart-tooltip .tt-time { color: var(--muted); }
 
     /* HiDPI Vector Map */
     #map-box {
@@ -649,7 +650,6 @@
     #map {
       width: 100%;
       height: 100%;
-      min-height: 248px;
       border-radius: 17px;
       background: #06070c;
     }
@@ -796,9 +796,16 @@
 
     .m-icon {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-      opacity: 0.85;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid var(--border);
     }
 
     .m-val {
@@ -1106,6 +1113,11 @@
     .btn-secondary:hover:not(:disabled) { border-color: var(--border-bright); background: var(--surface-3); }
     .btn-secondary:active:not(:disabled) { transform: scale(0.98); }
     .btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-secondary.is-copied {
+      border-color: rgba(34, 197, 94, 0.5);
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--good);
+    }
 
     /* Recent History Panel */
     .history-panel {
@@ -1193,6 +1205,44 @@
     .h-ping { color: var(--muted); }
     .h-score { font-weight: 700; text-align: right; }
     .h-grade { text-align: right; font-weight: 700; }
+
+    /* Site Copyright Footer */
+    .site-footer {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1120px;
+      margin-top: 18px;
+      padding: 12px 6px 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--dim);
+      letter-spacing: 0.03em;
+      border-top: 1px solid rgba(255, 255, 255, 0.045);
+    }
+
+    .site-footer strong {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .footer-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .f-sep { opacity: 0.4; }
+
+    @media (max-width: 640px) {
+      .site-footer { justify-content: center; text-align: center; }
+    }
   </style>
 </head>
 <body data-phase="idle">
@@ -1273,43 +1323,7 @@
         </div>
         <div class="chart-wrap" id="chart-wrap">
           <div class="chart-tooltip" id="chart-tooltip"></div>
-          <div class="chart-y-labels">
-            <span id="y-max"></span>
-            <span id="y-mid"></span>
-            <span>0</span>
-          </div>
-          <svg id="chart" viewBox="0 0 300 100" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="dl-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22" />
-                <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
-              </linearGradient>
-              <linearGradient id="ul-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.28" />
-                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
-              </linearGradient>
-              <filter id="line-glow" x="-10%" y="-25%" width="120%" height="150%">
-                <feGaussianBlur stdDeviation="1.6" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            <line x1="0" y1="25" x2="300" y2="25" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
-            <line x1="0" y1="50" x2="300" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
-            <line x1="0" y1="75" x2="300" y2="75" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
-            <line id="dl-avg-line" x1="0" y1="100" x2="300" y2="100" stroke="rgba(255,255,255,0.22)" stroke-width="0.9" stroke-dasharray="3 4" opacity="0" />
-            <line id="ul-avg-line" x1="0" y1="100" x2="300" y2="100" stroke="rgba(56,189,248,0.28)" stroke-width="0.9" stroke-dasharray="3 4" opacity="0" />
-            <path id="dl-area" fill="url(#dl-grad)" d="" />
-            <path id="ul-area" fill="url(#ul-grad)" d="" />
-            <path id="dl-line" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#line-glow)" d="" />
-            <path id="ul-line" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#line-glow)" d="" />
-            <line id="chart-cursor" x1="0" y1="0" x2="0" y2="100" stroke="rgba(255,255,255,0.24)" stroke-width="1" stroke-dasharray="2 2" opacity="0" />
-            <circle id="hover-dl-dot" cx="0" cy="100" r="3" fill="#ffffff" stroke="#050508" stroke-width="1.2" opacity="0" />
-            <circle id="hover-ul-dot" cx="0" cy="100" r="3" fill="#38bdf8" stroke="#050508" stroke-width="1.2" opacity="0" />
-            <circle id="chart-dot" cx="0" cy="100" r="3.5" fill="#ffffff" opacity="0" />
-          </svg>
+          <canvas id="chart-canvas"></canvas>
         </div>
       </div>
 
@@ -1416,8 +1430,25 @@
     <div class="history-list" id="history-list"></div>
   </div>
 
+  <!-- Copyright Footer -->
+  <footer class="site-footer">
+    <div class="footer-group">
+      <span>© <span id="copy-year">2026</span> <strong>robot123.xyz</strong></span>
+      <span class="f-sep">·</span>
+      <span>All rights reserved</span>
+    </div>
+    <div class="footer-group">
+      <span>Cloudflare Edge</span>
+      <span class="f-sep">·</span>
+      <span>OpenFreeMap Vector</span>
+      <span class="f-sep">·</span>
+      <span>Zero Tracking</span>
+    </div>
+  </footer>
+
   <script>
     const $ = (id) => document.getElementById(id);
+    $("copy-year").textContent = String(new Date().getFullYear());
 
     // State
     let clientMeta = { ip: "Hidden", isp: "Unknown", colo: "AKL", city: "Christchurch", lat: -43.532, lon: 172.636, httpProtocol: "HTTP/3", tlsVersion: "TLSv1.3" };
@@ -1558,7 +1589,7 @@
         $("sum-dl").textContent = formatSpeed(lastResults.dl);
         $("sum-ul").textContent = formatSpeed(lastResults.ul);
       }
-      renderChart();
+      renderChart(chartActiveSeries);
       renderHistory();
     }
 
@@ -1841,118 +1872,286 @@
       $("data-used").textContent = `${mb} MB`;
     }
 
-    // Smooth SVG Path Builder + Reference Avg Line + Interactive Scrub Dots
-    function buildSmoothPath(points, maxVal) {
-      if (points.length === 0) return { line: "", area: "", last: null };
-      const coords = points.length === 1
-        ? [{ x: 0, y: 96 - (points[0] / maxVal) * 86 }, { x: 300, y: 96 - (points[0] / maxVal) * 86 }]
-        : points.map((v, i) => ({
-            x: (i / (points.length - 1)) * 300,
-            y: Math.max(4, Math.min(97, 97 - (v / maxVal) * 88)),
-          }));
+    // =========================================================================
+    // HiDPI Canvas Oscilloscope Throughput Graph (True 0-14s Timeline, Zero Clip)
+    // =========================================================================
+    const CHART_DURATION_SEC = 14;
+    let chartActiveSeries = null;
+    let chartHoverTime = null;
 
-      let d = `M ${coords[0].x.toFixed(1)} ${coords[0].y.toFixed(1)}`;
-      for (let i = 0; i < coords.length - 1; i++) {
-        const p0 = coords[Math.max(0, i - 1)], p1 = coords[i];
-        const p2 = coords[i + 1], p3 = coords[Math.min(coords.length - 1, i + 2)];
-        const cp1x = p1.x + (p2.x - p0.x) / 6;
-        const cp1y = Math.max(4, Math.min(97, p1.y + (p2.y - p0.y) / 6));
-        const cp2x = p2.x - (p3.x - p1.x) / 6;
-        const cp2y = Math.max(4, Math.min(97, p2.y - (p3.y - p1.y) / 6));
-        d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-      }
-      const last = coords[coords.length - 1];
-      return { line: d, area: `${d} L ${last.x.toFixed(1)} 100 L ${coords[0].x.toFixed(1)} 100 Z`, last };
+    function niceScaleCeiling(rawUnitVal) {
+      const target = Math.max(rawUnitVal * 1.14, 10);
+      const stops = [10, 20, 25, 40, 50, 75, 100, 150, 200, 250, 300, 400, 500, 600, 750, 1000, 1200, 1500, 2000, 2500, 5000, 10000];
+      for (const s of stops) if (s >= target) return s;
+      return Math.ceil(target / 1000) * 1000;
     }
 
-    function renderChart(activeSeries = null) {
-      const allVals = [...dlPoints, ...ulPoints, 10];
-      chartMaxVal = Math.max(...allVals) * 1.15;
-
-      const dl = buildSmoothPath(dlPoints, chartMaxVal);
-      const ul = buildSmoothPath(ulPoints, chartMaxVal);
-
-      $("dl-line").setAttribute("d", dl.line);
-      $("dl-area").setAttribute("d", dl.area);
-      $("ul-line").setAttribute("d", ul.line);
-      $("ul-area").setAttribute("d", ul.area);
-
-      if (dlPoints.length || ulPoints.length) {
-        $("y-max").textContent = `${convertSpeed(chartMaxVal).toFixed(0)} ${speedUnit}`;
-        $("y-mid").textContent = `${convertSpeed(chartMaxVal / 2).toFixed(0)}`;
-      } else {
-        $("y-max").textContent = "";
-        $("y-mid").textContent = "";
+    function sampleSeriesAt(pts, tSec) {
+      if (!pts.length) return null;
+      if (tSec < pts[0].t || tSec > pts[pts.length - 1].t) return null;
+      for (let i = 0; i < pts.length - 1; i++) {
+        if (tSec >= pts[i].t && tSec <= pts[i + 1].t) {
+          const span = pts[i + 1].t - pts[i].t;
+          const k = span > 0 ? (tSec - pts[i].t) / span : 0;
+          return pts[i].v + k * (pts[i + 1].v - pts[i].v);
+        }
       }
-
-      // Update average reference lines if final results exist
-      if (lastResults && lastResults.dl > 0) {
-        const yDl = Math.max(4, Math.min(97, 97 - (lastResults.dl / chartMaxVal) * 88)).toFixed(1);
-        $("dl-avg-line").setAttribute("y1", yDl);
-        $("dl-avg-line").setAttribute("y2", yDl);
-        $("dl-avg-line").setAttribute("opacity", "1");
-      } else {
-        $("dl-avg-line").setAttribute("opacity", "0");
-      }
-      if (lastResults && lastResults.ul > 0) {
-        const yUl = Math.max(4, Math.min(97, 97 - (lastResults.ul / chartMaxVal) * 88)).toFixed(1);
-        $("ul-avg-line").setAttribute("y1", yUl);
-        $("ul-avg-line").setAttribute("y2", yUl);
-        $("ul-avg-line").setAttribute("opacity", "1");
-      } else {
-        $("ul-avg-line").setAttribute("opacity", "0");
-      }
-
-      const dot = $("chart-dot");
-      const activeHead = activeSeries === "dl" ? dl.last : activeSeries === "ul" ? ul.last : null;
-      if (activeHead) {
-        dot.setAttribute("cx", activeHead.x.toFixed(1));
-        dot.setAttribute("cy", activeHead.y.toFixed(1));
-        dot.setAttribute("fill", activeSeries === "ul" ? "#38bdf8" : "#ffffff");
-        dot.setAttribute("opacity", "1");
-      } else {
-        dot.setAttribute("opacity", "0");
-      }
+      return pts[pts.length - 1].v;
     }
 
-    // Interactive chart hover scrub with dual snap dots
+    function renderChart(activeSeries = chartActiveSeries) {
+      chartActiveSeries = activeSeries;
+      const canvas = $("chart-canvas");
+      const wrap = $("chart-wrap");
+      if (!canvas || !wrap) return;
+
+      const rect = wrap.getBoundingClientRect();
+      if (rect.width < 10 || rect.height < 10) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      const targetW = Math.round(rect.width * dpr);
+      const targetH = Math.round(rect.height * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+
+      const ctx = canvas.getContext("2d");
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      const W = rect.width;
+      const H = rect.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const padL = 6, padR = 44, padT = 12, padB = 20;
+      const plotW = Math.max(10, W - padL - padR);
+      const plotH = Math.max(10, H - padT - padB);
+
+      const allVals = [...dlPoints.map((p) => p.v), ...ulPoints.map((p) => p.v)];
+      const hasData = allVals.length > 0;
+      const maxRawUnit = hasData ? convertSpeed(Math.max(...allVals)) : (speedUnit === "MB/s" ? 125 : 1000);
+      const maxUnit = niceScaleCeiling(maxRawUnit);
+      const maxMbps = speedUnit === "MB/s" ? maxUnit * 8 : maxUnit;
+      chartMaxVal = maxMbps;
+
+      const xOf = (tSec) => padL + (Math.min(Math.max(tSec, 0), CHART_DURATION_SEC) / CHART_DURATION_SEC) * plotW;
+      const yOf = (mbps) => padT + plotH - (Math.min(Math.max(mbps, 0), maxMbps) / maxMbps) * plotH;
+
+      // Subtle horizontal gridlines + clean Y-axis labels
+      ctx.font = '500 9px "JetBrains Mono", ui-monospace, monospace';
+      ctx.textBaseline = "middle";
+      const ySteps = [0, 0.25, 0.5, 0.75, 1];
+      for (const frac of ySteps) {
+        const y = Math.round(padT + plotH * (1 - frac)) + 0.5;
+        ctx.beginPath();
+        ctx.strokeStyle = frac === 0 ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.055)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash(frac === 0 ? [] : [2, 4]);
+        ctx.moveTo(padL, y);
+        ctx.lineTo(padL + plotW, y);
+        ctx.stroke();
+
+        if (frac === 0 || frac === 0.5 || frac === 1) {
+          ctx.fillStyle = hasData ? "rgba(132,132,154,0.78)" : "rgba(76,76,96,0.55)";
+          ctx.textAlign = "left";
+          const val = Math.round(maxUnit * frac);
+          const lbl = frac === 1 ? `${val}` : `${val}`;
+          ctx.fillText(lbl, padL + plotW + 7, y);
+        }
+      }
+      ctx.setLineDash([]);
+
+      // Unit watermark at top-right axis
+      ctx.fillStyle = "rgba(132,132,154,0.48)";
+      ctx.font = '600 8px "JetBrains Mono", ui-monospace, monospace';
+      ctx.textAlign = "left";
+      ctx.fillText(speedUnit, padL + plotW + 7, padT + 11);
+
+      // X-axis time ticks (0s .. 14s)
+      ctx.font = '500 9px "JetBrains Mono", ui-monospace, monospace';
+      ctx.fillStyle = "rgba(132,132,154,0.52)";
+      ctx.textBaseline = "top";
+      for (const sec of [0, 3.5, 7, 10.5, 14]) {
+        const x = xOf(sec);
+        ctx.textAlign = sec === 0 ? "left" : sec === 14 ? "right" : "center";
+        ctx.fillText(`${sec % 1 === 0 ? sec : sec.toFixed(1)}s`, x, padT + plotH + 6);
+      }
+
+      // Empty standby hint
+      if (!hasData) {
+        ctx.fillStyle = "rgba(132,132,154,0.34)";
+        ctx.font = '600 10px "JetBrains Mono", ui-monospace, monospace';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("TIMELINE READY · 0–14s PRECISION TRACE", padL + plotW / 2, padT + plotH / 2);
+        ctx.restore();
+        return;
+      }
+
+      // Helper to trace smooth monotone-safe quadratic Bezier path
+      const traceCurve = (pts) => {
+        const coords = pts.map((p) => ({ x: xOf(p.t), y: yOf(p.v) }));
+        ctx.beginPath();
+        ctx.moveTo(coords[0].x, coords[0].y);
+        if (coords.length === 1) {
+          ctx.lineTo(coords[0].x + 1, coords[0].y);
+        } else if (coords.length === 2) {
+          ctx.lineTo(coords[1].x, coords[1].y);
+        } else {
+          for (let i = 1; i < coords.length - 1; i++) {
+            const mx = (coords[i].x + coords[i + 1].x) / 2;
+            const my = (coords[i].y + coords[i + 1].y) / 2;
+            ctx.quadraticCurveTo(coords[i].x, coords[i].y, mx, my);
+          }
+          const last = coords[coords.length - 1];
+          ctx.lineTo(last.x, last.y);
+        }
+        return coords;
+      };
+
+      const drawSeries = (pts, strokeColor, gradTop, isActive) => {
+        if (!pts.length) return;
+        // Gradient Area Fill
+        const coords = traceCurve(pts);
+        const last = coords[coords.length - 1];
+        const first = coords[0];
+        ctx.lineTo(last.x, padT + plotH);
+        ctx.lineTo(first.x, padT + plotH);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+        grad.addColorStop(0, gradTop);
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Glowing Line Trace
+        traceCurve(pts);
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.shadowColor = strokeColor;
+        ctx.shadowBlur = 10;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Live scanning hairline + glowing head beacon while recording
+        if (isActive && coords.length > 0) {
+          ctx.beginPath();
+          ctx.strokeStyle = strokeColor === "#38bdf8" ? "rgba(56,189,248,0.28)" : "rgba(255,255,255,0.22)";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([2, 3]);
+          ctx.moveTo(last.x, padT);
+          ctx.lineTo(last.x, padT + plotH);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.beginPath();
+          ctx.arc(last.x, last.y, 7, 0, Math.PI * 2);
+          ctx.fillStyle = strokeColor === "#38bdf8" ? "rgba(56,189,248,0.25)" : "rgba(255,255,255,0.22)";
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(last.x, last.y, 3.3, 0, Math.PI * 2);
+          ctx.fillStyle = strokeColor;
+          ctx.fill();
+        }
+      };
+
+      // Draw steady-state average reference lines once locked
+      const drawAvgLine = (val, color) => {
+        if (!val || val <= 0) return;
+        const y = Math.round(yOf(val)) + 0.5;
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(padL, y);
+        ctx.lineTo(padL + plotW, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      };
+
+      if (lastResults && lastResults.dl > 0) drawAvgLine(lastResults.dl, "rgba(255,255,255,0.24)");
+      if (lastResults && lastResults.ul > 0) drawAvgLine(lastResults.ul, "rgba(56,189,248,0.32)");
+
+      // Render DL then UL so cyan stays crisp on top
+      drawSeries(dlPoints, "#ffffff", "rgba(255,255,255,0.20)", activeSeries === "dl");
+      drawSeries(ulPoints, "#38bdf8", "rgba(56,189,248,0.24)", activeSeries === "ul");
+
+      // Interactive hover crosshair + crisp circular snap dots
+      if (chartHoverTime !== null) {
+        const hx = xOf(chartHoverTime);
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(255,255,255,0.28)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.moveTo(hx, padT);
+        ctx.lineTo(hx, padT + plotH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const dlV = sampleSeriesAt(dlPoints, chartHoverTime);
+        const ulV = sampleSeriesAt(ulPoints, chartHoverTime);
+
+        const drawSnapDot = (val, color) => {
+          const y = yOf(val);
+          ctx.beginPath();
+          ctx.arc(hx, y, 5.5, 0, Math.PI * 2);
+          ctx.fillStyle = color === "#38bdf8" ? "rgba(56,189,248,0.28)" : "rgba(255,255,255,0.25)";
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(hx, y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.strokeStyle = "#050508";
+          ctx.lineWidth = 1.5;
+          ctx.fill();
+          ctx.stroke();
+        };
+
+        if (dlV !== null) drawSnapDot(dlV, "#ffffff");
+        if (ulV !== null) drawSnapDot(ulV, "#38bdf8");
+      }
+
+      ctx.restore();
+    }
+
+    new ResizeObserver(() => renderChart(chartActiveSeries)).observe($("chart-wrap"));
+    requestAnimationFrame(() => renderChart(null));
+
+    // Interactive chart hover scrub
     $("chart-wrap").addEventListener("mousemove", (e) => {
       if (!dlPoints.length && !ulPoints.length) return;
-      const rect = $("chart").getBoundingClientRect();
-      const frac = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
-      const xSvg = (frac * 300).toFixed(1);
-      const cursor = $("chart-cursor");
-      cursor.setAttribute("x1", xSvg);
-      cursor.setAttribute("x2", xSvg);
-      cursor.setAttribute("opacity", "1");
+      const rect = $("chart-wrap").getBoundingClientRect();
+      const padL = 6, padR = 44;
+      const plotW = Math.max(10, rect.width - padL - padR);
+      const frac = Math.min(Math.max((e.clientX - rect.left - padL) / plotW, 0), 1);
+      chartHoverTime = frac * CHART_DURATION_SEC;
 
-      const parts = [];
-      if (dlPoints.length) {
-        const v = dlPoints[Math.round(frac * (dlPoints.length - 1))];
-        const y = Math.max(4, Math.min(97, 97 - (v / chartMaxVal) * 88)).toFixed(1);
-        $("hover-dl-dot").setAttribute("cx", xSvg);
-        $("hover-dl-dot").setAttribute("cy", y);
-        $("hover-dl-dot").setAttribute("opacity", "1");
-        parts.push(`<span style="color:#fff">↓ ${formatSpeed(v)}</span>`);
-      }
-      if (ulPoints.length) {
-        const v = ulPoints[Math.round(frac * (ulPoints.length - 1))];
-        const y = Math.max(4, Math.min(97, 97 - (v / chartMaxVal) * 88)).toFixed(1);
-        $("hover-ul-dot").setAttribute("cx", xSvg);
-        $("hover-ul-dot").setAttribute("cy", y);
-        $("hover-ul-dot").setAttribute("opacity", "1");
-        parts.push(`<span style="color:#38bdf8">↑ ${formatSpeed(v)}</span>`);
-      }
+      const dlV = sampleSeriesAt(dlPoints, chartHoverTime);
+      const ulV = sampleSeriesAt(ulPoints, chartHoverTime);
       const tip = $("chart-tooltip");
-      tip.innerHTML = parts.join("");
-      tip.classList.add("visible");
+
+      if (dlV !== null || ulV !== null) {
+        const parts = [`<span class="tt-time">${chartHoverTime.toFixed(1)}s</span>`];
+        if (dlV !== null) parts.push(`<span style="color:#fff">↓ ${formatSpeed(dlV)}</span>`);
+        if (ulV !== null) parts.push(`<span style="color:#38bdf8">↑ ${formatSpeed(ulV)}</span>`);
+        tip.innerHTML = parts.join("");
+        tip.classList.add("visible");
+        // Keep tooltip inside bounds by flipping to left side on right half
+        const tipX = Math.min(Math.max(e.clientX - rect.left + 12, 6), Math.max(6, rect.width - tip.offsetWidth - 8));
+        const flippedX = frac > 0.62 ? Math.max(6, e.clientX - rect.left - tip.offsetWidth - 12) : tipX;
+        tip.style.left = `${flippedX.toFixed(0)}px`;
+      } else {
+        tip.classList.remove("visible");
+      }
+      renderChart(chartActiveSeries);
     });
 
     $("chart-wrap").addEventListener("mouseleave", () => {
-      $("chart-cursor").setAttribute("opacity", "0");
-      $("hover-dl-dot").setAttribute("opacity", "0");
-      $("hover-ul-dot").setAttribute("opacity", "0");
+      chartHoverTime = null;
       $("chart-tooltip").classList.remove("visible");
+      renderChart(chartActiveSeries);
     });
 
     // Edge Engine Detection & Metadata
@@ -2124,7 +2323,7 @@
       targetDisplayVal = 0;
       currentDisplayVal = 0;
 
-      let phaseBytes = 0, peakMbps = 0;
+      let phaseBytes = 0, peakMbps = 0, emaMbps = null;
       const loadedPings = [], history = [], steadySamples = [];
       const startTime = performance.now();
       const warmupMs = 2000;
@@ -2178,22 +2377,23 @@
           warmupTime = now;
         }
 
-        const cutoff = now - 700;
+        const cutoff = now - 750;
         while (history.length > 2 && history[0].t < cutoff) history.shift();
-        if (elapsed > 300 && history.length >= 2) {
+        if (elapsed > 280 && history.length >= 2) {
           const dt = (now - history[0].t) / 1000;
           const db = phaseBytes - history[0].bytes;
           const instMbps = dt > 0 ? (db * 8) / (dt * 1_000_000) : 0;
+          emaMbps = emaMbps === null ? instMbps : emaMbps * 0.52 + instMbps * 0.48;
           if (elapsed >= warmupMs) {
             steadySamples.push(instMbps);
             if (instMbps > peakMbps) peakMbps = instMbps;
           }
-          dlPoints.push(instMbps);
+          dlPoints.push({ t: Math.min(elapsed / 1000, CHART_DURATION_SEC), v: emaMbps });
           renderChart("dl");
-          targetDisplayVal = instMbps;
+          targetDisplayVal = emaMbps;
           $("progress").style.width = `${14 + Math.min(elapsed / durationMs, 1) * 43}%`;
         }
-      }, 160);
+      }, 150);
 
       const cutoffTimer = setTimeout(() => {
         active = false;
@@ -2249,7 +2449,7 @@
         : 1;
       const blob = getUploadBlob(chunkMb);
 
-      let phaseBytes = 0, peakMbps = 0;
+      let phaseBytes = 0, peakMbps = 0, emaMbps = null;
       const loadedPings = [], history = [], steadySamples = [];
       const startTime = performance.now();
       const warmupMs = 2000;
@@ -2319,22 +2519,23 @@
           warmupTime = now;
         }
 
-        const cutoff = now - 750;
+        const cutoff = now - 800;
         while (history.length > 2 && history[0].t < cutoff) history.shift();
-        if (elapsed > 350 && history.length >= 2) {
+        if (elapsed > 320 && history.length >= 2) {
           const dt = (now - history[0].t) / 1000;
           const db = phaseBytes - history[0].bytes;
           const instMbps = dt > 0 ? (db * 8) / (dt * 1_000_000) : 0;
+          emaMbps = emaMbps === null ? instMbps : emaMbps * 0.52 + instMbps * 0.48;
           if (elapsed >= warmupMs) {
             steadySamples.push(instMbps);
             if (instMbps > peakMbps) peakMbps = instMbps;
           }
-          ulPoints.push(instMbps);
+          ulPoints.push({ t: Math.min(elapsed / 1000, CHART_DURATION_SEC), v: emaMbps });
           renderChart("ul");
-          targetDisplayVal = instMbps;
+          targetDisplayVal = emaMbps;
           $("progress").style.width = `${57 + Math.min(elapsed / durationMs, 1) * 43}%`;
         }
-      }, 160);
+      }, 150);
 
       const cutoffTimer = setTimeout(() => {
         active = false;
@@ -2563,7 +2764,8 @@
       dlPoints = [];
       ulPoints = [];
       lastResults = null;
-      renderChart();
+      chartHoverTime = null;
+      renderChart(null);
       $("quality-banner").classList.remove("visible");
       $("profile-strip").classList.remove("visible");
       $("sum-ping").textContent = "—";
@@ -2635,7 +2837,11 @@
       navigator.clipboard.writeText(lastSummary);
       const btn = $("copy-btn");
       btn.textContent = "COPIED ✓";
-      setTimeout(() => (btn.textContent = "COPY"), 1500);
+      btn.classList.add("is-copied");
+      setTimeout(() => {
+        btn.textContent = "COPY";
+        btn.classList.remove("is-copied");
+      }, 1600);
     }
 
     document.addEventListener("keydown", (e) => {
