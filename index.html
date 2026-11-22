@@ -4,27 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>speedtest // robot123.xyz</title>
-  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23050505'/%3E%3Cpath d='M7 22a11 11 0 1 1 18 0' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M16 17l5.5-5.5' stroke='%2322c55e' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='17' r='2' fill='%23fff'/%3E%3C/svg%3E" />
+
   <!-- Leaflet Map CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
     :root {
-      --bg: #050505;
-      --surface: #0b0b0c;
-      --surface-2: #141417;
-      --border: #222226;
-      --border-bright: #3a3a40;
-      --text: #f4f4f6;
-      --muted: #80808a;
+      --bg: #050506;
+      --surface: #0b0b0e;
+      --surface-2: #131318;
+      --surface-3: #1a1a22;
+      --border: #202028;
+      --border-bright: #383846;
+      --text: #f4f4f7;
+      --muted: #7c7c8a;
+      --dim: #4c4c58;
       --accent: #ffffff;
-      --accent-glow: rgba(255, 255, 255, 0.4);
+      --accent-glow: rgba(255, 255, 255, 0.35);
       --dl-color: #ffffff;
-      --ul-color: #9494a0;
+      --ul-color: #38bdf8;
       --good: #22c55e;
       --warn: #eab308;
+      --orange: #f97316;
       --bad: #ef4444;
+      --aura: rgba(255, 255, 255, 0.045);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,161 +37,703 @@
     body {
       background-color: var(--bg);
       background-image:
-        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
-        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+        radial-gradient(circle at 50% -10%, var(--aura) 0%, transparent 65%),
+        linear-gradient(rgba(255, 255, 255, 0.016) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.016) 1px, transparent 1px);
       background-size: 100% 100%, 32px 32px, 32px 32px;
       color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 24px;
       -webkit-font-smoothing: antialiased;
+      transition: background-color 0.4s ease;
+    }
+
+    /* Phase-reactive ambient aura */
+    body[data-phase="ping"] { --aura: rgba(234, 179, 8, 0.08); }
+    body[data-phase="download"] { --aura: rgba(255, 255, 255, 0.09); }
+    body[data-phase="upload"] { --aura: rgba(56, 189, 248, 0.11); }
+    body[data-phase="done"] { --aura: rgba(34, 197, 94, 0.08); }
+
+    @keyframes enter-up {
+      from { opacity: 0; transform: translateY(14px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { text-shadow: 0 0 12px var(--accent-glow); opacity: 0.9; }
+      50% { text-shadow: 0 0 28px var(--accent-glow); opacity: 1; }
+    }
+
+    @keyframes ripple {
+      0% { transform: scale(1); opacity: 0.85; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @keyframes value-lock {
+      0% { transform: scale(0.92); opacity: 0.6; }
+      60% { transform: scale(1.04); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -24; }
     }
 
     .shell {
       width: 100%;
-      max-width: 1020px;
+      max-width: 1040px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 30px 100px rgba(0, 0, 0, 0.9);
+      border-radius: 18px;
+      box-shadow:
+        0 32px 100px rgba(0, 0, 0, 0.92),
+        0 0 0 1px rgba(255, 255, 255, 0.03) inset;
       overflow: hidden;
+      animation: enter-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+      position: relative;
     }
 
+    /* Topbar */
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 26px;
+      gap: 12px;
+      padding: 16px 26px;
       border-bottom: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.01);
+      background: rgba(255, 255, 255, 0.012);
       font-size: 12px;
+      flex-wrap: wrap;
     }
 
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: 0.06em; }
-    .cross-mark { font-size: 15px; opacity: 0.9; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .cross-mark {
+      font-size: 15px;
+      opacity: 0.9;
+      display: inline-block;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .brand:hover .cross-mark { transform: rotate(90deg); }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .unit-toggle {
+      display: inline-flex;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px;
+      font-size: 10px;
+    }
+
+    .unit-toggle button {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .unit-toggle button.active {
+      background: var(--accent);
+      color: #050506;
+    }
 
     .edge-pill {
-      display: flex; align-items: center; gap: 8px; padding: 5px 12px;
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: 999px; color: var(--muted); font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 11px;
     }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 10px var(--good); }
 
-    /* Animations */
-    @keyframes pulse-glow {
-      0% { text-shadow: 0 0 10px var(--accent-glow); opacity: 0.8; }
-      50% { text-shadow: 0 0 25px var(--accent-glow); opacity: 1; }
-      100% { text-shadow: 0 0 10px var(--accent-glow); opacity: 0.8; }
+    .dot-wrap {
+      position: relative;
+      width: 7px;
+      height: 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-    .anim-pulse { animation: pulse-glow 1.5s infinite ease-in-out; color: var(--accent); }
 
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 10px var(--good);
+      position: relative;
+      z-index: 2;
+    }
+
+    .dot-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--good);
+      animation: ripple 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    /* Hero */
     .hero {
-      padding: 32px 26px 24px;
+      padding: 28px 26px 24px;
       display: grid;
-      grid-template-columns: 1fr 1.2fr 1fr;
-      gap: 24px;
+      grid-template-columns: 1.05fr 1.2fr 1.05fr;
+      gap: 20px;
       align-items: stretch;
       border-bottom: 1px solid var(--border);
     }
-    @media (max-width: 900px) { .hero { grid-template-columns: 1fr 1fr; } #map-box { grid-column: span 2; height: 180px; } }
-    @media (max-width: 640px) { .hero { grid-template-columns: 1fr; } #map-box { grid-column: span 1; } }
 
-    .readout-box { display: flex; flex-direction: column; justify-content: center; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr 1fr; }
+      #map-box { grid-column: span 2; height: 195px; }
+    }
+    @media (max-width: 640px) {
+      .hero { grid-template-columns: 1fr; }
+      #map-box { grid-column: span 1; }
+    }
+
+    .readout-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
 
     .phase-tag {
-      display: inline-flex; align-items: center; gap: 8px; font-size: 11px;
-      letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
       transition: color 0.3s;
     }
 
-    .big-num {
-      font-size: 72px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9;
-      font-variant-numeric: tabular-nums; transition: text-shadow 0.3s;
+    .phase-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s, box-shadow 0.3s;
     }
 
-    .big-unit { font-size: 14px; color: var(--muted); margin-top: 12px; display: flex; align-items: center; gap: 12px; }
-    .sub-metric { font-size: 11px; background: var(--surface-2); border: 1px solid var(--border); padding: 4px 8px; border-radius: 6px; }
+    body[data-phase="ping"] .phase-dot { background: var(--warn); box-shadow: 0 0 10px var(--warn); }
+    body[data-phase="download"] .phase-dot { background: var(--dl-color); box-shadow: 0 0 10px var(--dl-color); }
+    body[data-phase="upload"] .phase-dot { background: var(--ul-color); box-shadow: 0 0 10px var(--ul-color); }
+    body[data-phase="done"] .phase-dot { background: var(--good); box-shadow: 0 0 10px var(--good); }
+
+    .big-num {
+      font-size: 68px;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      line-height: 0.92;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+
+    body[data-phase="upload"] .big-num { color: var(--ul-color); --accent-glow: rgba(56, 189, 248, 0.35); }
+    body[data-phase="ping"] .big-num { color: var(--warn); --accent-glow: rgba(234, 179, 8, 0.32); }
+
+    .anim-pulse { animation: pulse-glow 1.6s infinite ease-in-out; }
+
+    .big-unit {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sub-metric {
+      font-size: 11px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 4px 9px;
+      border-radius: 6px;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
 
     /* Graph & Map Containers */
     .panel-box {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
-      padding: 14px; display: flex; flex-direction: column; justify-content: space-between; position: relative;
-      height: 160px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      height: 175px;
+      transition: border-color 0.25s ease;
     }
 
-    .panel-header { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; z-index: 2; position: relative;}
-    
+    .panel-box:hover { border-color: var(--border-bright); }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      z-index: 2;
+      position: relative;
+    }
+
     /* Chart */
-    .legend { display: flex; gap: 12px; }
+    .legend { display: flex; gap: 10px; align-items: center; }
     .legend span { display: inline-flex; align-items: center; gap: 5px; }
-    .swatch-dl { width: 8px; height: 2px; background: var(--dl-color); }
-    .swatch-ul { width: 8px; height: 2px; background: var(--ul-color); border-bottom: 1px dashed var(--ul-color); }
-    svg#chart { width: 100%; height: 110px; overflow: visible; margin-top: 5px; }
+    .swatch-dl { width: 9px; height: 2px; background: var(--dl-color); border-radius: 2px; }
+    .swatch-ul { width: 9px; height: 2px; background: var(--ul-color); border-radius: 2px; }
+
+    .chart-wrap {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      margin-top: 6px;
+    }
+
+    .chart-scale {
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-size: 9px;
+      color: var(--dim);
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+    }
+
+    svg#chart {
+      width: 100%;
+      height: 122px;
+      overflow: visible;
+    }
+
+    .chart-head-dot {
+      transition: opacity 0.25s;
+    }
 
     /* Map */
-    #map-box { padding: 0; overflow: hidden; }
-    #map-overlay-title { position: absolute; top: 14px; left: 14px; font-size: 10px; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.1em; z-index: 1000; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
-    #map { width: 100%; height: 100%; border-radius: 11px; background: #0b0b0c; z-index: 1;}
+    #map-box {
+      padding: 0;
+      overflow: hidden;
+    }
 
-    .progress-track { width: 100%; height: 3px; background: var(--bg); }
-    .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear, box-shadow 0.2s; box-shadow: 0 0 10px var(--accent-glow); }
+    #map-overlay-title {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      z-index: 1000;
+      background: rgba(5, 5, 6, 0.72);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      padding: 4px 8px;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    #map-route-pill {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      font-size: 10px;
+      color: var(--text);
+      z-index: 1000;
+      background: rgba(5, 5, 6, 0.78);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+      pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      border-radius: 11px;
+      background: #0a0b0e;
+      z-index: 1;
+    }
+
+    /* Crisp dark styling for ArcGIS Dark Gray & OSM fallback */
+    #map .leaflet-tile-pane {
+      filter: brightness(1.05) contrast(1.22) saturate(0.2);
+    }
+
+    #map.osm-dark .leaflet-tile-pane {
+      filter: grayscale(100%) invert(100%) brightness(0.75) contrast(1.25);
+    }
+
+    .leaflet-container { background: #0a0b0e !important; }
+
+    /* Animated flight path */
+    .flight-path {
+      stroke-dasharray: 5 7;
+      animation: dash-flow 1.2s linear infinite;
+    }
+
+    /* Custom pulsing map beacons */
+    .beacon-client, .beacon-server {
+      position: relative;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .beacon-client {
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+      border: 2px solid #050506;
+    }
+    .beacon-client::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.75);
+      animation: ripple 2s ease-out infinite;
+    }
+    .beacon-server {
+      background: #eab308;
+      box-shadow: 0 0 12px rgba(234, 179, 8, 0.95);
+      border: 2px solid #050506;
+    }
+    .beacon-server::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(234, 179, 8, 0.8);
+      animation: ripple 2s ease-out 0.6s infinite;
+    }
+
+    /* Progress Bar */
+    .progress-track {
+      width: 100%;
+      height: 3px;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ffffff 0%, #38bdf8 50%, #ffffff 100%);
+      background-size: 200% 100%;
+      transition: width 0.14s linear;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .progress-fill.running {
+      animation: shimmer 1.6s linear infinite;
+    }
 
     /* Metrics Grid */
-    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border); }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--border);
+    }
     @media (max-width: 640px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
-    .metric-cell { padding: 20px 26px; border-right: 1px solid var(--border); }
+
+    .metric-cell {
+      padding: 20px 24px;
+      border-right: 1px solid var(--border);
+      position: relative;
+      transition: background 0.25s ease;
+    }
+
+    .metric-cell::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: transparent;
+      transition: background 0.3s ease;
+    }
+
+    .metric-cell.is-active {
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .metric-cell.is-active::before {
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .metric-cell.is-active[data-card="ul"]::before {
+      background: var(--ul-color);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+    }
+
+    .metric-cell.is-active[data-card="ping"]::before {
+      background: var(--warn);
+      box-shadow: 0 0 12px rgba(234, 179, 8, 0.5);
+    }
+
     .metric-cell:last-child { border-right: none; }
+
     @media (max-width: 640px) {
       .metric-cell:nth-child(2) { border-right: none; }
       .metric-cell:nth-child(1), .metric-cell:nth-child(2) { border-bottom: 1px solid var(--border); }
     }
-    .m-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 8px; }
-    .m-val { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .m-sub { font-size: 11px; color: var(--muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+    .m-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .m-val {
+      font-size: 24px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      display: inline-block;
+    }
+
+    .m-val.locked { animation: value-lock 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .m-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
 
     /* Telemetry Details */
-    .details-section { padding: 20px 26px; background: var(--bg); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 24px; font-size: 12px; }
+    .details-section {
+      padding: 20px 26px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px 24px;
+      font-size: 12px;
+    }
+
     @media (max-width: 640px) { .details-section { grid-template-columns: repeat(2, 1fr); } }
-    .detail-item { display: flex; flex-direction: column; gap: 4px; }
+
+    .detail-item { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
     .d-key { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
     .d-val { color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ip-toggle { cursor: pointer; border-bottom: 1px dashed var(--dim); display: inline-block; width: fit-content; }
-    
-    .grade-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: var(--surface-2); border: 1px solid var(--border-bright); }
+    .ip-toggle { cursor: pointer; border-bottom: 1px dashed var(--dim); display: inline-block; width: fit-content; transition: color 0.15s; }
+    .ip-toggle:hover { color: var(--accent); }
+
+    .grade-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 9px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--surface-2);
+      border: 1px solid var(--border-bright);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .grade-badge.pop { animation: value-lock 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
     /* Footer Controls */
-    .footer { padding: 20px 26px; display: flex; gap: 14px; align-items: center; }
-    .btn-primary {
-      flex: 1; padding: 16px 24px; background: var(--accent); color: #050505; border: none; border-radius: 10px;
-      font-family: inherit; font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
-      cursor: pointer; transition: transform 0.1s, opacity 0.15s, box-shadow 0.2s;
+    .footer {
+      padding: 18px 26px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
     }
-    .btn-primary:hover:not(:disabled) { opacity: 0.95; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-    .btn-primary:active:not(:disabled) { transform: scale(0.98); }
-    .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-primary {
+      flex: 1;
+      padding: 15px 24px;
+      background: var(--accent);
+      color: #050506;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.12s, opacity 0.15s, box-shadow 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 0 24px rgba(255, 255, 255, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active:not(:disabled) { transform: scale(0.985); }
+
+    .btn-primary.is-stop {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--bad);
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    .btn-primary.is-stop:hover {
+      background: rgba(239, 68, 68, 0.2);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.22);
+    }
 
     .btn-secondary {
-      padding: 16px 20px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
-      border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color 0.15s;
+      padding: 15px 20px;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
     }
-    .btn-secondary:hover:not(:disabled) { border-color: var(--border-bright); }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--border-bright);
+      background: var(--surface-3);
+    }
+
+    .btn-secondary:active:not(:disabled) { transform: scale(0.98); }
     .btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Recent History Strip */
+    .history-panel {
+      width: 100%;
+      max-width: 1040px;
+      margin-top: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 22px;
+      display: none;
+      animation: enter-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .history-panel.visible { display: block; }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .history-clear {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .history-clear:hover { color: var(--text); }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .history-row {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr 0.9fr 0.5fr;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 640px) {
+      .history-row { grid-template-columns: 1fr 1fr 0.8fr 0.45fr; }
+      .history-row .h-time { display: none; }
+    }
+
+    .h-time { color: var(--muted); }
+    .h-dl { color: var(--dl-color); font-weight: 600; }
+    .h-ul { color: var(--ul-color); font-weight: 600; }
+    .h-ping { color: var(--muted); }
+    .h-grade { text-align: right; font-weight: 700; }
   </style>
 </head>
-<body>
+<body data-phase="idle">
   <div class="shell">
     <div class="topbar">
       <div class="brand"><span class="cross-mark">✠</span><span>speedtest.robot123.xyz</span></div>
-      <div class="edge-pill"><span class="dot"></span><span id="edge-badge">CONNECTING EDGE...</span></div>
+      <div class="topbar-right">
+        <div class="unit-toggle" role="group" aria-label="Speed unit">
+          <button id="unit-mbps" class="active" onclick="setUnit('Mbps')">Mbps</button>
+          <button id="unit-mbs" onclick="setUnit('MB/s')">MB/s</button>
+        </div>
+        <div class="edge-pill">
+          <span class="dot-wrap"><span class="dot"></span></span>
+          <span id="edge-badge">CONNECTING EDGE...</span>
+        </div>
+      </div>
     </div>
 
     <div class="hero">
       <div class="readout-box">
-        <div class="phase-tag" id="phase">● STANDBY</div>
+        <div class="phase-tag" id="phase"><span class="phase-dot"></span><span id="phase-text">STANDBY</span></div>
         <div class="big-num" id="live-speed">0.0</div>
         <div class="big-unit">
           <span id="live-unit">Mbps</span>
@@ -197,19 +744,39 @@
       <div class="panel-box">
         <div class="panel-header">
           <span>THROUGHPUT CURVE</span>
-          <div class="legend"><span><i class="swatch-dl"></i>DL</span><span><i class="swatch-ul"></i>UL</span></div>
+          <div class="legend">
+            <span><i class="swatch-dl"></i>DL</span>
+            <span><i class="swatch-ul"></i>UL</span>
+          </div>
         </div>
-        <svg id="chart" viewBox="0 0 300 100" preserveAspectRatio="none">
-          <line x1="0" y1="25" x2="300" y2="25" stroke="#18181b" stroke-width="1" />
-          <line x1="0" y1="50" x2="300" y2="50" stroke="#18181b" stroke-width="1" />
-          <line x1="0" y1="75" x2="300" y2="75" stroke="#18181b" stroke-width="1" />
-          <polyline id="dl-line" fill="none" stroke="#ffffff" stroke-width="2" points="" />
-          <polyline id="ul-line" fill="none" stroke="#9494a0" stroke-width="2" stroke-dasharray="4 3" points="" />
-        </svg>
+        <div class="chart-wrap">
+          <span class="chart-scale" id="chart-scale"></span>
+          <svg id="chart" viewBox="0 0 300 100" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="dl-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22" />
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="ul-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.22" />
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="25" x2="300" y2="25" stroke="#18181f" stroke-width="1" />
+            <line x1="0" y1="50" x2="300" y2="50" stroke="#18181f" stroke-width="1" />
+            <line x1="0" y1="75" x2="300" y2="75" stroke="#18181f" stroke-width="1" />
+            <path id="dl-area" fill="url(#dl-grad)" d="" />
+            <path id="ul-area" fill="url(#ul-grad)" d="" />
+            <path id="dl-line" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="" />
+            <path id="ul-line" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="" />
+            <circle id="chart-dot" class="chart-head-dot" cx="0" cy="100" r="3.5" fill="#ffffff" opacity="0" />
+          </svg>
+        </div>
       </div>
 
       <div class="panel-box" id="map-box">
         <div id="map-overlay-title">ROUTING PATH</div>
+        <div id="map-route-pill">LOCATING...</div>
         <div id="map"></div>
       </div>
     </div>
@@ -217,22 +784,22 @@
     <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
 
     <div class="metrics-grid">
-      <div class="metric-cell">
+      <div class="metric-cell" data-card="dl">
         <div class="m-label">Download</div>
         <div class="m-val" id="dl-res">—</div>
         <div class="m-sub" id="dl-peak">Peak: —</div>
       </div>
-      <div class="metric-cell">
+      <div class="metric-cell" data-card="ul">
         <div class="m-label">Upload</div>
         <div class="m-val" id="ul-res">—</div>
         <div class="m-sub" id="ul-peak">Peak: —</div>
       </div>
-      <div class="metric-cell">
+      <div class="metric-cell" data-card="ping">
         <div class="m-label">Idle Ping</div>
         <div class="m-val" id="ping-res">—</div>
         <div class="m-sub" id="ping-range">Min/Max: —</div>
       </div>
-      <div class="metric-cell">
+      <div class="metric-cell" data-card="jitter">
         <div class="m-label">Jitter / Loss</div>
         <div class="m-val" id="jitter-res">—</div>
         <div class="m-sub" id="loss-res">Loss: 0.0%</div>
@@ -249,50 +816,202 @@
     </div>
 
     <div class="footer">
-      <button class="btn-primary" id="start-btn" onclick="runTest()">RUN DIAGNOSTIC</button>
+      <button class="btn-primary" id="start-btn" onclick="toggleTest()">RUN DIAGNOSTIC</button>
       <button class="btn-secondary" id="copy-btn" onclick="copyResults()" disabled>COPY</button>
     </div>
+  </div>
+
+  <div class="history-panel" id="history-panel">
+    <div class="history-head">
+      <span>RECENT RUNS</span>
+      <button class="history-clear" onclick="clearHistory()">CLEAR</button>
+    </div>
+    <div class="history-list" id="history-list"></div>
   </div>
 
   <script>
     const $ = (id) => document.getElementById(id);
 
-    let clientMeta = { ip: "Hidden", isp: "Unknown", colo: "AUTO", city: "", lat: -43.532, lon: 172.636, httpProtocol: "HTTP/2" };
+    // State
+    let clientMeta = { ip: "Hidden", isp: "Unknown", colo: "AKL", city: "Christchurch", lat: -43.532, lon: 172.636, httpProtocol: "HTTP/3", tlsVersion: "TLSv1.3" };
     let ipVisible = false;
+    let speedUnit = "Mbps"; // "Mbps" | "MB/s"
     let totalBytesTransferred = 0;
     let dlPoints = [];
     let ulPoints = [];
     let lastSummary = "";
+    let lastResults = null; // Stores raw Mbps values for unit switching
     let leafletMap = null;
+    let activeTileLayer = null;
+    let isRunning = false;
+    let activeAbortControllers = new Set();
+    let activeXhrs = new Set();
+    let runToken = 0;
 
-    // Hardcoded Edge POP Coordinates for routing map
+    // Smooth 60fps animated number display
+    let targetDisplayVal = 0;
+    let currentDisplayVal = 0;
+    let displayIsPing = false;
+
+    function animateReadout() {
+      const diff = targetDisplayVal - currentDisplayVal;
+      if (Math.abs(diff) > 0.05) {
+        currentDisplayVal += diff * 0.22;
+      } else {
+        currentDisplayVal = targetDisplayVal;
+      }
+      const shown = displayIsPing ? currentDisplayVal : convertSpeed(currentDisplayVal);
+      $("live-speed").textContent = shown.toFixed(1);
+      requestAnimationFrame(animateReadout);
+    }
+    requestAnimationFrame(animateReadout);
+
+    function convertSpeed(mbps) {
+      return speedUnit === "MB/s" ? mbps / 8 : mbps;
+    }
+
+    function formatSpeed(mbps) {
+      return `${convertSpeed(mbps).toFixed(1)} ${speedUnit}`;
+    }
+
+    function setUnit(unit) {
+      speedUnit = unit;
+      $("unit-mbps").classList.toggle("active", unit === "Mbps");
+      $("unit-mbs").classList.toggle("active", unit === "MB/s");
+      if (!displayIsPing) $("live-unit").textContent = unit;
+      if (lastResults) {
+        if (lastResults.dl != null) {
+          $("dl-res").textContent = formatSpeed(lastResults.dl);
+          $("dl-peak").textContent = `Peak: ${formatSpeed(lastResults.dlPeak)}`;
+        }
+        if (lastResults.ul != null) {
+          $("ul-res").textContent = formatSpeed(lastResults.ul);
+          $("ul-peak").textContent = `Peak: ${formatSpeed(lastResults.ulPeak)}`;
+        }
+      }
+      renderChart();
+      renderHistory();
+    }
+
+    // Expanded Global Cloudflare POP Coordinates
     const edgeCoords = {
-      "AKL": [-36.8485, 174.7633], // Auckland
-      "CHC": [-43.5320, 172.6306], // Christchurch
-      "WLG": [-41.2865, 174.7762], // Wellington
-      "SYD": [-33.8688, 151.2093], // Sydney
-      "MEL": [-37.8136, 144.9631]  // Melbourne
+      // NZ & AU
+      AKL: [-36.8485, 174.7633], CHC: [-43.5320, 172.6306], WLG: [-41.2865, 174.7762],
+      SYD: [-33.8688, 151.2093], MEL: [-37.8136, 144.9631], BNE: [-27.4698, 153.0251],
+      PER: [-31.9505, 115.8605], ADL: [-34.9285, 138.6007], CBR: [-35.2809, 149.1300],
+      // Asia
+      SIN: [1.3521, 103.8198], NRT: [35.6762, 139.6503], KIX: [34.6937, 135.5023],
+      HKG: [22.3193, 114.1694], ICN: [37.5665, 126.9780], TPE: [25.0330, 121.5654],
+      BOM: [19.0760, 72.8777], DEL: [28.7041, 77.1025], BKK: [13.7563, 100.5018],
+      // North America
+      LAX: [34.0522, -118.2437], SJC: [37.3382, -121.8863], SEA: [47.6062, -122.3321],
+      DFW: [32.7767, -96.7970], ORD: [41.8781, -87.6298], IAD: [38.9072, -77.0369],
+      EWR: [40.7128, -74.0060], MIA: [25.7617, -80.1918], ATL: [33.7490, -84.3880],
+      DEN: [39.7392, -104.9903], YYZ: [43.6532, -79.3832], YVR: [49.2827, -123.1207],
+      // Europe
+      LHR: [51.5074, -0.1278], FRA: [50.1109, 8.6821], AMS: [52.3676, 4.9041],
+      CDG: [48.8566, 2.3522], MAD: [40.4168, -3.7038], MXP: [45.4642, 9.1900],
+      ZRH: [47.3769, 8.5417], ARN: [59.3293, 18.0686], DUB: [53.3498, -6.2603],
+      WAW: [52.2297, 21.0122], VIE: [48.2082, 16.3738],
+      // South America & Middle East
+      GRU: [-23.5505, -46.6333], EZE: [-34.6037, -58.3816], SCL: [-33.4489, -70.6693],
+      DXB: [25.2048, 55.2708], JNB: [-26.2041, 28.0473]
     };
 
+    function haversineKm([lat1, lon1], [lat2, lon2]) {
+      const toRad = (d) => (d * Math.PI) / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    function curvedArcPoints(start, end, segments = 28) {
+      const [lat1, lon1] = start;
+      const [lat2, lon2] = end;
+      const midLat = (lat1 + lat2) / 2;
+      const midLon = (lon1 + lon2) / 2;
+      const dx = lon2 - lon1;
+      const dy = lat2 - lat1;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 0.05) return [start, end];
+      // Subtle perpendicular curve offset
+      const offset = dist * 0.16;
+      const ctrlLat = midLat + (dx / dist) * offset;
+      const ctrlLon = midLon - (dy / dist) * offset;
+      const pts = [];
+      for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const inv = 1 - t;
+        pts.push([
+          inv * inv * lat1 + 2 * inv * t * ctrlLat + t * t * lat2,
+          inv * inv * lon1 + 2 * inv * t * ctrlLon + t * t * lon2,
+        ]);
+      }
+      return pts;
+    }
+
     function initMap() {
-      const clientPos = [clientMeta.lat, clientMeta.lon];
-      const serverPos = edgeCoords[clientMeta.colo] || edgeCoords["AKL"];
+      const clientPos = [Number(clientMeta.lat) || -43.532, Number(clientMeta.lon) || 172.636];
+      const serverPos = edgeCoords[clientMeta.colo] || clientPos;
+      const distKm = haversineKm(clientPos, serverPos);
+      const originLabel = (clientMeta.city && clientMeta.city !== "Unknown") ? clientMeta.city.toUpperCase() : "CLIENT";
+      $("map-route-pill").textContent = distKm > 15
+        ? `${originLabel} → ${clientMeta.colo} · ${distKm.toLocaleString()} km`
+        : `${originLabel} · LOCAL POP (${clientMeta.colo})`;
 
       if (!leafletMap) {
-        leafletMap = L.map('map', { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false }).setView(clientPos, 5);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(leafletMap);
+        leafletMap = L.map("map", {
+          zoomControl: false,
+          attributionControl: false,
+          dragging: false,
+          scrollWheelZoom: false,
+          doubleClickZoom: false,
+          boxZoom: false,
+          keyboard: false,
+        }).setView(clientPos, 5);
+
+        // Reliable dark basemap (ArcGIS World Dark Gray Base — no referer watermarks)
+        let fellBackToOsm = false;
+        activeTileLayer = L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+          { maxZoom: 16, crossOrigin: true }
+        ).addTo(leafletMap);
+
+        activeTileLayer.on("tileerror", () => {
+          if (fellBackToOsm) return;
+          fellBackToOsm = true;
+          leafletMap.removeLayer(activeTileLayer);
+          $("map").classList.add("osm-dark");
+          activeTileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(leafletMap);
+        });
+
+        new ResizeObserver(() => leafletMap && leafletMap.invalidateSize()).observe($("map"));
       }
 
-      // Clear old layers
-      leafletMap.eachLayer((layer) => { if (!!layer.toGeoJSON) leafletMap.removeLayer(layer); });
+      // Clear previous markers & polylines
+      leafletMap.eachLayer((layer) => {
+        if (layer !== activeTileLayer) leafletMap.removeLayer(layer);
+      });
 
-      // Plot Client & Server
-      L.circleMarker(clientPos, { radius: 4, color: '#ffffff', fillColor: '#ffffff', fillOpacity: 1 }).addTo(leafletMap);
-      L.circleMarker(serverPos, { radius: 5, color: '#eab308', fillColor: '#eab308', fillOpacity: 1 }).addTo(leafletMap);
-      
-      // Draw Flight Path
-      const polyline = L.polyline([clientPos, serverPos], { color: '#eab308', dashArray: '4, 6', weight: 2, opacity: 0.8 }).addTo(leafletMap);
-      leafletMap.fitBounds(polyline.getBounds(), { padding: [30, 30], maxZoom: 6 });
+      const clientIcon = L.divIcon({ className: "", html: `<div class="beacon-client"></div>`, iconSize: [12, 12], iconAnchor: [6, 6] });
+      const serverIcon = L.divIcon({ className: "", html: `<div class="beacon-server"></div>`, iconSize: [12, 12], iconAnchor: [6, 6] });
+
+      const arcPts = curvedArcPoints(clientPos, serverPos);
+      const glowLine = L.polyline(arcPts, { color: "#eab308", weight: 5, opacity: 0.16 }).addTo(leafletMap);
+      const flightLine = L.polyline(arcPts, { color: "#eab308", weight: 2, opacity: 0.9, className: "flight-path" }).addTo(leafletMap);
+
+      L.marker(clientPos, { icon: clientIcon }).addTo(leafletMap);
+      L.marker(serverPos, { icon: serverIcon }).addTo(leafletMap);
+
+      if (distKm > 15) {
+        leafletMap.fitBounds(flightLine.getBounds(), { padding: [34, 34], maxZoom: 6 });
+      } else {
+        leafletMap.setView(clientPos, 7);
+      }
+
+      setTimeout(() => leafletMap && leafletMap.invalidateSize(), 120);
     }
 
     function toggleIp() {
@@ -307,16 +1026,59 @@
       $("data-used").textContent = `${mb} MB`;
     }
 
-    function renderChart() {
+    // Smooth SVG path builder (Catmull-Rom -> Cubic Bezier)
+    function buildSmoothPath(points, maxVal) {
+      if (points.length === 0) return { line: "", area: "", last: null };
+      const coords = points.length === 1
+        ? [{ x: 0, y: 98 - (points[0] / maxVal) * 88 }, { x: 300, y: 98 - (points[0] / maxVal) * 88 }]
+        : points.map((v, i) => ({
+            x: (i / (points.length - 1)) * 300,
+            y: Math.max(4, Math.min(98, 98 - (v / maxVal) * 88)),
+          }));
+
+      let d = `M ${coords[0].x.toFixed(1)} ${coords[0].y.toFixed(1)}`;
+      for (let i = 0; i < coords.length - 1; i++) {
+        const p0 = coords[Math.max(0, i - 1)];
+        const p1 = coords[i];
+        const p2 = coords[i + 1];
+        const p3 = coords[Math.min(coords.length - 1, i + 2)];
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = Math.max(4, Math.min(98, p1.y + (p2.y - p0.y) / 6));
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = Math.max(4, Math.min(98, p2.y - (p3.y - p1.y) / 6));
+        d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+      }
+      const last = coords[coords.length - 1];
+      const area = `${d} L ${last.x.toFixed(1)} 100 L ${coords[0].x.toFixed(1)} 100 Z`;
+      return { line: d, area, last };
+    }
+
+    function renderChart(activeSeries = null) {
       const allVals = [...dlPoints, ...ulPoints, 10];
       const maxVal = Math.max(...allVals) * 1.15;
-      const toCoords = (arr) => {
-        if (arr.length === 0) return "";
-        if (arr.length === 1) return `0,${(100 - (arr[0]/maxVal)*90).toFixed(1)} 300,${(100 - (arr[0]/maxVal)*90).toFixed(1)}`;
-        return arr.map((val, idx) => `${((idx / (arr.length - 1)) * 300).toFixed(1)},${(100 - (val / maxVal) * 90).toFixed(1)}`).join(" ");
-      };
-      $("dl-line").setAttribute("points", toCoords(dlPoints));
-      $("ul-line").setAttribute("points", toCoords(ulPoints));
+
+      const dl = buildSmoothPath(dlPoints, maxVal);
+      const ul = buildSmoothPath(ulPoints, maxVal);
+
+      $("dl-line").setAttribute("d", dl.line);
+      $("dl-area").setAttribute("d", dl.area);
+      $("ul-line").setAttribute("d", ul.line);
+      $("ul-area").setAttribute("d", ul.area);
+
+      $("chart-scale").textContent = (dlPoints.length || ulPoints.length)
+        ? `MAX ${formatSpeed(maxVal / 1.15)}`
+        : "";
+
+      const dot = $("chart-dot");
+      const activeHead = activeSeries === "dl" ? dl.last : activeSeries === "ul" ? ul.last : null;
+      if (activeHead) {
+        dot.setAttribute("cx", activeHead.x.toFixed(1));
+        dot.setAttribute("cy", activeHead.y.toFixed(1));
+        dot.setAttribute("fill", activeSeries === "ul" ? "#38bdf8" : "#ffffff");
+        dot.setAttribute("opacity", "1");
+      } else {
+        dot.setAttribute("opacity", "0");
+      }
     }
 
     async function loadMeta() {
@@ -328,170 +1090,349 @@
           $("meta-isp").textContent = `${clientMeta.isp} ${clientMeta.asn ? `(${clientMeta.asn})` : ""}`;
           $("meta-proto").textContent = `${clientMeta.colo} • ${clientMeta.httpProtocol} / ${clientMeta.tlsVersion}`;
           initMap();
+          return;
         }
-      } catch {
-        $("edge-badge").textContent = "EDGE: CONNECTED";
-      }
+      } catch {}
+      $("edge-badge").textContent = "EDGE: CONNECTED";
+      initMap();
     }
     loadMeta();
 
-    async function probePing() {
+    function setPhase(phaseKey, text, activeCard = null) {
+      document.body.dataset.phase = phaseKey;
+      $("phase-text").textContent = text;
+      const isTesting = phaseKey === "ping" || phaseKey === "download" || phaseKey === "upload";
+      $("live-speed").classList.toggle("anim-pulse", isTesting);
+      $("progress").classList.toggle("running", isTesting);
+
+      document.querySelectorAll(".metric-cell").forEach((el) => {
+        el.classList.toggle("is-active", el.dataset.card === activeCard);
+      });
+    }
+
+    function lockMetric(id, text) {
+      const el = $(id);
+      el.textContent = text;
+      el.classList.remove("locked");
+      void el.offsetWidth;
+      el.classList.add("locked");
+    }
+
+    async function probePing(signal) {
       if (performance.clearResourceTimings) performance.clearResourceTimings();
       const endpoint = `${location.origin}/cdn-cgi/trace?t=${Date.now()}-${Math.random()}`;
       const t0 = performance.now();
-      const res = await fetch(endpoint, { cache: "no-store" });
+      const res = await fetch(endpoint, { cache: "no-store", signal });
       await res.text();
       const fallbackRtt = performance.now() - t0;
       const entries = performance.getEntriesByName(endpoint);
       if (entries.length > 0) {
-        const wireRtt = entries[entries.length - 1].responseStart - entries[entries.length - 1].requestStart;
+        const entry = entries[entries.length - 1];
+        const wireRtt = entry.responseStart - entry.requestStart;
         if (wireRtt > 0.5) return wireRtt;
       }
       return fallbackRtt;
     }
 
-    function setPhase(text, active) {
-      const p = $("phase");
-      p.textContent = text;
-      if (active) {
-        p.classList.add("anim-pulse");
-        $("live-speed").classList.add("anim-pulse");
-      } else {
-        p.classList.remove("anim-pulse");
-        $("live-speed").classList.remove("anim-pulse");
-      }
+    function makeAbortController() {
+      const c = new AbortController();
+      activeAbortControllers.add(c);
+      return c;
     }
 
-    async function measurePing(samples = 20) {
-      setPhase("● MEASURING LATENCY & LOSS", true);
+    function abortAllNetwork() {
+      for (const c of activeAbortControllers) {
+        try { c.abort(); } catch {}
+      }
+      activeAbortControllers.clear();
+      for (const xhr of activeXhrs) {
+        try { xhr.abort(); } catch {}
+      }
+      activeXhrs.clear();
+    }
+
+    async function measurePing(token, samples = 20) {
+      setPhase("ping", "MEASURING LATENCY & LOSS", "ping");
+      displayIsPing = true;
       $("live-unit").textContent = "ms";
+
       const times = [];
       let failed = 0;
+      const ctrl = makeAbortController();
 
-      for (let w = 0; w < 4; w++) try { await probePing(); } catch {}
+      for (let w = 0; w < 4; w++) {
+        if (token !== runToken) return 0;
+        try { await probePing(ctrl.signal); } catch {}
+      }
 
       for (let i = 0; i < samples; i++) {
+        if (token !== runToken) return 0;
         try {
-          const rtt = await probePing();
+          const rtt = await probePing(ctrl.signal);
           times.push(rtt);
-          $("live-speed").textContent = rtt.toFixed(1);
-        } catch { failed++; }
+          targetDisplayVal = rtt;
+        } catch {
+          if (token !== runToken) return 0;
+          failed++;
+        }
         $("progress").style.width = `${((i + 1) / samples) * 20}%`;
         await new Promise((r) => setTimeout(r, 25));
       }
 
+      if (!times.length) throw new Error("All ping probes failed");
       const sorted = [...times].sort((a, b) => a - b);
       const mid = Math.floor(sorted.length / 2);
       const median = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-      const min = sorted[0]; const max = sorted[sorted.length - 1];
+      const min = sorted[0];
+      const max = sorted[sorted.length - 1];
 
       let jitterSum = 0;
       for (let i = 1; i < times.length; i++) jitterSum += Math.abs(times[i] - times[i - 1]);
       const jitter = times.length > 1 ? jitterSum / (times.length - 1) : 0;
       const lossPct = ((failed / samples) * 100).toFixed(1);
 
-      $("ping-res").textContent = `${median.toFixed(1)} ms`;
+      lockMetric("ping-res", `${median.toFixed(1)} ms`);
       $("ping-range").textContent = `${min.toFixed(1)} / ${max.toFixed(1)} ms`;
-      $("jitter-res").textContent = `${jitter.toFixed(1)} ms`;
+      lockMetric("jitter-res", `${jitter.toFixed(1)} ms`);
       $("loss-res").textContent = `Loss: ${lossPct}%`;
       return median;
     }
 
-    async function measureDownload(durationMs = 8000, streams = 6) {
-      setPhase("● TESTING DOWNLOAD", true);
-      $("live-unit").textContent = "Mbps";
-      let phaseBytes = 0; let peakMbps = 0; const loadedPings = [];
-      const startTime = performance.now(); let active = true;
+    async function measureDownload(token, durationMs = 8000, streams = 6) {
+      setPhase("download", "TESTING DOWNLOAD", "dl");
+      displayIsPing = false;
+      $("live-unit").textContent = speedUnit;
+      targetDisplayVal = 0;
+      currentDisplayVal = 0;
 
+      let phaseBytes = 0;
+      let peakMbps = 0;
+      const loadedPings = [];
+      const history = []; // { t, bytes }
+      const startTime = performance.now();
+      const warmupMs = 1400;
+      let warmupBytes = null;
+      let warmupTime = null;
+      let active = true;
+
+      const pingCtrl = makeAbortController();
       const pingProbe = (async () => {
-        while (active) { await new Promise(r => setTimeout(r, 800)); if(active) try { loadedPings.push(await probePing()); } catch {} }
+        while (active && token === runToken) {
+          await new Promise((r) => setTimeout(r, 750));
+          if (!active || token !== runToken) break;
+          try { loadedPings.push(await probePing(pingCtrl.signal)); } catch {}
+        }
       })();
 
       const worker = async (id) => {
-        while (active) {
-          const controller = new AbortController();
+        while (active && token === runToken) {
+          const controller = makeAbortController();
           try {
-            const res = await fetch(`/api/speed?mode=down&mb=100&s=${id}-${Date.now()}`, { cache: "no-store", signal: controller.signal });
+            const res = await fetch(`/api/speed?mode=down&mb=100&s=${id}-${Date.now()}`, {
+              cache: "no-store",
+              signal: controller.signal,
+            });
             const reader = res.body.getReader();
-            while (active) {
+            while (active && token === runToken) {
               const { done, value } = await reader.read();
               if (done) break;
               phaseBytes += value.byteLength;
               updateDataCounter(value.byteLength);
-              if (performance.now() - startTime >= durationMs) { active = false; controller.abort(); break; }
+              if (performance.now() - startTime >= durationMs) {
+                active = false;
+                controller.abort();
+                break;
+              }
             }
           } catch {}
         }
       };
 
       const ticker = setInterval(() => {
-        const elapsed = (performance.now() - startTime) / 1000;
-        if (elapsed > 0.25) {
-          const mbps = (phaseBytes * 8) / (elapsed * 1_000_000);
-          if (mbps > peakMbps) peakMbps = mbps;
-          dlPoints.push(mbps); renderChart(); $("live-speed").textContent = mbps.toFixed(1);
-          $("progress").style.width = `${20 + Math.min(elapsed / (durationMs / 1000), 1) * 40}%`;
+        if (!active || token !== runToken) return;
+        const now = performance.now();
+        const elapsed = now - startTime;
+        history.push({ t: now, bytes: phaseBytes });
+
+        if (warmupBytes === null && elapsed >= warmupMs) {
+          warmupBytes = phaseBytes;
+          warmupTime = now;
         }
-      }, 200);
+
+        // Rolling 600ms instantaneous throughput for responsive chart
+        const cutoff = now - 600;
+        while (history.length > 2 && history[0].t < cutoff) history.shift();
+        if (elapsed > 250 && history.length >= 2) {
+          const dt = (now - history[0].t) / 1000;
+          const db = phaseBytes - history[0].bytes;
+          const instMbps = dt > 0 ? (db * 8) / (dt * 1_000_000) : 0;
+          if (elapsed > 700 && instMbps > peakMbps) peakMbps = instMbps;
+          dlPoints.push(instMbps);
+          renderChart("dl");
+          targetDisplayVal = instMbps;
+          $("progress").style.width = `${20 + Math.min(elapsed / durationMs, 1) * 40}%`;
+        }
+      }, 150);
 
       await Promise.all([...Array.from({ length: streams }, (_, i) => worker(i)), pingProbe]);
       clearInterval(ticker);
-      const finalMbps = (phaseBytes * 8) / ((performance.now() - startTime) / 1000 * 1_000_000);
-      const avgPing = loadedPings.length ? loadedPings.reduce((a,b)=>a+b,0)/loadedPings.length : 0;
-      
-      $("live-speed").textContent = finalMbps.toFixed(1);
-      $("dl-res").textContent = `${finalMbps.toFixed(1)} Mbps`;
-      $("dl-peak").textContent = `Peak: ${Math.max(peakMbps, finalMbps).toFixed(1)} Mbps`;
-      return { mbps: finalMbps, loadedPing: avgPing };
+      if (token !== runToken) return { mbps: 0, peak: 0, loadedPing: 0 };
+
+      const endTime = performance.now();
+      const steadyBytes = warmupBytes !== null ? phaseBytes - warmupBytes : phaseBytes;
+      const steadySec = warmupTime !== null ? (endTime - warmupTime) / 1000 : (endTime - startTime) / 1000;
+      const finalMbps = steadySec > 0 ? (steadyBytes * 8) / (steadySec * 1_000_000) : 0;
+      const finalPeak = Math.max(peakMbps, finalMbps);
+      const avgPing = loadedPings.length ? loadedPings.reduce((a, b) => a + b, 0) / loadedPings.length : 0;
+
+      targetDisplayVal = finalMbps;
+      renderChart(null);
+      lockMetric("dl-res", formatSpeed(finalMbps));
+      $("dl-peak").textContent = `Peak: ${formatSpeed(finalPeak)}`;
+      return { mbps: finalMbps, peak: finalPeak, loadedPing: avgPing };
     }
 
-    async function measureUpload(durationMs = 8000, streams = 12) {
-      setPhase("● TESTING UPLOAD", true);
-      $("live-unit").textContent = "Mbps";
-      let phaseBytes = 0; let peakMbps = 0; const loadedPings = [];
-      const startTime = performance.now(); let active = true;
+    // Pre-generate incompressible random payload buffers (1MB, 4MB, 8MB)
+    const uploadBuffers = {};
+    function getUploadBuffer(mb) {
+      if (uploadBuffers[mb]) return uploadBuffers[mb];
+      const size = mb * 1024 * 1024;
+      const buf = new Uint8Array(size);
+      const seed = new Uint8Array(65536);
+      crypto.getRandomValues(seed);
+      for (let offset = 0; offset < size; offset += 65536) {
+        buf.set(seed, offset);
+      }
+      uploadBuffers[mb] = buf;
+      return buf;
+    }
 
-      // Fixed: 1 MB Chunks across 12 Parallel connections completely bypasses the 20Mbps limit.
-      const payloadSize = 1024 * 1024;
-      const payload = new Uint8Array(payloadSize);
-      crypto.getRandomValues(payload.subarray(0, 65536));
+    async function measureUpload(token, durationMs = 8500, streams = 8, dlHintMbps = 100) {
+      setPhase("upload", "TESTING UPLOAD", "ul");
+      displayIsPing = false;
+      $("live-unit").textContent = speedUnit;
+      targetDisplayVal = 0;
+      currentDisplayVal = 0;
 
+      // Adaptive chunk sizing: larger chunks slash HTTP RTT overhead on 300-1000 Mbps fiber
+      let chunkMb = dlHintMbps >= 300 ? 8 : dlHintMbps >= 80 ? 4 : 2;
+      getUploadBuffer(chunkMb); // Pre-build before timer starts
+
+      let phaseBytes = 0;
+      let peakMbps = 0;
+      const loadedPings = [];
+      const history = [];
+      const startTime = performance.now();
+      const warmupMs = 1500;
+      let warmupBytes = null;
+      let warmupTime = null;
+      let active = true;
+
+      const pingCtrl = makeAbortController();
       const pingProbe = (async () => {
-        while (active) { await new Promise(r => setTimeout(r, 800)); if(active) try { loadedPings.push(await probePing()); } catch {} }
+        while (active && token === runToken) {
+          await new Promise((r) => setTimeout(r, 750));
+          if (!active || token !== runToken) break;
+          try { loadedPings.push(await probePing(pingCtrl.signal)); } catch {}
+        }
       })();
 
+      // XHR worker with real-time xhr.upload.onprogress byte tracking
+      const sendOneChunk = (id) =>
+        new Promise((resolve) => {
+          if (!active || token !== runToken) return resolve();
+          const xhr = new XMLHttpRequest();
+          activeXhrs.add(xhr);
+          let lastLoaded = 0;
+
+          xhr.open("POST", `/api/speed?mode=up&s=${id}-${Date.now()}-${Math.random().toString(36).slice(2)}`, true);
+
+          xhr.upload.onprogress = (e) => {
+            if (!active || token !== runToken) {
+              xhr.abort();
+              return;
+            }
+            const delta = e.loaded - lastLoaded;
+            if (delta > 0) {
+              lastLoaded = e.loaded;
+              phaseBytes += delta;
+              updateDataCounter(delta);
+            }
+          };
+
+          const finish = () => {
+            activeXhrs.delete(xhr);
+            resolve();
+          };
+
+          xhr.onload = finish;
+          xhr.onerror = () => setTimeout(finish, 30);
+          xhr.onabort = finish;
+          xhr.send(getUploadBuffer(chunkMb));
+        });
+
       const worker = async (id) => {
-        while (performance.now() - startTime < durationMs) {
-          try {
-            const res = await fetch(`/api/speed?mode=up&s=${id}-${Date.now()}-${Math.random()}`, {
-              method: "POST", body: payload, cache: "no-store" // keepalive removed for max Safari compatibility
-            });
-            if (res.ok) { phaseBytes += payloadSize; updateDataCounter(payloadSize); }
-          } catch { await new Promise(r => setTimeout(r, 25)); }
+        // Stagger second half of streams slightly to prevent initial QUIC/TCP burst stall
+        if (id >= streams / 2) await new Promise((r) => setTimeout(r, 150));
+        while (active && token === runToken && performance.now() - startTime < durationMs) {
+          await sendOneChunk(id);
         }
       };
 
       const ticker = setInterval(() => {
-        const elapsed = (performance.now() - startTime) / 1000;
-        if (elapsed > 0.25) {
-          const mbps = (phaseBytes * 8) / (elapsed * 1_000_000);
-          if (mbps > peakMbps) peakMbps = mbps;
-          ulPoints.push(mbps); renderChart(); $("live-speed").textContent = mbps.toFixed(1);
-          $("progress").style.width = `${60 + Math.min(elapsed / (durationMs / 1000), 1) * 40}%`;
+        if (!active || token !== runToken) return;
+        const now = performance.now();
+        const elapsed = now - startTime;
+        history.push({ t: now, bytes: phaseBytes });
+
+        if (warmupBytes === null && elapsed >= warmupMs) {
+          warmupBytes = phaseBytes;
+          warmupTime = now;
         }
-      }, 200);
+
+        const cutoff = now - 650;
+        while (history.length > 2 && history[0].t < cutoff) history.shift();
+        if (elapsed > 300 && history.length >= 2) {
+          const dt = (now - history[0].t) / 1000;
+          const db = phaseBytes - history[0].bytes;
+          const instMbps = dt > 0 ? (db * 8) / (dt * 1_000_000) : 0;
+          if (elapsed > 1000 && instMbps > peakMbps) peakMbps = instMbps;
+          ulPoints.push(instMbps);
+          renderChart("ul");
+          targetDisplayVal = instMbps;
+          $("progress").style.width = `${60 + Math.min(elapsed / durationMs, 1) * 40}%`;
+        }
+      }, 150);
+
+      // Hard cutoff timer so in-flight XHRs terminate right on schedule
+      const cutoffTimer = setTimeout(() => {
+        active = false;
+        for (const xhr of activeXhrs) {
+          try { xhr.abort(); } catch {}
+        }
+      }, durationMs);
 
       await Promise.all(Array.from({ length: streams }, (_, i) => worker(i)));
-      active = false; await pingProbe; clearInterval(ticker);
-      
-      const totalSec = (performance.now() - startTime) / 1000;
-      const finalMbps = totalSec > 0 ? (phaseBytes * 8) / (totalSec * 1_000_000) : 0;
-      const avgPing = loadedPings.length ? loadedPings.reduce((a,b)=>a+b,0)/loadedPings.length : 0;
+      clearTimeout(cutoffTimer);
+      active = false;
+      pingCtrl.abort();
+      await pingProbe;
+      clearInterval(ticker);
 
-      $("live-speed").textContent = finalMbps.toFixed(1);
-      $("ul-res").textContent = `${finalMbps.toFixed(1)} Mbps`;
-      $("ul-peak").textContent = `Peak: ${Math.max(peakMbps, finalMbps).toFixed(1)} Mbps`;
-      return { mbps: finalMbps, loadedPing: avgPing };
+      if (token !== runToken) return { mbps: 0, peak: 0, loadedPing: 0 };
+
+      const endTime = performance.now();
+      const steadyBytes = warmupBytes !== null ? phaseBytes - warmupBytes : phaseBytes;
+      const steadySec = warmupTime !== null ? (endTime - warmupTime) / 1000 : (endTime - startTime) / 1000;
+      const finalMbps = steadySec > 0 ? (steadyBytes * 8) / (steadySec * 1_000_000) : 0;
+      const finalPeak = Math.max(peakMbps, finalMbps);
+      const avgPing = loadedPings.length ? loadedPings.reduce((a, b) => a + b, 0) / loadedPings.length : 0;
+
+      targetDisplayVal = finalMbps;
+      renderChart(null);
+      lockMetric("ul-res", formatSpeed(finalMbps));
+      $("ul-peak").textContent = `Peak: ${formatSpeed(finalPeak)}`;
+      return { mbps: finalMbps, peak: finalPeak, loadedPing: avgPing };
     }
 
     function computeBufferbloatGrade(idlePing, dlLoaded, ulLoaded) {
@@ -503,31 +1444,103 @@
       return { grade: "D", color: "#ef4444" };
     }
 
-    async function runTest() {
-      const btn = $("start-btn"); const copyBtn = $("copy-btn");
-      btn.disabled = true; copyBtn.disabled = true; btn.textContent = "RUNNING DIAGNOSTIC...";
+    // History persistence
+    function getHistory() {
+      try { return JSON.parse(localStorage.getItem("st_history_v1") || "[]"); } catch { return []; }
+    }
 
-      totalBytesTransferred = 0; dlPoints = []; ulPoints = []; renderChart();
+    function saveHistory(entry) {
+      const list = [entry, ...getHistory()].slice(0, 5);
+      try { localStorage.setItem("st_history_v1", JSON.stringify(list)); } catch {}
+      renderHistory();
+    }
+
+    function clearHistory() {
+      try { localStorage.removeItem("st_history_v1"); } catch {}
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = getHistory();
+      const panel = $("history-panel");
+      if (!list.length) {
+        panel.classList.remove("visible");
+        return;
+      }
+      panel.classList.add("visible");
+      $("history-list").innerHTML = list.map((item) => `
+        <div class="history-row">
+          <span class="h-time">${item.time}</span>
+          <span class="h-dl">↓ ${formatSpeed(item.dl)}</span>
+          <span class="h-ul">↑ ${formatSpeed(item.ul)}</span>
+          <span class="h-ping">${item.ping.toFixed(1)} ms</span>
+          <span class="h-grade" style="color:${item.color}">${item.grade}</span>
+        </div>
+      `).join("");
+    }
+    renderHistory();
+
+    function toggleTest() {
+      if (isRunning) {
+        runToken++;
+        isRunning = false;
+        abortAllNetwork();
+        setPhase("idle", "CANCELLED");
+        const btn = $("start-btn");
+        btn.classList.remove("is-stop");
+        btn.textContent = "RUN DIAGNOSTIC";
+        return;
+      }
+      runTest();
+    }
+
+    async function runTest() {
+      const token = ++runToken;
+      isRunning = true;
+
+      const btn = $("start-btn");
+      const copyBtn = $("copy-btn");
+      btn.classList.add("is-stop");
+      btn.textContent = "STOP DIAGNOSTIC";
+      copyBtn.disabled = true;
+
+      totalBytesTransferred = 0;
+      dlPoints = [];
+      ulPoints = [];
+      lastResults = null;
+      renderChart();
+
+      $("live-sub").textContent = "0.0 MB transferred";
+      $("data-used").textContent = "0.0 MB";
       $("dl-res").textContent = "—"; $("dl-peak").textContent = "Peak: —";
       $("ul-res").textContent = "—"; $("ul-peak").textContent = "Peak: —";
       $("ping-res").textContent = "—"; $("ping-range").textContent = "Min/Max: —";
       $("jitter-res").textContent = "—"; $("loss-res").textContent = "Loss: 0.0%";
-      $("loaded-ping").textContent = "— / — ms"; $("bloat-grade").innerHTML = `<span class="grade-badge">—</span>`;
+      $("loaded-ping").textContent = "— / — ms";
+      $("bloat-grade").innerHTML = `<span class="grade-badge">—</span>`;
       $("progress").style.width = "0%";
 
       try {
-        const idlePing = await measurePing();
-        const dl = await measureDownload();
-        const ul = await measureUpload();
+        const idlePing = await measurePing(token);
+        if (token !== runToken) return;
+
+        const dl = await measureDownload(token);
+        if (token !== runToken) return;
+
+        const ul = await measureUpload(token, 8500, 8, dl.mbps);
+        if (token !== runToken) return;
+
+        lastResults = { dl: dl.mbps, dlPeak: dl.peak, ul: ul.mbps, ulPeak: ul.peak };
 
         const dlPingStr = dl.loadedPing ? `${dl.loadedPing.toFixed(0)} ms` : "—";
         const ulPingStr = ul.loadedPing ? `${ul.loadedPing.toFixed(0)} ms` : "—";
         $("loaded-ping").textContent = `${dlPingStr} / ${ulPingStr}`;
 
         const bloat = computeBufferbloatGrade(idlePing, dl.loadedPing || idlePing, ul.loadedPing || idlePing);
-        $("bloat-grade").innerHTML = `<span class="grade-badge" style="color:${bloat.color};border-color:${bloat.color}">${bloat.grade}</span>`;
+        $("bloat-grade").innerHTML = `<span class="grade-badge pop" style="color:${bloat.color};border-color:${bloat.color}">${bloat.grade}</span>`;
+        $("progress").style.width = "100%";
 
-        setPhase("● DIAGNOSTIC COMPLETE", false);
+        setPhase("done", "DIAGNOSTIC COMPLETE");
 
         lastSummary = [
           `speedtest.robot123.xyz [${clientMeta.colo}]`,
@@ -536,20 +1549,40 @@
           `ISP: ${clientMeta.isp}`,
         ].join("\n");
 
+        const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        saveHistory({ time: nowStr, dl: dl.mbps, ul: ul.mbps, ping: idlePing, grade: bloat.grade, color: bloat.color });
+
         copyBtn.disabled = false;
       } catch (err) {
-        setPhase("● ERROR — RETRY", false); console.error(err);
+        if (token === runToken) {
+          setPhase("idle", "ERROR — RETRY");
+          console.error(err);
+        }
       } finally {
-        btn.disabled = false; btn.textContent = "RUN AGAIN";
+        if (token === runToken) {
+          isRunning = false;
+          abortAllNetwork();
+          btn.classList.remove("is-stop");
+          btn.textContent = "RUN AGAIN";
+        }
       }
     }
 
     function copyResults() {
       if (!lastSummary) return;
       navigator.clipboard.writeText(lastSummary);
-      const btn = $("copy-btn"); btn.textContent = "COPIED";
+      const btn = $("copy-btn");
+      btn.textContent = "COPIED ✓";
       setTimeout(() => (btn.textContent = "COPY"), 1500);
     }
+
+    // Spacebar shortcut to start/stop
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && e.target === document.body) {
+        e.preventDefault();
+        toggleTest();
+      }
+    });
   </script>
 </body>
 </html>
