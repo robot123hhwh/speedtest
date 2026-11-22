@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>speedtest // robot123.xyz</title>
+  <meta name="description" content="Precision Cloudflare Edge speedtest, bufferbloat grading, and Sydney OCE gaming ping." />
+  <meta name="theme-color" content="#030305" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Speedtest" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23050506'/%3E%3Cpath d='M7 22a11 11 0 1 1 18 0' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M16 17l5.5-5.5' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='17' r='2' fill='%23fff'/%3E%3C/svg%3E" />
 
   <!-- Fonts -->
@@ -204,6 +212,28 @@
       background: rgba(255, 255, 255, 0.02);
       letter-spacing: 0.04em;
     }
+
+    .install-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 999px;
+      padding: 5px 11px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    }
+
+    .install-btn.visible { display: inline-flex; }
+    .install-btn:hover { background: rgba(56, 189, 248, 0.18); border-color: rgba(56, 189, 248, 0.6); }
+    .install-btn:active { transform: scale(0.97); }
 
     @media (max-width: 720px) { .mode-chip { display: none; } }
 
@@ -846,6 +876,184 @@
       transition: width 0.75s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    /* Live Gaming Server Ping (Sydney OCE) */
+    .gaming-section {
+      padding: 16px 26px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(167, 139, 250, 0.022) 0%, rgba(4, 4, 7, 0.55) 100%);
+    }
+
+    .gaming-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .gaming-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .gaming-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text);
+    }
+
+    .gaming-region-pill {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: #a78bfa;
+      background: rgba(167, 139, 250, 0.12);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      padding: 2px 7px;
+      border-radius: 999px;
+      letter-spacing: 0.06em;
+    }
+
+    .gaming-ping-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, opacity 0.15s;
+    }
+
+    .gaming-ping-btn:hover:not(:disabled) { border-color: var(--border-bright); background: var(--surface-3); }
+    .gaming-ping-btn:disabled { opacity: 0.45; cursor: wait; }
+
+    .gaming-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 680px) { .gaming-grid { grid-template-columns: 1fr; } }
+
+    .game-card {
+      background: rgba(5, 6, 10, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 13px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .game-card:hover { border-color: var(--border-bright); }
+    .game-card.is-probing { border-color: rgba(167, 139, 250, 0.45); }
+
+    .gc-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .gc-provider {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .gc-tag {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .gc-tag.aws { color: #fb923c; background: rgba(251, 146, 60, 0.12); border: 1px solid rgba(251, 146, 60, 0.3); }
+    .gc-tag.azure { color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    .gc-games {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gc-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--dim);
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+    }
+
+    .gc-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .gc-val-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .gc-ping {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+
+    .gc-status {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--surface-2);
+      color: var(--muted);
+    }
+
+    .gc-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 16px;
+    }
+
+    .gc-bar {
+      width: 5px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s;
+    }
+
     /* Network Quality Score Banner */
     .quality-banner {
       display: none;
@@ -1271,34 +1479,200 @@
       background: rgba(34, 197, 94, 0.12);
       color: var(--good);
     }
+    .btn-export {
+      border-color: rgba(56, 189, 248, 0.28);
+      color: #e0f2fe;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .btn-export:hover:not(:disabled) {
+      border-color: rgba(56, 189, 248, 0.6);
+      background: rgba(56, 189, 248, 0.12);
+    }
 
-    /* Recent History Panel */
+    /* Sliding History & Trends Drawer */
     .history-panel {
       position: relative;
       z-index: 1;
       width: 100%;
       max-width: 1120px;
       margin-top: 14px;
-      background: rgba(10, 10, 15, 0.92);
+      background: rgba(10, 10, 15, 0.94);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 15px 22px;
-      display: none;
+      overflow: hidden;
       animation: enter-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
-    .history-panel.visible { display: block; }
-
-    .history-head {
+    .history-drawer-bar {
+      width: 100%;
+      padding: 13px 22px;
+      background: rgba(255, 255, 255, 0.015);
+      border: none;
+      color: var(--text);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      gap: 12px;
+      cursor: pointer;
       font-family: var(--font-mono);
-      font-size: 10px;
+      text-align: left;
+      transition: background 0.2s;
+    }
+
+    .history-drawer-bar:hover { background: rgba(255, 255, 255, 0.032); }
+
+    .hd-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10.5px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.11em;
       color: var(--muted);
+    }
+
+    .hd-count {
+      font-size: 9.5px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .hd-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 10.5px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 640px) { .hd-stats-inline { display: none; } }
+
+    .hd-chevron {
+      display: inline-block;
+      font-size: 12px;
+      color: var(--muted);
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .history-panel.is-open .hd-chevron { transform: rotate(180deg); }
+
+    .history-drawer-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .history-panel.is-open .history-drawer-body { grid-template-rows: 1fr; }
+
+    .history-drawer-inner {
+      overflow: hidden;
+    }
+
+    .history-content {
+      padding: 4px 22px 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .trend-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 12px 0 10px;
+    }
+
+    .trend-tabs {
+      display: inline-flex;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px;
+    }
+
+    .trend-tabs button {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .trend-tabs button.active {
+      background: var(--accent);
+      color: #050506;
+    }
+
+    .trend-kpis {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .trend-kpis strong { color: var(--text); font-weight: 700; }
+
+    .trend-chart-box {
+      position: relative;
+      height: 118px;
+      background: rgba(4, 5, 9, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    canvas#trend-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+
+    .trend-tooltip {
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      background: rgba(9, 10, 16, 0.94);
+      border: 1px solid var(--border-bright);
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: var(--text);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.14s;
+      display: flex;
+      gap: 9px;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .trend-tooltip.visible { opacity: 1; }
+
+    .history-subhead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
     .history-clear {
@@ -1312,11 +1686,11 @@
       letter-spacing: 0.08em;
     }
 
-    .history-clear:hover { color: var(--text); }
+    .history-clear:hover { color: var(--bad); }
 
     .history-cols, .history-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 0.8fr 0.7fr 0.45fr;
+      grid-template-columns: 1.15fr 0.95fr 0.95fr 0.72fr 0.78fr 0.65fr 0.42fr;
       gap: 10px;
       align-items: center;
       font-family: var(--font-mono);
@@ -1330,13 +1704,23 @@
       color: var(--dim);
     }
 
-    .history-cols span:nth-child(5),
-    .history-cols span:nth-child(6) { text-align: right; }
+    .history-cols span:nth-child(6),
+    .history-cols span:nth-child(7) { text-align: right; }
 
-    .history-list { display: flex; flex-direction: column; gap: 6px; }
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .history-list::-webkit-scrollbar { width: 5px; }
+    .history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
 
     .history-row {
-      padding: 9px 13px;
+      padding: 8px 13px;
       background: rgba(4, 4, 7, 0.78);
       border: 1px solid var(--border);
       border-radius: 9px;
@@ -1347,15 +1731,25 @@
 
     .history-row:hover { border-color: var(--border-bright); }
 
-    @media (max-width: 640px) {
-      .history-cols, .history-row { grid-template-columns: 1fr 1fr 0.75fr 0.65fr 0.4fr; }
-      .history-cols .h-time, .history-row .h-time { display: none; }
+    .history-empty {
+      padding: 18px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--dim);
     }
 
-    .h-time { color: var(--muted); }
+    @media (max-width: 720px) {
+      .history-cols, .history-row { grid-template-columns: 1fr 1fr 0.75fr 0.65fr 0.42fr; }
+      .history-cols .h-time, .history-row .h-time,
+      .history-cols .h-syd, .history-row .h-syd { display: none; }
+    }
+
+    .h-time { color: var(--muted); font-size: 10px; }
     .h-dl { color: var(--dl-color); font-weight: 600; }
     .h-ul { color: var(--ul-color); font-weight: 600; }
     .h-ping { color: var(--muted); }
+    .h-syd { color: #a78bfa; }
     .h-score { font-weight: 700; text-align: right; }
     .h-grade { text-align: right; font-weight: 700; }
 
@@ -1407,6 +1801,7 @@
         <span>speedtest<span class="brand-dim">.robot123.xyz</span></span>
       </div>
       <div class="topbar-right">
+        <button class="install-btn" id="install-btn" onclick="installPwa()">＋ INSTALL APP</button>
         <span class="mode-chip">14s DL · 14s UL · PRECISION</span>
         <div class="unit-toggle" role="group" aria-label="Speed unit">
           <button id="unit-mbps" class="active" onclick="setUnit('Mbps')">Mbps</button>
@@ -1518,6 +1913,54 @@
       </div>
     </div>
 
+    <!-- Live Gaming Server Ping (Sydney OCE) -->
+    <div class="gaming-section">
+      <div class="gaming-head">
+        <div class="gaming-title-wrap">
+          <span class="gaming-title">Live Gaming Server Ping</span>
+          <span class="gaming-region-pill">SYDNEY · AU-EAST</span>
+        </div>
+        <button class="gaming-ping-btn" id="gaming-ping-btn" onclick="measureGamingServers()">PING SYDNEY</button>
+      </div>
+      <div class="gaming-grid">
+        <div class="game-card" id="gc-aws">
+          <div class="gc-left">
+            <div class="gc-provider"><span class="gc-tag aws">AWS</span><span>ap-southeast-2 (Sydney)</span></div>
+            <div class="gc-games">Valorant · Apex Legends · Fortnite (OCE)</div>
+            <div class="gc-meta" id="gc-aws-meta">Min — · Jitter —</div>
+          </div>
+          <div class="gc-right">
+            <div class="gc-val-row">
+              <span class="gc-ping" id="gc-aws-ping">—</span>
+              <span class="gc-status" id="gc-aws-status">READY</span>
+            </div>
+            <div class="gc-bars" id="gc-aws-bars">
+              <span class="gc-bar"></span><span class="gc-bar"></span><span class="gc-bar"></span>
+              <span class="gc-bar"></span><span class="gc-bar"></span><span class="gc-bar"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-card" id="gc-azure">
+          <div class="gc-left">
+            <div class="gc-provider"><span class="gc-tag azure">AZURE</span><span>Australia East (Sydney)</span></div>
+            <div class="gc-games">Rainbow Six Siege · Xbox Live (OCE)</div>
+            <div class="gc-meta" id="gc-azure-meta">Min — · Jitter —</div>
+          </div>
+          <div class="gc-right">
+            <div class="gc-val-row">
+              <span class="gc-ping" id="gc-azure-ping">—</span>
+              <span class="gc-status" id="gc-azure-status">READY</span>
+            </div>
+            <div class="gc-bars" id="gc-azure-bars">
+              <span class="gc-bar"></span><span class="gc-bar"></span><span class="gc-bar"></span>
+              <span class="gc-bar"></span><span class="gc-bar"></span><span class="gc-bar"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Network Quality Score (reveals on completion) -->
     <div class="quality-banner" id="quality-banner">
       <div class="q-left">
@@ -1603,25 +2046,56 @@
         <span id="start-btn-text">RUN DIAGNOSTIC</span>
         <span class="kbd-hint">SPACE</span>
       </button>
+      <button class="btn-secondary btn-export" id="export-btn" onclick="exportResultPng()" disabled>EXPORT PNG</button>
       <button class="btn-secondary" id="copy-btn" onclick="copyResults()" disabled>COPY</button>
     </div>
   </div>
 
-  <!-- Persisted Recent Runs -->
+  <!-- Sliding Local History & Trends Drawer (Last 20 Runs) -->
   <div class="history-panel" id="history-panel">
-    <div class="history-head">
-      <span>RECENT RUNS</span>
-      <button class="history-clear" onclick="clearHistory()">CLEAR</button>
+    <button class="history-drawer-bar" onclick="toggleHistoryDrawer()" aria-expanded="false" id="history-toggle-bar">
+      <span class="hd-left">
+        <span>HISTORY &amp; TRENDS</span>
+        <span class="hd-count" id="hd-count">0 / 20</span>
+      </span>
+      <span class="hd-right">
+        <span class="hd-stats-inline" id="hd-stats-inline">No saved runs yet</span>
+        <span class="hd-chevron">▾</span>
+      </span>
+    </button>
+    <div class="history-drawer-body">
+      <div class="history-drawer-inner">
+        <div class="history-content">
+          <div class="trend-bar">
+            <div class="trend-tabs" role="tablist">
+              <button id="tab-speeds" class="active" onclick="setTrendMode('speeds')">SPEEDS (DL/UL)</button>
+              <button id="tab-ping" onclick="setTrendMode('ping')">PING (AKL/SYD)</button>
+            </div>
+            <div class="trend-kpis" id="trend-kpis"></div>
+          </div>
+
+          <div class="trend-chart-box" id="trend-chart-box">
+            <div class="trend-tooltip" id="trend-tooltip"></div>
+            <canvas id="trend-canvas"></canvas>
+          </div>
+
+          <div class="history-subhead">
+            <span>SAVED DIAGNOSTICS (LOCALSTORAGE · LAST 20)</span>
+            <button class="history-clear" onclick="clearHistory()">CLEAR ALL</button>
+          </div>
+          <div class="history-cols">
+            <span class="h-time">Date / Time</span>
+            <span>Download</span>
+            <span>Upload</span>
+            <span>AKL Ping</span>
+            <span class="h-syd">SYD Ping</span>
+            <span>Score</span>
+            <span>Bloat</span>
+          </div>
+          <div class="history-list" id="history-list"></div>
+        </div>
+      </div>
     </div>
-    <div class="history-cols">
-      <span class="h-time">Time</span>
-      <span>Download</span>
-      <span>Upload</span>
-      <span>Ping</span>
-      <span>Score</span>
-      <span>Bloat</span>
-    </div>
-    <div class="history-list" id="history-list"></div>
   </div>
 
   <!-- Copyright Footer -->
@@ -1655,6 +2129,12 @@
     let chartMaxVal = 10;
     let lastSummary = "";
     let lastResults = null;
+    let lastExportSnapshot = null;
+    let gamingState = { aws: null, azure: null };
+    let gamingProbing = false;
+    let trendMode = "speeds";
+    let trendHoverIdx = null;
+    let deferredInstallPrompt = null;
     let isRunning = false;
     let activeAbortControllers = new Set();
     let activeXhrs = new Set();
@@ -1785,6 +2265,7 @@
       }
       renderChart(chartActiveSeries);
       renderHistory();
+      renderTrendChart();
     }
 
     // Global Cloudflare POP Coordinates [lat, lon]
@@ -2377,7 +2858,7 @@
       $("edge-badge").textContent = "EDGE: CONNECTED";
       initMap();
     }
-    loadMeta();
+    loadMeta().then(() => setTimeout(() => { if (!isRunning) measureGamingServers(); }, 450));
 
     function updatePipeline(stage, summaries = {}) {
       const stages = ["ping", "dl", "ul"];
@@ -2916,36 +3397,597 @@
       strip.classList.add("visible");
     }
 
-    // History persistence
+    // =========================================================================
+    // 1. Live Gaming Server Ping (Sydney OCE — AWS ap-southeast-2 & Azure AU East)
+    // =========================================================================
+    const GAMING_SERVERS = [
+      { key: "aws",   url: "https://dynamodb.ap-southeast-2.amazonaws.com/ping", label: "AWS Sydney" },
+      { key: "azure", url: "https://australiaeast.api.cognitive.microsoft.com/", label: "Azure AU East" },
+    ];
+
+    function gamingTier(ms) {
+      if (ms <= 44) return { text: "COMPETITIVE", color: "#22c55e", bg: "rgba(34,197,94,0.14)" };
+      if (ms <= 60) return { text: "PLAYABLE",    color: "#38bdf8", bg: "rgba(56,189,248,0.14)" };
+      if (ms <= 85) return { text: "MODERATE",    color: "#eab308", bg: "rgba(234,179,8,0.14)" };
+      return               { text: "HIGH PING",   color: "#ef4444", bg: "rgba(239,68,68,0.14)" };
+    }
+
+    async function probeGamingEndpoint(url, count = 6) {
+      // Warm up TCP + TLS connection before measuring wire RTT
+      for (let w = 0; w < 2; w++) {
+        try { await fetch(`${url}?w=${Date.now()}-${w}`, { mode: "no-cors", cache: "no-store" }); } catch {}
+      }
+      const samples = [];
+      for (let i = 0; i < count; i++) {
+        const t0 = performance.now();
+        try {
+          await fetch(`${url}?p=${Date.now()}-${i}-${Math.random().toString(36).slice(2)}`, { mode: "no-cors", cache: "no-store" });
+          samples.push(performance.now() - t0);
+        } catch {}
+        await new Promise((r) => setTimeout(r, 35));
+      }
+      if (!samples.length) return null;
+      const median = calcMedian(samples);
+      const min = Math.min(...samples);
+      let jSum = 0;
+      for (let i = 1; i < samples.length; i++) jSum += Math.abs(samples[i] - samples[i - 1]);
+      const jitter = samples.length > 1 ? jSum / (samples.length - 1) : 0;
+      return { median, min, jitter, samples };
+    }
+
+    function updateGamingCard(key, result) {
+      const pingEl = $(`gc-${key}-ping`);
+      const metaEl = $(`gc-${key}-meta`);
+      const statusEl = $(`gc-${key}-status`);
+      const barsEl = $(`gc-${key}-bars`);
+      if (!result) {
+        pingEl.textContent = "ERR";
+        statusEl.textContent = "OFFLINE";
+        statusEl.style.color = "#ef4444";
+        statusEl.style.background = "rgba(239,68,68,0.14)";
+        return;
+      }
+      const tier = gamingTier(result.median);
+      pingEl.textContent = `${Math.round(result.median)} ms`;
+      pingEl.style.color = tier.color;
+      metaEl.textContent = `Min ${result.min.toFixed(0)} ms · ±${result.jitter.toFixed(1)} ms jitter`;
+      statusEl.textContent = tier.text;
+      statusEl.style.color = tier.color;
+      statusEl.style.background = tier.bg;
+
+      const maxBar = Math.max(...result.samples, 60);
+      const bars = barsEl.querySelectorAll(".gc-bar");
+      bars.forEach((b, idx) => {
+        const v = result.samples[idx];
+        if (v != null) {
+          const h = Math.max(4, Math.min(16, Math.round((v / maxBar) * 16)));
+          b.style.height = `${h}px`;
+          b.style.background = gamingTier(v).color;
+        }
+      });
+    }
+
+    async function measureGamingServers() {
+      if (gamingProbing) return gamingState;
+      gamingProbing = true;
+      const btn = $("gaming-ping-btn");
+      btn.disabled = true;
+      btn.textContent = "PINGING...";
+
+      for (const srv of GAMING_SERVERS) {
+        const card = $(`gc-${srv.key}`);
+        card.classList.add("is-probing");
+        $(`gc-${srv.key}-status`).textContent = "PROBING";
+        const res = await probeGamingEndpoint(srv.url, 6);
+        gamingState[srv.key] = res;
+        updateGamingCard(srv.key, res);
+        card.classList.remove("is-probing");
+      }
+
+      btn.disabled = false;
+      btn.textContent = "RE-PING SYD";
+      gamingProbing = false;
+      return gamingState;
+    }
+
+    // =========================================================================
+    // 2. Local History (Last 20 Tests) & Sliding Trends Drawer
+    // =========================================================================
     function getHistory() {
       try { return JSON.parse(localStorage.getItem("st_history_v1") || "[]"); } catch { return []; }
     }
+
     function saveHistory(entry) {
-      const list = [entry, ...getHistory()].slice(0, 5);
+      const list = [entry, ...getHistory()].slice(0, 20);
       try { localStorage.setItem("st_history_v1", JSON.stringify(list)); } catch {}
       renderHistory();
+      renderTrendChart();
     }
+
     function clearHistory() {
       try { localStorage.removeItem("st_history_v1"); } catch {}
       renderHistory();
+      renderTrendChart();
     }
+
+    function toggleHistoryDrawer(forceOpen = null) {
+      const panel = $("history-panel");
+      const open = forceOpen !== null ? forceOpen : !panel.classList.contains("is-open");
+      panel.classList.toggle("is-open", open);
+      $("history-toggle-bar").setAttribute("aria-expanded", String(open));
+      if (open) setTimeout(() => renderTrendChart(), 60);
+    }
+
+    function setTrendMode(mode) {
+      trendMode = mode;
+      $("tab-speeds").classList.toggle("active", mode === "speeds");
+      $("tab-ping").classList.toggle("active", mode === "ping");
+      renderTrendChart();
+    }
+
     function renderHistory() {
       const list = getHistory();
-      const panel = $("history-panel");
-      if (!list.length) { panel.classList.remove("visible"); return; }
-      panel.classList.add("visible");
-      $("history-list").innerHTML = list.map((item) => `
-        <div class="history-row">
-          <span class="h-time">${item.time}</span>
-          <span class="h-dl">↓ ${formatSpeed(item.dl)}</span>
-          <span class="h-ul">↑ ${formatSpeed(item.ul)}</span>
-          <span class="h-ping">${item.ping.toFixed(1)} ms</span>
-          <span class="h-score" style="color:${item.scoreColor || '#94a3b8'}">${item.score != null ? `${item.score}/100` : "—"}</span>
-          <span class="h-grade" style="color:${item.color}">${item.grade}</span>
-        </div>
-      `).join("");
+      $("hd-count").textContent = `${list.length} / 20`;
+
+      if (!list.length) {
+        $("hd-stats-inline").textContent = "Run a test to start tracking trends";
+        $("trend-kpis").innerHTML = "";
+        $("history-list").innerHTML = `<div class="history-empty">No saved diagnostics yet. Completed runs are automatically stored locally (last 20).</div>`;
+        return;
+      }
+
+      const avgDl = list.reduce((a, b) => a + (b.dl || 0), 0) / list.length;
+      const avgUl = list.reduce((a, b) => a + (b.ul || 0), 0) / list.length;
+      const avgPing = list.reduce((a, b) => a + (b.ping || 0), 0) / list.length;
+      const bestScore = Math.max(...list.map((i) => i.score || 0));
+
+      $("hd-stats-inline").textContent = `Avg ↓ ${formatSpeed(avgDl)} · ↑ ${formatSpeed(avgUl)} · ${avgPing.toFixed(1)} ms`;
+      $("trend-kpis").innerHTML = `
+        <span>AVG DL <strong>${formatSpeed(avgDl)}</strong></span>
+        <span>AVG UL <strong>${formatSpeed(avgUl)}</strong></span>
+        <span>AVG PING <strong>${avgPing.toFixed(1)} ms</strong></span>
+        ${bestScore > 0 ? `<span>BEST <strong>${bestScore}/100</strong></span>` : ""}
+      `;
+
+      $("history-list").innerHTML = list.map((item) => {
+        const dtLabel = item.date ? `${item.date} ${item.time}` : item.time;
+        const sydVal = item.sydAws || item.sydAzure;
+        const sydStr = sydVal ? `${Math.round(sydVal)} ms` : "—";
+        return `
+          <div class="history-row">
+            <span class="h-time">${dtLabel}</span>
+            <span class="h-dl">↓ ${formatSpeed(item.dl)}</span>
+            <span class="h-ul">↑ ${formatSpeed(item.ul)}</span>
+            <span class="h-ping">${item.ping.toFixed(1)} ms</span>
+            <span class="h-syd">${sydStr}</span>
+            <span class="h-score" style="color:${item.scoreColor || '#94a3b8'}">${item.score != null ? `${item.score}/100` : "—"}</span>
+            <span class="h-grade" style="color:${item.color}">${item.grade}</span>
+          </div>
+        `;
+      }).join("");
     }
+
+    function renderTrendChart() {
+      const canvas = $("trend-canvas");
+      const box = $("trend-chart-box");
+      if (!canvas || !box) return;
+      const rect = box.getBoundingClientRect();
+      if (rect.width < 20 || rect.height < 20) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      const ctx = canvas.getContext("2d");
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      const W = rect.width, H = rect.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const chrono = [...getHistory()].reverse(); // Oldest -> Newest
+      if (chrono.length < 2) {
+        ctx.fillStyle = "rgba(132,132,154,0.4)";
+        ctx.font = '600 10px "JetBrains Mono", ui-monospace, monospace';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(chrono.length === 1 ? "RUN 1 MORE DIAGNOSTIC TO PLOT TREND LINES" : "TREND CHART POPULATES AFTER 2+ RUNS", W / 2, H / 2);
+        ctx.restore();
+        return;
+      }
+
+      const padL = 14, padR = 46, padT = 16, padB = 18;
+      const plotW = Math.max(10, W - padL - padR);
+      const plotH = Math.max(10, H - padT - padB);
+
+      const s1 = chrono.map((r) => trendMode === "speeds" ? convertSpeed(r.dl || 0) : (r.ping || 0));
+      const s2 = chrono.map((r) => trendMode === "speeds" ? convertSpeed(r.ul || 0) : (r.sydAws || r.sydAzure || null));
+      const validVals = [...s1, ...s2.filter((v) => v !== null)];
+      const maxVal = Math.max(...validVals, 10) * 1.18;
+      const unitLbl = trendMode === "speeds" ? speedUnit : "ms";
+
+      const xOf = (i) => padL + (i / (chrono.length - 1)) * plotW;
+      const yOf = (v) => padT + plotH - (Math.min(Math.max(v, 0), maxVal) / maxVal) * plotH;
+
+      // Grid & Y labels
+      ctx.font = '500 8.5px "JetBrains Mono", ui-monospace, monospace';
+      ctx.textBaseline = "middle";
+      for (const f of [0, 0.5, 1]) {
+        const y = Math.round(padT + plotH * (1 - f)) + 0.5;
+        ctx.beginPath();
+        ctx.strokeStyle = f === 0 ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.05)";
+        ctx.setLineDash(f === 0 ? [] : [2, 4]);
+        ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+        ctx.fillStyle = "rgba(132,132,154,0.65)";
+        ctx.textAlign = "left";
+        ctx.fillText(`${Math.round(maxVal * f)}`, padL + plotW + 6, y);
+      }
+      ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(132,132,154,0.42)";
+      ctx.fillText(unitLbl, padL + plotW + 6, padT + 10);
+
+      const drawTrendLine = (vals, color, fillAlpha) => {
+        const pts = vals.map((v, i) => v !== null ? { x: xOf(i), y: yOf(v), v } : null).filter(Boolean);
+        if (pts.length < 2) return;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.stroke();
+
+        // Area fill
+        ctx.lineTo(pts[pts.length - 1].x, padT + plotH);
+        ctx.lineTo(pts[0].x, padT + plotH);
+        ctx.closePath();
+        const g = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+        g.addColorStop(0, fillAlpha);
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.fill();
+
+        // Data points
+        for (const p of pts) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+        }
+      };
+
+      if (trendMode === "speeds") {
+        drawTrendLine(s1, "#ffffff", "rgba(255,255,255,0.14)");
+        drawTrendLine(s2, "#38bdf8", "rgba(56,189,248,0.16)");
+      } else {
+        drawTrendLine(s1, "#f59e0b", "rgba(245,158,11,0.15)");
+        drawTrendLine(s2, "#a78bfa", "rgba(167,139,250,0.16)");
+      }
+
+      if (trendHoverIdx !== null && chrono[trendHoverIdx]) {
+        const hx = xOf(trendHoverIdx);
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(255,255,255,0.28)";
+        ctx.setLineDash([2, 2]);
+        ctx.moveTo(hx, padT); ctx.lineTo(hx, padT + plotH); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      ctx.restore();
+    }
+
+    $("trend-chart-box").addEventListener("mousemove", (e) => {
+      const chrono = [...getHistory()].reverse();
+      if (chrono.length < 2) return;
+      const rect = $("trend-chart-box").getBoundingClientRect();
+      const padL = 14, padR = 46;
+      const plotW = Math.max(10, rect.width - padL - padR);
+      const frac = Math.min(Math.max((e.clientX - rect.left - padL) / plotW, 0), 1);
+      trendHoverIdx = Math.round(frac * (chrono.length - 1));
+      const item = chrono[trendHoverIdx];
+      const tip = $("trend-tooltip");
+      const dt = item.date ? `${item.date} ${item.time}` : item.time;
+      const syd = item.sydAws || item.sydAzure;
+      tip.innerHTML = trendMode === "speeds"
+        ? `<span style="color:#84849a">${dt}</span><span style="color:#fff">↓ ${formatSpeed(item.dl)}</span><span style="color:#38bdf8">↑ ${formatSpeed(item.ul)}</span>`
+        : `<span style="color:#84849a">${dt}</span><span style="color:#f59e0b">AKL ${item.ping.toFixed(1)} ms</span>${syd ? `<span style="color:#a78bfa">SYD ${Math.round(syd)} ms</span>` : ""}`;
+      tip.classList.add("visible");
+      const tx = frac > 0.6 ? Math.max(6, e.clientX - rect.left - tip.offsetWidth - 10) : Math.min(rect.width - tip.offsetWidth - 6, e.clientX - rect.left + 10);
+      tip.style.left = `${tx.toFixed(0)}px`;
+      renderTrendChart();
+    });
+
+    $("trend-chart-box").addEventListener("mouseleave", () => {
+      trendHoverIdx = null;
+      $("trend-tooltip").classList.remove("visible");
+      renderTrendChart();
+    });
+
+    new ResizeObserver(() => renderTrendChart()).observe($("trend-chart-box"));
     renderHistory();
+
+    // =========================================================================
+    // 3. Discord-Ready "Export Result" Retina PNG Card Generator (1200x680)
+    // =========================================================================
+    async function exportResultPng() {
+      if (!lastExportSnapshot) return;
+      const s = lastExportSnapshot;
+      const btn = $("export-btn");
+      btn.textContent = "RENDERING...";
+
+      const W = 1200, H = 680;
+      const canvas = document.createElement("canvas");
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d");
+
+      const rRect = (x, y, w, h, r) => {
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, r);
+      };
+
+      // Deep obsidian backdrop + radial spotlight + architectural grid
+      ctx.fillStyle = "#040407";
+      ctx.fillRect(0, 0, W, H);
+
+      const aura = ctx.createRadialGradient(W * 0.5, -40, 20, W * 0.5, 160, 680);
+      aura.addColorStop(0, "rgba(56, 189, 248, 0.14)");
+      aura.addColorStop(0.55, "rgba(255, 255, 255, 0.03)");
+      aura.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = aura;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.024)";
+      ctx.lineWidth = 1;
+      for (let gx = 0; gx < W; gx += 40) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+      for (let gy = 0; gy < H; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+
+      // Main card frame
+      rRect(28, 28, W - 56, H - 56, 24);
+      const cardGrad = ctx.createLinearGradient(0, 28, 0, H - 28);
+      cardGrad.addColorStop(0, "#101119");
+      cardGrad.addColorStop(1, "#090a0f");
+      ctx.fillStyle = cardGrad;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Top highlight hairline
+      const sheen = ctx.createLinearGradient(140, 28, W - 140, 28);
+      sheen.addColorStop(0, "rgba(255,255,255,0)");
+      sheen.addColorStop(0.5, "rgba(255,255,255,0.32)");
+      sheen.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.strokeStyle = sheen;
+      ctx.beginPath(); ctx.moveTo(140, 28.75); ctx.lineTo(W - 140, 28.75); ctx.stroke();
+
+      // Header row
+      ctx.fillStyle = "#ffffff";
+      ctx.font = '700 22px "JetBrains Mono", monospace';
+      ctx.fillText("✠  speedtest.robot123.xyz", 64, 82);
+
+      // Right POP / ISP Pill
+      const metaTag = `POP: ${s.colo}  •  ${s.isp.slice(0, 32)}  •  ${s.dateStr}`;
+      ctx.font = '600 14px "JetBrains Mono", monospace';
+      const pillW = Math.min(ctx.measureText(metaTag).width + 32, 620);
+      rRect(W - 64 - pillW, 56, pillW, 36, 18);
+      ctx.fillStyle = "#14151f";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.stroke();
+      ctx.fillStyle = "#9ca3af";
+      ctx.textAlign = "right";
+      ctx.fillText(metaTag, W - 80, 79);
+      ctx.textAlign = "left";
+
+      // Divider
+      ctx.strokeStyle = "rgba(255,255,255,0.075)";
+      ctx.beginPath(); ctx.moveTo(28, 114); ctx.lineTo(W - 28, 114); ctx.stroke();
+
+      // 4 Primary Metric Boxes (left 770px)
+      const boxes = [
+        { label: "DOWNLOAD", value: formatSpeed(s.dl), sub: `Peak ${formatSpeed(s.dlPeak)} · ${s.dlConsistency}% steady`, accent: "#ffffff" },
+        { label: "UPLOAD",   value: formatSpeed(s.ul), sub: `Peak ${formatSpeed(s.ulPeak)} · ${s.ulConsistency}% steady`, accent: "#38bdf8" },
+        { label: "IDLE PING", value: `${s.ping.toFixed(1)} ms`, sub: `Jitter ${s.jitter.toFixed(1)} ms · Loss ${s.lossPct.toFixed(1)}%`, accent: "#f59e0b" },
+        {
+          label: "SYDNEY GAMING (OCE)",
+          value: s.sydAws ? `${Math.round(s.sydAws)} / ${s.sydAzure ? Math.round(s.sydAzure) : "—"} ms` : (s.sydAzure ? `${Math.round(s.sydAzure)} ms` : "—"),
+          sub: "AWS (Valorant)  /  Azure (R6 Siege)",
+          accent: "#a78bfa"
+        },
+      ];
+
+      boxes.forEach((b, idx) => {
+        const col = idx % 2, row = Math.floor(idx / 2);
+        const bx = 64 + col * 384;
+        const by = 140 + row * 124;
+        const bw = 366, bh = 108;
+        rRect(bx, by, bw, bh, 14);
+        ctx.fillStyle = "rgba(5, 6, 10, 0.85)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.stroke();
+
+        // Top color bar accent
+        ctx.fillStyle = b.accent;
+        rRect(bx + 18, by, 44, 3, 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#84849a";
+        ctx.font = '600 12px "JetBrains Mono", monospace';
+        ctx.fillText(b.label, bx + 20, by + 30);
+
+        ctx.fillStyle = b.accent === "#ffffff" ? "#ffffff" : b.accent;
+        ctx.font = '700 34px "JetBrains Mono", monospace';
+        ctx.fillText(b.value, bx + 20, by + 70);
+
+        ctx.fillStyle = "#7c7c92";
+        ctx.font = '500 12px "JetBrains Mono", monospace';
+        ctx.fillText(b.sub, bx + 20, by + 94);
+      });
+
+      // Right Score + Bufferbloat Panel
+      const rx = 846, ry = 140, rw = 290, rh = 232;
+      rRect(rx, ry, rw, rh, 16);
+      ctx.fillStyle = "rgba(5, 6, 10, 0.88)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.09)";
+      ctx.stroke();
+
+      ctx.fillStyle = "#84849a";
+      ctx.font = '600 12px "JetBrains Mono", monospace';
+      ctx.textAlign = "center";
+      ctx.fillText("NETWORK QUALITY SCORE", rx + rw / 2, ry + 28);
+
+      // Score Ring
+      const rcx = rx + rw / 2, rcy = ry + 102, rr = 52;
+      ctx.beginPath(); ctx.arc(rcx, rcy, rr, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 9; ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(rcx, rcy, rr, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (s.quality.score / 100));
+      ctx.strokeStyle = s.quality.tier.color; ctx.lineWidth = 9; ctx.lineCap = "round";
+      ctx.shadowColor = s.quality.tier.color; ctx.shadowBlur = 14;
+      ctx.stroke(); ctx.shadowBlur = 0;
+
+      ctx.fillStyle = s.quality.tier.color;
+      ctx.font = '700 34px "JetBrains Mono", monospace';
+      ctx.fillText(String(s.quality.score), rcx, rcy + 8);
+      ctx.fillStyle = "#84849a";
+      ctx.font = '500 11px "JetBrains Mono", monospace';
+      ctx.fillText("/ 100", rcx, rcy + 27);
+
+      ctx.fillStyle = "#f5f5f8";
+      ctx.font = '700 15px "JetBrains Mono", monospace';
+      ctx.fillText(`TIER ${s.quality.tier.letter} · ${s.quality.tier.title.toUpperCase()}`, rcx, ry + 184);
+
+      // Bufferbloat summary inside right panel
+      ctx.fillStyle = s.bloat.color;
+      ctx.font = '700 13px "JetBrains Mono", monospace';
+      ctx.fillText(`BLOAT: ${s.bloat.grade} (+${s.bloat.delta.toFixed(0)} ms)  ·  ${s.loadedStr}`, rcx, ry + 212);
+      ctx.textAlign = "left";
+
+      // Bottom Wide Throughput Curve Panel
+      const gx = 64, gy = 394, gw = W - 128, gh = 196;
+      rRect(gx, gy, gw, gh, 16);
+      ctx.fillStyle = "rgba(5, 6, 10, 0.88)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.stroke();
+
+      ctx.fillStyle = "#84849a";
+      ctx.font = '600 12px "JetBrains Mono", monospace';
+      ctx.fillText("14s PRECISION THROUGHPUT CURVE", gx + 20, gy + 28);
+      ctx.fillStyle = "#ffffff"; ctx.fillText("━ DL", gx + gw - 126, gy + 28);
+      ctx.fillStyle = "#38bdf8"; ctx.fillText("━ UL", gx + gw - 66, gy + 28);
+
+      const pl = gx + 20, pr = gx + gw - 62, pt = gy + 48, pb = gy + gh - 28;
+      const pw = pr - pl, ph = pb - pt;
+      const allV = [...s.dlPts.map((p) => p.v), ...s.ulPts.map((p) => p.v), 10];
+      const maxU = niceScaleCeiling(convertSpeed(Math.max(...allV)));
+      const maxM = speedUnit === "MB/s" ? maxU * 8 : maxU;
+
+      for (const f of [0, 0.5, 1]) {
+        const y = pb - f * ph;
+        ctx.strokeStyle = f === 0 ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)";
+        ctx.setLineDash(f === 0 ? [] : [3, 5]);
+        ctx.beginPath(); ctx.moveTo(pl, y); ctx.lineTo(pr, y); ctx.stroke();
+        ctx.fillStyle = "#6b7280";
+        ctx.font = '500 11px "JetBrains Mono", monospace';
+        ctx.fillText(`${Math.round(maxU * f)}`, pr + 10, y + 4);
+      }
+      ctx.setLineDash([]);
+
+      const drawExportSeries = (pts, color, gradTop) => {
+        if (!pts.length) return;
+        const cs = pts.map((p) => ({
+          x: pl + (Math.min(p.t, CHART_DURATION_SEC) / CHART_DURATION_SEC) * pw,
+          y: pb - (Math.min(p.v, maxM) / maxM) * ph,
+        }));
+        const trace = () => {
+          ctx.beginPath();
+          ctx.moveTo(cs[0].x, cs[0].y);
+          for (let i = 1; i < cs.length - 1; i++) {
+            ctx.quadraticCurveTo(cs[i].x, cs[i].y, (cs[i].x + cs[i + 1].x) / 2, (cs[i].y + cs[i + 1].y) / 2);
+          }
+          ctx.lineTo(cs[cs.length - 1].x, cs[cs.length - 1].y);
+        };
+        trace();
+        ctx.lineTo(cs[cs.length - 1].x, pb);
+        ctx.lineTo(cs[0].x, pb);
+        ctx.closePath();
+        const g = ctx.createLinearGradient(0, pt, 0, pb);
+        g.addColorStop(0, gradTop); g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g; ctx.fill();
+
+        trace();
+        ctx.strokeStyle = color; ctx.lineWidth = 2.8; ctx.lineCap = "round";
+        ctx.shadowColor = color; ctx.shadowBlur = 10; ctx.stroke(); ctx.shadowBlur = 0;
+      };
+
+      drawExportSeries(s.dlPts, "#ffffff", "rgba(255,255,255,0.18)");
+      drawExportSeries(s.ulPts, "#38bdf8", "rgba(56,189,248,0.22)");
+
+      // Card Footer
+      ctx.fillStyle = "#525266";
+      ctx.font = '500 13px "JetBrains Mono", monospace';
+      ctx.fillText(`© ${new Date().getFullYear()} robot123.xyz  ·  Cloudflare Edge Direct  ·  ${s.totalMb} MB transferred`, 64, H - 52);
+      ctx.textAlign = "right";
+      ctx.fillText("speedtest.robot123.xyz", W - 64, H - 52);
+
+      // Download PNG + best-effort copy image to clipboard for instant Discord paste
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const stamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 12);
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `speedtest-robot123-${stamp}.png`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+
+        let copiedImg = false;
+        try {
+          if (navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+            copiedImg = true;
+          }
+        } catch {}
+
+        btn.textContent = copiedImg ? "SAVED + COPIED ✓" : "SAVED PNG ✓";
+        btn.classList.add("is-copied");
+        setTimeout(() => {
+          btn.textContent = "EXPORT PNG";
+          btn.classList.remove("is-copied");
+        }, 2000);
+      }, "image/png");
+    }
+
+    // =========================================================================
+    // 4. PWA Service Worker & Install Prompt
+    // =========================================================================
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      });
+    }
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      $("install-btn").classList.add("visible");
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      $("install-btn").classList.remove("visible");
+    });
+
+    async function installPwa() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      $("install-btn").classList.remove("visible");
+    }
 
     function toggleTest() {
       if (isRunning) {
@@ -2965,15 +4007,17 @@
       const token = ++runToken;
       isRunning = true;
 
-      const btn = $("start-btn"), copyBtn = $("copy-btn");
+      const btn = $("start-btn"), copyBtn = $("copy-btn"), exportBtn = $("export-btn");
       btn.classList.add("is-stop");
       $("start-btn-text").textContent = "STOP DIAGNOSTIC";
       copyBtn.disabled = true;
+      exportBtn.disabled = true;
 
       totalBytesTransferred = 0;
       dlPoints = [];
       ulPoints = [];
       lastResults = null;
+      lastExportSnapshot = null;
       chartHoverTime = null;
       renderChart(null);
       $("quality-banner").classList.remove("visible");
@@ -2998,6 +4042,10 @@
         const pingRes = await measurePing(token, 25);
         if (token !== runToken) return;
 
+        // Refresh Sydney gaming server ping while the line is still idle
+        await measureGamingServers();
+        if (token !== runToken) return;
+
         const dl = await measureDownload(token, 14000, 6);
         if (token !== runToken) return;
 
@@ -3018,17 +4066,55 @@
         renderQualityScore(quality);
         renderProfile(dl.mbps, ul.mbps, pingRes.median, pingRes.jitter, pingRes.lossPct);
 
+        const sydAws = gamingState.aws ? gamingState.aws.median : null;
+        const sydAzure = gamingState.azure ? gamingState.azure.median : null;
+        const sydLine = (sydAws || sydAzure)
+          ? `Sydney Gaming: AWS ${sydAws ? Math.round(sydAws) + " ms" : "—"} (Valorant) | Azure ${sydAzure ? Math.round(sydAzure) + " ms" : "—"} (R6 Siege)`
+          : null;
+
         lastSummary = [
           `speedtest.robot123.xyz [${clientMeta.colo}] — Quality Score: ${quality.score}/100 (Tier ${quality.tier.letter} · ${quality.tier.title})`,
           `DL: ${dl.mbps.toFixed(1)} Mbps (${dl.consistency}% steady) | UL: ${ul.mbps.toFixed(1)} Mbps (${ul.consistency}% steady)`,
           `Ping: ${pingRes.median.toFixed(1)} ms | Jitter: ${pingRes.jitter.toFixed(1)} ms | Loaded: ${dlPingStr} / ${ulPingStr} (${bloat.grade})`,
+          ...(sydLine ? [sydLine] : []),
           `ISP: ${clientMeta.isp}`,
         ].join("\n");
 
-        const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        saveHistory({ time: nowStr, dl: dl.mbps, ul: ul.mbps, ping: pingRes.median, grade: bloat.grade, color: bloat.color, score: quality.score, scoreColor: quality.tier.color });
+        const now = new Date();
+        const dateStr = now.toLocaleDateString([], { month: "short", day: "numeric" });
+        const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+        lastExportSnapshot = {
+          colo: clientMeta.colo,
+          isp: clientMeta.isp,
+          dateStr: `${dateStr}, ${timeStr}`,
+          dl: dl.mbps, dlPeak: dl.peak, dlConsistency: dl.consistency,
+          ul: ul.mbps, ulPeak: ul.peak, ulConsistency: ul.consistency,
+          ping: pingRes.median, jitter: pingRes.jitter, lossPct: pingRes.lossPct,
+          loadedStr: `${dlPingStr}/${ulPingStr}`,
+          bloat, quality,
+          sydAws, sydAzure,
+          totalMb: (totalBytesTransferred / (1024 * 1024)).toFixed(1),
+          dlPts: [...dlPoints], ulPts: [...ulPoints],
+        };
+
+        saveHistory({
+          ts: now.getTime(),
+          date: dateStr,
+          time: timeStr,
+          dl: dl.mbps,
+          ul: ul.mbps,
+          ping: pingRes.median,
+          sydAws,
+          sydAzure,
+          grade: bloat.grade,
+          color: bloat.color,
+          score: quality.score,
+          scoreColor: quality.tier.color,
+        });
 
         copyBtn.disabled = false;
+        exportBtn.disabled = false;
       } catch (err) {
         if (token === runToken) {
           setPhase("idle", "ERROR");
