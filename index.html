@@ -11,21 +11,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Leaflet Map -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- MapLibre GL JS (HiDPI WebGL Vector Map — Zero Pixelation) -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
   <style>
     :root {
-      --bg: #040406;
-      --surface: #0a0a0e;
-      --surface-2: #121218;
-      --surface-3: #191922;
+      --bg: #030305;
+      --surface: #0a0a0f;
+      --surface-2: #12121a;
+      --surface-3: #1a1a25;
       --border: rgba(255, 255, 255, 0.075);
       --border-bright: rgba(255, 255, 255, 0.16);
-      --text: #f5f5f8;
-      --muted: #848496;
-      --dim: #4c4c5c;
+      --text: #f6f6fa;
+      --muted: #84849a;
+      --dim: #4c4c60;
       --accent: #ffffff;
       --dl-color: #ffffff;
       --ul-color: #38bdf8;
@@ -37,7 +37,7 @@
       --bad: #ef4444;
       --phase-color: #ffffff;
       --aura-1: rgba(255, 255, 255, 0.055);
-      --aura-2: rgba(56, 189, 248, 0.03);
+      --aura-2: rgba(56, 189, 248, 0.035);
       --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
@@ -59,14 +59,14 @@
       overflow-x: hidden;
     }
 
-    /* Ambient background mesh + architectural grid */
+    /* Ambient lighting mesh + architectural micro-grid */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
       background-image:
-        radial-gradient(ellipse 68% 48% at 50% -8%, var(--aura-1) 0%, transparent 70%),
-        radial-gradient(ellipse 45% 38% at 85% 95%, var(--aura-2) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 50% at 50% -10%, var(--aura-1) 0%, transparent 72%),
+        radial-gradient(ellipse 48% 40% at 88% 95%, var(--aura-2) 0%, transparent 72%),
         linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
       background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
@@ -75,19 +75,19 @@
       transition: opacity 0.6s ease;
     }
 
-    body[data-phase="ping"]     { --phase-color: var(--ping-color); --aura-1: rgba(245, 158, 11, 0.12); --aura-2: rgba(245, 158, 11, 0.04); }
-    body[data-phase="download"] { --phase-color: var(--dl-color);   --aura-1: rgba(255, 255, 255, 0.12); --aura-2: rgba(255, 255, 255, 0.04); }
-    body[data-phase="upload"]   { --phase-color: var(--ul-color);   --aura-1: rgba(56, 189, 248, 0.15);  --aura-2: rgba(56, 189, 248, 0.06); }
-    body[data-phase="done"]     { --phase-color: var(--good);       --aura-1: rgba(34, 197, 94, 0.10);   --aura-2: rgba(56, 189, 248, 0.05); }
+    body[data-phase="ping"]     { --phase-color: var(--ping-color); --aura-1: rgba(245, 158, 11, 0.13); --aura-2: rgba(245, 158, 11, 0.045); }
+    body[data-phase="download"] { --phase-color: var(--dl-color);   --aura-1: rgba(255, 255, 255, 0.13); --aura-2: rgba(255, 255, 255, 0.045); }
+    body[data-phase="upload"]   { --phase-color: var(--ul-color);   --aura-1: rgba(56, 189, 248, 0.16);  --aura-2: rgba(56, 189, 248, 0.065); }
+    body[data-phase="done"]     { --phase-color: var(--good);       --aura-1: rgba(34, 197, 94, 0.11);   --aura-2: rgba(56, 189, 248, 0.055); }
 
     @keyframes enter-up {
-      from { opacity: 0; transform: translateY(16px) scale(0.99); }
+      from { opacity: 0; transform: translateY(16px) scale(0.992); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes ripple {
-      0%   { transform: scale(1); opacity: 0.8; }
-      100% { transform: scale(2.9); opacity: 0; }
+      0%   { transform: scale(1); opacity: 0.85; }
+      100% { transform: scale(3.1); opacity: 0; }
     }
 
     @keyframes shimmer {
@@ -101,40 +101,35 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    @keyframes dash-flow {
-      to { stroke-dashoffset: -24; }
-    }
-
     @keyframes pulse-dot {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.45; transform: scale(0.85); }
+      50% { opacity: 0.4; transform: scale(0.82); }
     }
 
     .shell {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 1080px;
-      background: linear-gradient(180deg, rgba(16, 16, 22, 0.92) 0%, rgba(10, 10, 14, 0.96) 100%);
-      backdrop-filter: blur(20px);
+      max-width: 1120px;
+      background: linear-gradient(180deg, rgba(16, 16, 24, 0.93) 0%, rgba(9, 9, 14, 0.97) 100%);
+      backdrop-filter: blur(24px);
       border: 1px solid var(--border);
-      border-radius: 22px;
+      border-radius: 24px;
       box-shadow:
-        0 40px 120px rgba(0, 0, 0, 0.92),
-        0 1px 0 rgba(255, 255, 255, 0.07) inset;
+        0 45px 130px rgba(0, 0, 0, 0.94),
+        0 1px 0 rgba(255, 255, 255, 0.08) inset;
       overflow: hidden;
       animation: enter-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
-    /* Subtle top edge sheen */
     .shell::before {
       content: "";
       position: absolute;
       top: 0;
-      left: 10%;
-      right: 10%;
+      left: 8%;
+      right: 8%;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
       pointer-events: none;
       z-index: 5;
     }
@@ -147,7 +142,7 @@
       gap: 12px;
       padding: 16px 26px;
       border-bottom: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.012);
+      background: rgba(255, 255, 255, 0.014);
       flex-wrap: wrap;
     }
 
@@ -162,10 +157,10 @@
     }
 
     .brand-mark {
-      width: 24px;
-      height: 24px;
-      border-radius: 7px;
-      background: var(--surface-2);
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
       border: 1px solid var(--border-bright);
       display: inline-flex;
       align-items: center;
@@ -176,7 +171,7 @@
 
     .brand:hover .brand-mark {
       transform: rotate(90deg);
-      border-color: rgba(255, 255, 255, 0.4);
+      border-color: rgba(255, 255, 255, 0.42);
     }
 
     .brand-dim { color: var(--muted); font-weight: 500; }
@@ -187,6 +182,19 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+
+    .mode-chip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 720px) { .mode-chip { display: none; } }
 
     .unit-toggle {
       display: inline-flex;
@@ -263,7 +271,7 @@
       gap: 10px;
       padding: 11px 26px;
       border-bottom: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.22);
+      background: rgba(0, 0, 0, 0.26);
       font-family: var(--font-mono);
       font-size: 11px;
     }
@@ -278,18 +286,18 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 6px 11px;
-      border-radius: 8px;
+      padding: 6px 12px;
+      border-radius: 9px;
       border: 1px solid transparent;
       color: var(--dim);
       transition: all 0.3s ease;
     }
 
-    .pipe-left { display: flex; align-items: center; gap: 7px; }
+    .pipe-left { display: flex; align-items: center; gap: 8px; }
 
     .pipe-idx {
-      width: 18px;
-      height: 18px;
+      width: 19px;
+      height: 19px;
       border-radius: 50%;
       border: 1px solid var(--dim);
       display: inline-flex;
@@ -302,7 +310,7 @@
 
     .pipe-step.is-active {
       color: var(--text);
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.045);
       border-color: var(--border-bright);
     }
 
@@ -312,9 +320,7 @@
       box-shadow: 0 0 12px var(--phase-color);
     }
 
-    .pipe-step.is-done {
-      color: var(--muted);
-    }
+    .pipe-step.is-done { color: var(--muted); }
 
     .pipe-step.is-done .pipe-idx {
       background: rgba(34, 197, 94, 0.16);
@@ -342,15 +348,15 @@
     .hero {
       padding: 26px 26px 24px;
       display: grid;
-      grid-template-columns: 270px 1.25fr 1fr;
+      grid-template-columns: 280px 1.2fr 1.05fr;
       gap: 20px;
       align-items: stretch;
       border-bottom: 1px solid var(--border);
     }
 
-    @media (max-width: 960px) {
-      .hero { grid-template-columns: 260px 1fr; }
-      #map-box { grid-column: span 2; height: 210px; }
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 270px 1fr; }
+      #map-box { grid-column: span 2; height: 235px; }
     }
 
     @media (max-width: 680px) {
@@ -360,30 +366,36 @@
 
     /* Gauge Panel */
     .gauge-panel {
-      background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.03) 0%, rgba(4, 4, 6, 0.65) 75%);
+      background:
+        radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.038) 0%, rgba(4, 4, 7, 0.8) 72%),
+        radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      background-size: 100% 100%, 16px 16px;
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 14px 12px 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
-      min-height: 222px;
-      transition: border-color 0.3s;
+      min-height: 248px;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
 
-    .gauge-panel:hover { border-color: var(--border-bright); }
+    .gauge-panel:hover {
+      border-color: var(--border-bright);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    }
 
     .gauge-svg {
-      width: 230px;
-      height: 192px;
+      width: 242px;
+      height: 204px;
       overflow: visible;
     }
 
     .gauge-track {
       fill: none;
-      stroke: rgba(255, 255, 255, 0.08);
+      stroke: rgba(255, 255, 255, 0.075);
       stroke-width: 8;
       stroke-linecap: round;
     }
@@ -411,7 +423,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding-top: 20px;
+      padding-top: 22px;
       pointer-events: none;
     }
 
@@ -422,10 +434,11 @@
       font-family: var(--font-mono);
       font-size: 9px;
       font-weight: 600;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 7px;
+      font-variant-numeric: tabular-nums;
     }
 
     .phase-dot {
@@ -441,7 +454,7 @@
     body[data-phase="upload"] .phase-dot {
       background: var(--phase-color);
       box-shadow: 0 0 10px var(--phase-color);
-      animation: pulse-dot 1.2s ease-in-out infinite;
+      animation: pulse-dot 1.1s ease-in-out infinite;
     }
 
     body[data-phase="done"] .phase-dot {
@@ -451,7 +464,7 @@
 
     .big-num {
       font-family: var(--font-mono);
-      font-size: 46px;
+      font-size: 48px;
       font-weight: 700;
       letter-spacing: -0.05em;
       line-height: 1;
@@ -472,28 +485,28 @@
     }
 
     .sub-metric {
-      margin-top: 14px;
+      margin-top: 15px;
       font-family: var(--font-mono);
       font-size: 10px;
       color: var(--muted);
       background: var(--surface-2);
       border: 1px solid var(--border);
-      padding: 3px 9px;
+      padding: 3px 10px;
       border-radius: 999px;
       font-variant-numeric: tabular-nums;
     }
 
     /* Panels (Chart & Map) */
     .panel-box {
-      background: rgba(4, 4, 6, 0.72);
+      background: rgba(4, 4, 7, 0.78);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px 16px;
+      border-radius: 18px;
+      padding: 15px 17px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      min-height: 222px;
+      min-height: 248px;
       transition: border-color 0.25s ease;
     }
 
@@ -548,10 +561,10 @@
       left: 4px;
       font-family: var(--font-mono);
       font-size: 10px;
-      background: rgba(12, 12, 18, 0.92);
+      background: rgba(10, 10, 16, 0.94);
       border: 1px solid var(--border-bright);
-      border-radius: 6px;
-      padding: 4px 8px;
+      border-radius: 7px;
+      padding: 4px 9px;
       color: var(--text);
       pointer-events: none;
       opacity: 0;
@@ -560,62 +573,74 @@
       font-variant-numeric: tabular-nums;
       display: flex;
       gap: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
     }
 
     .chart-tooltip.visible { opacity: 1; }
 
     svg#chart {
       width: 100%;
-      height: 158px;
+      height: 178px;
       overflow: visible;
     }
 
-    /* Map */
+    /* HiDPI Vector Map */
     #map-box {
       padding: 0;
       overflow: hidden;
+      background: #06070c;
     }
 
     #map-box::after {
       content: "";
       position: absolute;
       inset: 0;
-      border-radius: 15px;
-      box-shadow: inset 0 0 28px rgba(4, 4, 6, 0.85);
+      border-radius: 17px;
+      box-shadow: inset 0 0 34px rgba(3, 3, 6, 0.88);
       pointer-events: none;
-      z-index: 600;
+      z-index: 8;
     }
 
     #map-overlay-title {
       position: absolute;
-      top: 11px;
-      left: 11px;
+      top: 12px;
+      left: 12px;
       font-family: var(--font-mono);
       font-size: 10px;
-      color: rgba(255, 255, 255, 0.88);
+      color: rgba(255, 255, 255, 0.9);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      z-index: 1000;
-      background: rgba(6, 6, 10, 0.76);
-      backdrop-filter: blur(8px);
+      z-index: 12;
+      background: rgba(6, 7, 12, 0.78);
+      backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       padding: 4px 9px;
       border-radius: 7px;
       pointer-events: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-vector-tag {
+      font-size: 8px;
+      color: var(--ul-color);
+      letter-spacing: 0.08em;
+      opacity: 0.9;
     }
 
     #map-route-pill {
       position: absolute;
-      bottom: 11px;
-      left: 11px;
+      bottom: 12px;
+      left: 12px;
       font-family: var(--font-mono);
       font-size: 10px;
       color: var(--text);
-      z-index: 1000;
-      background: rgba(6, 6, 10, 0.82);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.11);
-      padding: 4px 9px;
+      z-index: 12;
+      background: rgba(6, 7, 12, 0.84);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 4px 10px;
       border-radius: 7px;
       pointer-events: none;
       font-variant-numeric: tabular-nums;
@@ -624,52 +649,76 @@
     #map {
       width: 100%;
       height: 100%;
-      min-height: 220px;
-      border-radius: 15px;
-      background: #090a0e;
-      z-index: 1;
+      min-height: 248px;
+      border-radius: 17px;
+      background: #06070c;
     }
 
-    #map .leaflet-tile-pane { filter: brightness(1.05) contrast(1.24) saturate(0.18); }
-    #map.osm-dark .leaflet-tile-pane { filter: grayscale(100%) invert(100%) brightness(0.75) contrast(1.25); }
-    .leaflet-container { background: #090a0e !important; }
+    .maplibregl-ctrl-logo, .maplibregl-ctrl-attrib { display: none !important; }
 
-    .flight-path {
-      stroke-dasharray: 5 7;
-      animation: dash-flow 1.15s linear infinite;
+    /* Custom Vector Map Beacons */
+    .gl-marker {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
     }
 
-    .beacon-client, .beacon-server {
+    .gl-beacon {
       position: relative;
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
+      flex-shrink: 0;
     }
-    .beacon-client {
+
+    .gl-beacon.client {
       background: #ffffff;
+      border: 2px solid #050508;
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.95);
-      border: 2px solid #050506;
     }
-    .beacon-client::after {
+
+    .gl-beacon.client::after {
       content: "";
       position: absolute;
       inset: -4px;
       border-radius: 50%;
       border: 1.5px solid rgba(255, 255, 255, 0.75);
-      animation: ripple 2s ease-out infinite;
+      animation: ripple 2.1s ease-out infinite;
     }
-    .beacon-server {
+
+    .gl-beacon.server {
       background: #f59e0b;
+      border: 2px solid #050508;
       box-shadow: 0 0 14px rgba(245, 158, 11, 0.95);
-      border: 2px solid #050506;
     }
-    .beacon-server::after {
+
+    .gl-beacon.server::after {
       content: "";
       position: absolute;
       inset: -4px;
       border-radius: 50%;
-      border: 1.5px solid rgba(245, 158, 11, 0.8);
-      animation: ripple 2s ease-out 0.6s infinite;
+      border: 1.5px solid rgba(245, 158, 11, 0.85);
+      animation: ripple 2.1s ease-out 0.65s infinite;
+    }
+
+    .gl-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(6, 7, 12, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text);
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+    }
+
+    .gl-label.server {
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fcd34d;
     }
 
     /* Progress Bar */
@@ -686,7 +735,7 @@
       background: linear-gradient(90deg, #ffffff 0%, #38bdf8 50%, #22c55e 100%);
       background-size: 200% 100%;
       transition: width 0.14s linear;
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
     }
 
     .progress-fill.running { animation: shimmer 1.4s linear infinite; }
@@ -701,7 +750,7 @@
     @media (max-width: 680px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
 
     .metric-cell {
-      padding: 20px 24px;
+      padding: 20px 24px 18px;
       border-right: 1px solid var(--border);
       position: relative;
       transition: background 0.25s ease;
@@ -719,8 +768,8 @@
     }
 
     .metric-cell.is-active { background: rgba(255, 255, 255, 0.025); }
-    .metric-cell.is-active[data-card="dl"]::before { background: var(--dl-color); box-shadow: 0 0 14px rgba(255,255,255,0.5); }
-    .metric-cell.is-active[data-card="ul"]::before { background: var(--ul-color); box-shadow: 0 0 14px rgba(56,189,248,0.6); }
+    .metric-cell.is-active[data-card="dl"]::before   { background: var(--dl-color);   box-shadow: 0 0 14px rgba(255,255,255,0.5); }
+    .metric-cell.is-active[data-card="ul"]::before   { background: var(--ul-color);   box-shadow: 0 0 14px rgba(56,189,248,0.6); }
     .metric-cell.is-active[data-card="ping"]::before { background: var(--ping-color); box-shadow: 0 0 14px rgba(245,158,11,0.6); }
 
     .metric-cell:last-child { border-right: none; }
@@ -754,7 +803,7 @@
 
     .m-val {
       font-family: var(--font-mono);
-      font-size: 25px;
+      font-size: 26px;
       font-weight: 700;
       letter-spacing: -0.03em;
       font-variant-numeric: tabular-nums;
@@ -765,10 +814,29 @@
 
     .m-sub {
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--muted);
       margin-top: 6px;
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .m-bar-track {
+      margin-top: 12px;
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.055);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .m-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.75s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* Network Quality Score Banner */
@@ -779,7 +847,7 @@
       align-items: center;
       padding: 18px 26px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0%, rgba(4, 4, 6, 0.45) 100%);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.028) 0%, rgba(4, 4, 7, 0.45) 100%);
       animation: enter-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
@@ -789,11 +857,7 @@
       .quality-banner { grid-template-columns: 1fr; gap: 16px; }
     }
 
-    .q-left {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
+    .q-left { display: flex; align-items: center; gap: 18px; }
 
     .q-ring-wrap {
       position: relative;
@@ -802,17 +866,8 @@
       flex-shrink: 0;
     }
 
-    .q-ring-svg {
-      width: 78px;
-      height: 78px;
-      transform: rotate(-90deg);
-    }
-
-    .q-ring-bg {
-      fill: none;
-      stroke: rgba(255, 255, 255, 0.08);
-      stroke-width: 6;
-    }
+    .q-ring-svg { width: 78px; height: 78px; transform: rotate(-90deg); }
+    .q-ring-bg { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 6; }
 
     .q-ring-fg {
       fill: none;
@@ -834,40 +889,12 @@
       font-family: var(--font-mono);
     }
 
-    .q-score-num {
-      font-size: 23px;
-      font-weight: 700;
-      line-height: 1;
-      font-variant-numeric: tabular-nums;
-    }
+    .q-score-num { font-size: 23px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+    .q-score-max { font-size: 9px; color: var(--muted); margin-top: 2px; }
 
-    .q-score-max {
-      font-size: 9px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .q-info {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      min-width: 0;
-    }
-
-    .q-eyebrow {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-    }
-
-    .q-tier-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .q-info { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .q-eyebrow { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+    .q-tier-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .q-tier-badge {
       font-family: var(--font-mono);
@@ -879,34 +906,17 @@
       letter-spacing: 0.06em;
     }
 
-    .q-tier-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -0.01em;
-    }
+    .q-tier-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+    .q-verdict { font-size: 12px; color: var(--muted); line-height: 1.4; }
 
-    .q-verdict {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
-    .q-breakdown {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-    }
-
-    @media (max-width: 640px) {
-      .q-breakdown { grid-template-columns: repeat(3, 1fr); }
-    }
+    .q-breakdown { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    @media (max-width: 640px) { .q-breakdown { grid-template-columns: repeat(3, 1fr); } }
 
     .q-pillar {
-      background: rgba(4, 4, 6, 0.72);
+      background: rgba(4, 4, 7, 0.78);
       border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 8px 10px;
+      border-radius: 10px;
+      padding: 9px 10px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -923,27 +933,9 @@
       color: var(--muted);
     }
 
-    .q-p-pts {
-      color: var(--text);
-      font-weight: 700;
-      font-size: 10px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .q-p-track {
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.07);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .q-p-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      transition: width 0.85s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+    .q-p-pts { color: var(--text); font-weight: 700; font-size: 10px; font-variant-numeric: tabular-nums; }
+    .q-p-track { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.07); border-radius: 999px; overflow: hidden; }
+    .q-p-fill { height: 100%; width: 0%; border-radius: 999px; transition: width 0.85s cubic-bezier(0.16, 1, 0.3, 1); }
 
     /* Real-World Connection Profile Strip */
     .profile-strip {
@@ -952,29 +944,31 @@
       gap: 10px;
       padding: 16px 26px;
       border-bottom: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.015);
-      animation: enter-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      background: rgba(255, 255, 255, 0.014);
+      animation: enter-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
     }
 
     .profile-strip.visible { display: grid; }
-
     @media (max-width: 780px) { .profile-strip { grid-template-columns: repeat(2, 1fr); } }
 
     .prof-card {
-      background: rgba(4, 4, 6, 0.72);
+      background: rgba(4, 4, 7, 0.78);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
+      border-radius: 11px;
+      padding: 11px 13px;
       display: flex;
       flex-direction: column;
       gap: 4px;
+      transition: border-color 0.2s;
     }
+
+    .prof-card:hover { border-color: var(--border-bright); }
 
     .prof-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 600;
       color: var(--text);
     }
@@ -989,16 +983,12 @@
       letter-spacing: 0.06em;
     }
 
-    .prof-desc {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--muted);
-    }
+    .prof-desc { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
 
     /* Telemetry Details */
     .details-section {
       padding: 18px 26px;
-      background: rgba(4, 4, 6, 0.55);
+      background: rgba(4, 4, 7, 0.58);
       border-bottom: 1px solid var(--border);
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1065,14 +1055,14 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle 120px at var(--mx, 50%) var(--my, 50%), rgba(56, 189, 248, 0.25), transparent 70%);
+      background: radial-gradient(circle 130px at var(--mx, 50%) var(--my, 50%), rgba(56, 189, 248, 0.28), transparent 70%);
       opacity: 0;
       transition: opacity 0.25s;
       pointer-events: none;
     }
 
     .btn-primary:hover::after { opacity: 1; }
-    .btn-primary:hover { box-shadow: 0 0 28px rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
+    .btn-primary:hover { box-shadow: 0 0 30px rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
     .btn-primary:active { transform: scale(0.988); }
 
     .btn-primary.is-stop {
@@ -1122,12 +1112,12 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 1080px;
+      max-width: 1120px;
       margin-top: 14px;
-      background: rgba(10, 10, 14, 0.9);
+      background: rgba(10, 10, 15, 0.92);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px 22px;
+      border-radius: 18px;
+      padding: 15px 22px;
       display: none;
       animation: enter-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
@@ -1159,18 +1149,32 @@
 
     .history-clear:hover { color: var(--text); }
 
-    .history-list { display: flex; flex-direction: column; gap: 6px; }
-
-    .history-row {
+    .history-cols, .history-row {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 0.8fr 0.7fr 0.45fr;
       gap: 10px;
       align-items: center;
-      padding: 8px 13px;
-      background: rgba(4, 4, 6, 0.72);
+      font-family: var(--font-mono);
+    }
+
+    .history-cols {
+      padding: 0 13px 6px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+    }
+
+    .history-cols span:nth-child(5),
+    .history-cols span:nth-child(6) { text-align: right; }
+
+    .history-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .history-row {
+      padding: 9px 13px;
+      background: rgba(4, 4, 7, 0.78);
       border: 1px solid var(--border);
       border-radius: 9px;
-      font-family: var(--font-mono);
       font-size: 11px;
       font-variant-numeric: tabular-nums;
       transition: border-color 0.2s;
@@ -1179,16 +1183,15 @@
     .history-row:hover { border-color: var(--border-bright); }
 
     @media (max-width: 640px) {
-      .history-row { grid-template-columns: 1fr 1fr 0.75fr 0.65fr 0.4fr; }
-      .history-row .h-time { display: none; }
+      .history-cols, .history-row { grid-template-columns: 1fr 1fr 0.75fr 0.65fr 0.4fr; }
+      .history-cols .h-time, .history-row .h-time { display: none; }
     }
-
-    .h-score { font-weight: 700; text-align: right; }
 
     .h-time { color: var(--muted); }
     .h-dl { color: var(--dl-color); font-weight: 600; }
     .h-ul { color: var(--ul-color); font-weight: 600; }
     .h-ping { color: var(--muted); }
+    .h-score { font-weight: 700; text-align: right; }
     .h-grade { text-align: right; font-weight: 700; }
   </style>
 </head>
@@ -1201,6 +1204,7 @@
         <span>speedtest<span class="brand-dim">.robot123.xyz</span></span>
       </div>
       <div class="topbar-right">
+        <span class="mode-chip">14s DL · 14s UL · PRECISION</span>
         <div class="unit-toggle" role="group" aria-label="Speed unit">
           <button id="unit-mbps" class="active" onclick="setUnit('Mbps')">Mbps</button>
           <button id="unit-mbs" onclick="setUnit('MB/s')">MB/s</button>
@@ -1230,24 +1234,25 @@
       </div>
     </div>
 
-    <!-- Hero: Gauge + Throughput Curve + Routing Map -->
+    <!-- Hero: Precision Gauge + Oscilloscope Curve + HiDPI Vector Map -->
     <div class="hero">
       <div class="gauge-panel">
         <svg class="gauge-svg" viewBox="0 0 220 185" aria-hidden="true">
           <defs>
-            <filter id="arc-glow" x="-25%" y="-25%" width="150%" height="150%">
-              <feGaussianBlur stdDeviation="3.5" result="blur" />
+            <filter id="arc-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.8" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
           </defs>
+          <g id="gauge-microticks"></g>
           <g id="gauge-ticks"></g>
           <path class="gauge-track" d="M 38.99 149 A 82 82 0 1 1 181.01 149" />
           <path id="gauge-arc" class="gauge-arc" d="M 38.99 149 A 82 82 0 1 1 181.01 149"
                 stroke-dasharray="343.48" stroke-dashoffset="343.48" filter="url(#arc-glow)" />
-          <circle id="gauge-tip" cx="38.99" cy="149" r="4.5" fill="#ffffff" opacity="0" filter="url(#arc-glow)" />
+          <circle id="gauge-tip" cx="38.99" cy="149" r="4.8" fill="#ffffff" opacity="0" filter="url(#arc-glow)" />
         </svg>
 
         <div class="gauge-center">
@@ -1280,25 +1285,36 @@
                 <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
               </linearGradient>
               <linearGradient id="ul-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.26" />
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.28" />
                 <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
               </linearGradient>
+              <filter id="line-glow" x="-10%" y="-25%" width="120%" height="150%">
+                <feGaussianBlur stdDeviation="1.6" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
             </defs>
             <line x1="0" y1="25" x2="300" y2="25" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
             <line x1="0" y1="50" x2="300" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
             <line x1="0" y1="75" x2="300" y2="75" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="2 3" />
+            <line id="dl-avg-line" x1="0" y1="100" x2="300" y2="100" stroke="rgba(255,255,255,0.22)" stroke-width="0.9" stroke-dasharray="3 4" opacity="0" />
+            <line id="ul-avg-line" x1="0" y1="100" x2="300" y2="100" stroke="rgba(56,189,248,0.28)" stroke-width="0.9" stroke-dasharray="3 4" opacity="0" />
             <path id="dl-area" fill="url(#dl-grad)" d="" />
             <path id="ul-area" fill="url(#ul-grad)" d="" />
-            <path id="dl-line" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="" />
-            <path id="ul-line" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="" />
-            <line id="chart-cursor" x1="0" y1="0" x2="0" y2="100" stroke="rgba(255,255,255,0.22)" stroke-width="1" stroke-dasharray="2 2" opacity="0" />
+            <path id="dl-line" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#line-glow)" d="" />
+            <path id="ul-line" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#line-glow)" d="" />
+            <line id="chart-cursor" x1="0" y1="0" x2="0" y2="100" stroke="rgba(255,255,255,0.24)" stroke-width="1" stroke-dasharray="2 2" opacity="0" />
+            <circle id="hover-dl-dot" cx="0" cy="100" r="3" fill="#ffffff" stroke="#050508" stroke-width="1.2" opacity="0" />
+            <circle id="hover-ul-dot" cx="0" cy="100" r="3" fill="#38bdf8" stroke="#050508" stroke-width="1.2" opacity="0" />
             <circle id="chart-dot" cx="0" cy="100" r="3.5" fill="#ffffff" opacity="0" />
           </svg>
         </div>
       </div>
 
       <div class="panel-box" id="map-box">
-        <div id="map-overlay-title">ROUTING PATH</div>
+        <div id="map-overlay-title"><span>ROUTING PATH</span><span class="map-vector-tag">VECTOR HD</span></div>
         <div id="map-route-pill">LOCATING...</div>
         <div id="map"></div>
       </div>
@@ -1313,21 +1329,25 @@
         <div class="m-head"><span class="m-label">Download</span><span class="m-icon" style="color:var(--dl-color)">↓</span></div>
         <div class="m-val" id="dl-res">—</div>
         <div class="m-sub" id="dl-peak">Peak: —</div>
+        <div class="m-bar-track"><div class="m-bar-fill" id="bar-dl" style="background:#ffffff"></div></div>
       </div>
       <div class="metric-cell" data-card="ul">
         <div class="m-head"><span class="m-label">Upload</span><span class="m-icon" style="color:var(--ul-color)">↑</span></div>
         <div class="m-val" id="ul-res">—</div>
         <div class="m-sub" id="ul-peak">Peak: —</div>
+        <div class="m-bar-track"><div class="m-bar-fill" id="bar-ul" style="background:#38bdf8"></div></div>
       </div>
       <div class="metric-cell" data-card="ping">
         <div class="m-head"><span class="m-label">Idle Ping</span><span class="m-icon" style="color:var(--ping-color)">◎</span></div>
         <div class="m-val" id="ping-res">—</div>
         <div class="m-sub" id="ping-range">Min/Max: —</div>
+        <div class="m-bar-track"><div class="m-bar-fill" id="bar-ping" style="background:#f59e0b"></div></div>
       </div>
       <div class="metric-cell" data-card="jitter">
         <div class="m-head"><span class="m-label">Jitter / Loss</span><span class="m-icon" style="color:var(--jitter-color)">∿</span></div>
         <div class="m-val" id="jitter-res">—</div>
         <div class="m-sub" id="loss-res">Loss: 0.0%</div>
+        <div class="m-bar-track"><div class="m-bar-fill" id="bar-jitter" style="background:#a78bfa"></div></div>
       </div>
     </div>
 
@@ -1385,6 +1405,14 @@
       <span>RECENT RUNS</span>
       <button class="history-clear" onclick="clearHistory()">CLEAR</button>
     </div>
+    <div class="history-cols">
+      <span class="h-time">Time</span>
+      <span>Download</span>
+      <span>Upload</span>
+      <span>Ping</span>
+      <span>Score</span>
+      <span>Bloat</span>
+    </div>
     <div class="history-list" id="history-list"></div>
   </div>
 
@@ -1395,20 +1423,19 @@
     let clientMeta = { ip: "Hidden", isp: "Unknown", colo: "AKL", city: "Christchurch", lat: -43.532, lon: 172.636, httpProtocol: "HTTP/3", tlsVersion: "TLSv1.3" };
     let ipVisible = false;
     let speedUnit = "Mbps";
-    let useEdgeDirect = true; // Native Cloudflare Edge (HTTP/2 TCP, no Worker CPU 503 cap) with automatic /api/speed fallback
+    let useEdgeDirect = true;
     let totalBytesTransferred = 0;
     let dlPoints = [];
     let ulPoints = [];
+    let chartMaxVal = 10;
     let lastSummary = "";
     let lastResults = null;
-    let leafletMap = null;
-    let activeTileLayer = null;
     let isRunning = false;
     let activeAbortControllers = new Set();
     let activeXhrs = new Set();
     let runToken = 0;
 
-    // 60fps Animated Readout & Arc Gauge
+    // 60fps Animated Readout & Precision Arc Gauge (with reactive micro-ticks)
     const GAUGE_CX = 110, GAUGE_CY = 108, GAUGE_R = 82, GAUGE_LEN = 343.48;
     const GAUGE_STOPS = [
       { mbps: 0,    frac: 0.00, label: "0" },
@@ -1420,19 +1447,36 @@
       { mbps: 1000, frac: 1.00, label: "1G" },
     ];
 
+    const microTickEls = [];
     function buildGaugeTicks() {
+      // 48 subtle inner telemetry micro-ticks that illuminate as the needle sweeps
+      const mg = $("gauge-microticks");
+      let mHtml = "";
+      const totalMicro = 48;
+      for (let i = 0; i <= totalMicro; i++) {
+        const frac = i / totalMicro;
+        const rad = ((150 + frac * 240) * Math.PI) / 180;
+        const x1 = GAUGE_CX + 69 * Math.cos(rad);
+        const y1 = GAUGE_CY + 69 * Math.sin(rad);
+        const x2 = GAUGE_CX + 72.5 * Math.cos(rad);
+        const y2 = GAUGE_CY + 72.5 * Math.sin(rad);
+        mHtml += `<line id="mt-${i}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" stroke-linecap="round"/>`;
+      }
+      mg.innerHTML = mHtml;
+      for (let i = 0; i <= totalMicro; i++) microTickEls.push({ el: $(`mt-${i}`), frac: i / totalMicro });
+
+      // Major outer labeled ticks
       const g = $("gauge-ticks");
       let html = "";
       for (const s of GAUGE_STOPS) {
-        const deg = 150 + s.frac * 240;
-        const rad = (deg * Math.PI) / 180;
+        const rad = ((150 + s.frac * 240) * Math.PI) / 180;
         const x1 = GAUGE_CX + 90 * Math.cos(rad);
         const y1 = GAUGE_CY + 90 * Math.sin(rad);
         const x2 = GAUGE_CX + 95 * Math.cos(rad);
         const y2 = GAUGE_CY + 95 * Math.sin(rad);
         const lx = GAUGE_CX + 104 * Math.cos(rad);
         const ly = GAUGE_CY + 104 * Math.sin(rad);
-        html += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" stroke-linecap="round"/>`;
+        html += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.22)" stroke-width="1.2" stroke-linecap="round"/>`;
         html += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" class="gauge-tick-label">${s.label}</text>`;
       }
       g.innerHTML = html;
@@ -1445,8 +1489,7 @@
       for (let i = 0; i < GAUGE_STOPS.length - 1; i++) {
         const a = GAUGE_STOPS[i], b = GAUGE_STOPS[i + 1];
         if (mbps <= b.mbps) {
-          const t = (mbps - a.mbps) / (b.mbps - a.mbps);
-          return a.frac + t * (b.frac - a.frac);
+          return a.frac + ((mbps - a.mbps) / (b.mbps - a.mbps)) * (b.frac - a.frac);
         }
       }
       return 1;
@@ -1469,15 +1512,21 @@
         : speedToGaugeFrac(currentDisplayVal);
       currentGaugeFrac += (targetFrac - currentGaugeFrac) * 0.18;
 
-      const arc = $("gauge-arc");
-      const tip = $("gauge-tip");
-      arc.setAttribute("stroke-dashoffset", (GAUGE_LEN * (1 - currentGaugeFrac)).toFixed(2));
+      const phaseColor = getComputedStyle(document.body).getPropertyValue("--phase-color").trim() || "#ffffff";
+      $("gauge-arc").setAttribute("stroke-dashoffset", (GAUGE_LEN * (1 - currentGaugeFrac)).toFixed(2));
 
+      for (let i = 0; i < microTickEls.length; i++) {
+        const m = microTickEls[i];
+        m.el.setAttribute("stroke", m.frac <= currentGaugeFrac && currentGaugeFrac > 0.01 ? phaseColor : "rgba(255,255,255,0.08)");
+        m.el.setAttribute("opacity", m.frac <= currentGaugeFrac && currentGaugeFrac > 0.01 ? "0.55" : "1");
+      }
+
+      const tip = $("gauge-tip");
       if (currentGaugeFrac > 0.008) {
         const rad = ((150 + currentGaugeFrac * 240) * Math.PI) / 180;
         tip.setAttribute("cx", (GAUGE_CX + GAUGE_R * Math.cos(rad)).toFixed(1));
         tip.setAttribute("cy", (GAUGE_CY + GAUGE_R * Math.sin(rad)).toFixed(1));
-        tip.setAttribute("fill", getComputedStyle(document.body).getPropertyValue("--phase-color").trim() || "#ffffff");
+        tip.setAttribute("fill", phaseColor);
         tip.setAttribute("opacity", "1");
       } else {
         tip.setAttribute("opacity", "0");
@@ -1486,7 +1535,7 @@
     }
     requestAnimationFrame(animateFrame);
 
-    // Mouse-tracking glow on CTA button
+    // Mouse-tracking radial highlight on CTA button
     $("start-btn").addEventListener("mousemove", (e) => {
       const r = e.currentTarget.getBoundingClientRect();
       e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
@@ -1503,9 +1552,9 @@
       if (!displayIsPing) $("live-unit").textContent = unit;
       if (lastResults) {
         $("dl-res").textContent = formatSpeed(lastResults.dl);
-        $("dl-peak").textContent = `Peak: ${formatSpeed(lastResults.dlPeak)}`;
+        $("dl-peak").textContent = `Peak ${formatSpeed(lastResults.dlPeak)} · ${lastResults.dlConsistency}% steady`;
         $("ul-res").textContent = formatSpeed(lastResults.ul);
-        $("ul-peak").textContent = `Peak: ${formatSpeed(lastResults.ulPeak)}`;
+        $("ul-peak").textContent = `Peak ${formatSpeed(lastResults.ulPeak)} · ${lastResults.ulConsistency}% steady`;
         $("sum-dl").textContent = formatSpeed(lastResults.dl);
         $("sum-ul").textContent = formatSpeed(lastResults.ul);
       }
@@ -1513,7 +1562,7 @@
       renderHistory();
     }
 
-    // Global Cloudflare POP Coordinates
+    // Global Cloudflare POP Coordinates [lat, lon]
     const edgeCoords = {
       AKL: [-36.8485, 174.7633], CHC: [-43.5320, 172.6306], WLG: [-41.2865, 174.7762],
       SYD: [-33.8688, 151.2093], MEL: [-37.8136, 144.9631], BNE: [-27.4698, 153.0251],
@@ -1540,70 +1589,244 @@
       return Math.round(6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
     }
 
-    function curvedArcPoints(start, end, segments = 28) {
-      const [lat1, lon1] = start, [lat2, lon2] = end;
+    // Build curved [lon, lat] arc for MapLibre GL
+    function curvedLngLatArc([lon1, lat1], [lon2, lat2], segments = 64) {
       const dx = lon2 - lon1, dy = lat2 - lat1, dist = Math.hypot(dx, dy);
-      if (dist < 0.05) return [start, end];
-      const ctrlLat = (lat1 + lat2) / 2 + (dx / dist) * (dist * 0.16);
+      if (dist < 0.05) return [[lon1, lat1], [lon2, lat2]];
       const ctrlLon = (lon1 + lon2) / 2 - (dy / dist) * (dist * 0.16);
+      const ctrlLat = (lat1 + lat2) / 2 + (dx / dist) * (dist * 0.16);
       const pts = [];
       for (let i = 0; i <= segments; i++) {
         const t = i / segments, inv = 1 - t;
         pts.push([
-          inv * inv * lat1 + 2 * inv * t * ctrlLat + t * t * lat2,
           inv * inv * lon1 + 2 * inv * t * ctrlLon + t * t * lon2,
+          inv * inv * lat1 + 2 * inv * t * ctrlLat + t * t * lat2,
         ]);
       }
       return pts;
     }
 
-    function initMap() {
-      const clientPos = [Number(clientMeta.lat) || -43.532, Number(clientMeta.lon) || 172.636];
-      const serverPos = edgeCoords[clientMeta.colo] || clientPos;
-      const distKm = haversineKm(clientPos, serverPos);
+    // =========================================================================
+    // HiDPI WebGL Vector Routing Map (MapLibre GL + OpenFreeMap Vector Tiles)
+    // =========================================================================
+    let glMap = null;
+    let glMapLoaded = false;
+    let glMarkers = [];
+    let routeArcPts = [];
+    let mapFlowMode = "idle"; // idle | ping | download | upload | done
+    let pulseProgress = 0;
+    let lastPulseFrame = 0;
+
+    const DARK_VECTOR_STYLE = {
+      version: 8,
+      sources: {
+        ofm: {
+          type: "vector",
+          url: "https://tiles.openfreemap.org/planet"
+        }
+      },
+      layers: [
+        { id: "bg-land", type: "background", paint: { "background-color": "#161925" } },
+        {
+          id: "landcover-subtle",
+          type: "fill",
+          source: "ofm",
+          "source-layer": "landcover",
+          paint: { "fill-color": "#1a1e2c", "fill-opacity": 0.45 }
+        },
+        {
+          id: "water-fill",
+          type: "fill",
+          source: "ofm",
+          "source-layer": "water",
+          paint: { "fill-color": "#06070c" }
+        },
+        {
+          id: "waterway-lines",
+          type: "line",
+          source: "ofm",
+          "source-layer": "waterway",
+          paint: { "line-color": "#090b12", "line-width": 0.8, "line-opacity": 0.7 }
+        },
+        {
+          id: "coastline-rim",
+          type: "line",
+          source: "ofm",
+          "source-layer": "water",
+          paint: { "line-color": "#333b54", "line-width": 1.1, "line-opacity": 0.85 }
+        },
+        {
+          id: "roads-major",
+          type: "line",
+          source: "ofm",
+          "source-layer": "transportation",
+          filter: ["in", "class", "motorway", "trunk", "primary"],
+          paint: { "line-color": "#ffffff", "line-width": 0.6, "line-opacity": 0.065 }
+        },
+        {
+          id: "borders",
+          type: "line",
+          source: "ofm",
+          "source-layer": "boundary",
+          filter: ["==", "admin_level", 2],
+          paint: { "line-color": "#ffffff", "line-width": 0.8, "line-opacity": 0.14 }
+        }
+      ]
+    };
+
+    function setMapFlowMode(mode) {
+      mapFlowMode = mode;
+      if (!glMap || !glMapLoaded) return;
+      const color = mode === "upload" ? "#38bdf8" : mode === "download" ? "#ffffff" : "#f59e0b";
+      if (glMap.getLayer("route-glow")) glMap.setPaintProperty("route-glow", "line-color", color);
+      if (glMap.getLayer("route-core")) glMap.setPaintProperty("route-core", "line-color", color);
+      if (glMap.getLayer("route-pulse-layer")) glMap.setPaintProperty("route-pulse-layer", "line-color", color);
+      if (glMap.getLayer("route-pulse-head")) glMap.setPaintProperty("route-pulse-head", "circle-color", color);
+    }
+
+    function animateMapPulse(now) {
+      if (glMap && glMapLoaded && routeArcPts.length > 2 && now - lastPulseFrame >= 32) {
+        const dt = Math.min((now - lastPulseFrame) / 1000, 0.1);
+        lastPulseFrame = now;
+        const speed = mapFlowMode === "download" || mapFlowMode === "upload" ? 1.15 : mapFlowMode === "ping" ? 1.65 : 0.38;
+        pulseProgress = (pulseProgress + dt * speed) % 1;
+
+        let frac = pulseProgress;
+        if (mapFlowMode === "download") frac = 1 - pulseProgress; // POP -> Client
+        else if (mapFlowMode === "ping") frac = pulseProgress < 0.5 ? pulseProgress * 2 : (1 - pulseProgress) * 2;
+
+        const maxIdx = routeArcPts.length - 1;
+        const headIdx = Math.round(frac * maxIdx);
+        const tailLen = 9;
+        const dir = mapFlowMode === "download" || (mapFlowMode === "ping" && pulseProgress >= 0.5) ? 1 : -1;
+
+        const seg = [];
+        for (let k = 0; k <= tailLen; k++) {
+          const idx = Math.max(0, Math.min(maxIdx, headIdx + dir * k));
+          seg.push(routeArcPts[idx]);
+        }
+
+        const pulseSrc = glMap.getSource("route-pulse");
+        const headSrc = glMap.getSource("route-head");
+        if (pulseSrc) pulseSrc.setData({ type: "Feature", geometry: { type: "LineString", coordinates: seg } });
+        if (headSrc) headSrc.setData({ type: "Feature", geometry: { type: "Point", coordinates: routeArcPts[headIdx] } });
+      }
+      requestAnimationFrame(animateMapPulse);
+    }
+    requestAnimationFrame(animateMapPulse);
+
+    function renderMapRoute() {
+      if (!glMap) return;
+      const clientLat = Number(clientMeta.lat) || -43.532;
+      const clientLon = Number(clientMeta.lon) || 172.636;
+      const serverLatLon = edgeCoords[clientMeta.colo] || [clientLat, clientLon];
+      const clientLngLat = [clientLon, clientLat];
+      const serverLngLat = [serverLatLon[1], serverLatLon[0]];
+      const distKm = haversineKm([clientLat, clientLon], serverLatLon);
+
       const originLabel = (clientMeta.city && clientMeta.city !== "Unknown") ? clientMeta.city.toUpperCase() : "CLIENT";
       $("map-route-pill").textContent = distKm > 15
         ? `${originLabel} → ${clientMeta.colo} · ${distKm.toLocaleString()} km`
         : `${originLabel} · LOCAL POP (${clientMeta.colo})`;
 
-      if (!leafletMap) {
-        leafletMap = L.map("map", {
-          zoomControl: false, attributionControl: false, dragging: false,
-          scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false,
-        }).setView(clientPos, 5);
+      routeArcPts = curvedLngLatArc(clientLngLat, serverLngLat, 64);
 
-        let fellBack = false;
-        activeTileLayer = L.tileLayer(
-          "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-          { maxZoom: 16, crossOrigin: true }
-        ).addTo(leafletMap);
-
-        activeTileLayer.on("tileerror", () => {
-          if (fellBack) return;
-          fellBack = true;
-          leafletMap.removeLayer(activeTileLayer);
-          $("map").classList.add("osm-dark");
-          activeTileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(leafletMap);
-        });
-
-        new ResizeObserver(() => leafletMap && leafletMap.invalidateSize()).observe($("map"));
+      if (glMapLoaded) {
+        const lineSrc = glMap.getSource("route-line");
+        if (lineSrc) lineSrc.setData({ type: "Feature", geometry: { type: "LineString", coordinates: routeArcPts } });
+        setMapFlowMode(mapFlowMode);
       }
 
-      leafletMap.eachLayer((layer) => { if (layer !== activeTileLayer) leafletMap.removeLayer(layer); });
+      // Clear & recreate crisp HTML beacons
+      glMarkers.forEach((m) => m.remove());
+      glMarkers = [];
 
-      const clientIcon = L.divIcon({ className: "", html: `<div class="beacon-client"></div>`, iconSize: [12, 12], iconAnchor: [6, 6] });
-      const serverIcon = L.divIcon({ className: "", html: `<div class="beacon-server"></div>`, iconSize: [12, 12], iconAnchor: [6, 6] });
+      const mkEl = (kind, label) => {
+        const el = document.createElement("div");
+        el.className = "gl-marker";
+        el.innerHTML = `<span class="gl-beacon ${kind}"></span><span class="gl-label ${kind}">${label}</span>`;
+        return el;
+      };
 
-      const arcPts = curvedArcPoints(clientPos, serverPos);
-      L.polyline(arcPts, { color: "#f59e0b", weight: 5, opacity: 0.16 }).addTo(leafletMap);
-      const flightLine = L.polyline(arcPts, { color: "#f59e0b", weight: 2, opacity: 0.92, className: "flight-path" }).addTo(leafletMap);
-      L.marker(clientPos, { icon: clientIcon }).addTo(leafletMap);
-      L.marker(serverPos, { icon: serverIcon }).addTo(leafletMap);
+      glMarkers.push(
+        new maplibregl.Marker({ element: mkEl("client", originLabel.slice(0, 12)), anchor: "left", offset: [-5, 0] })
+          .setLngLat(clientLngLat).addTo(glMap),
+        new maplibregl.Marker({ element: mkEl("server", clientMeta.colo), anchor: "left", offset: [-5, 0] })
+          .setLngLat(serverLngLat).addTo(glMap)
+      );
 
-      if (distKm > 15) leafletMap.fitBounds(flightLine.getBounds(), { padding: [36, 36], maxZoom: 6 });
-      else leafletMap.setView(clientPos, 7);
+      if (distKm > 15) {
+        const bounds = new maplibregl.LngLatBounds(clientLngLat, clientLngLat).extend(serverLngLat);
+        routeArcPts.forEach((p) => bounds.extend(p));
+        glMap.fitBounds(bounds, {
+          padding: { top: 48, bottom: 48, left: 42, right: 64 },
+          maxZoom: 6.2,
+          pitch: 24,
+          bearing: -6,
+          duration: 850,
+        });
+      } else {
+        glMap.flyTo({ center: clientLngLat, zoom: 7.2, pitch: 22, duration: 850 });
+      }
+    }
 
-      setTimeout(() => leafletMap && leafletMap.invalidateSize(), 120);
+    function initMap() {
+      if (!glMap && typeof maplibregl !== "undefined") {
+        try {
+          glMap = new maplibregl.Map({
+            container: "map",
+            style: DARK_VECTOR_STYLE,
+            center: [Number(clientMeta.lon) || 172.636, Number(clientMeta.lat) || -43.532],
+            zoom: 4.5,
+            pitch: 24,
+            bearing: -6,
+            interactive: false,
+            attributionControl: false,
+            antialias: true,
+          });
+
+          glMap.on("load", () => {
+            glMapLoaded = true;
+            glMap.addSource("route-line", { type: "geojson", data: { type: "Feature", geometry: { type: "LineString", coordinates: routeArcPts } } });
+            glMap.addSource("route-pulse", { type: "geojson", data: { type: "Feature", geometry: { type: "LineString", coordinates: [] } } });
+            glMap.addSource("route-head", { type: "geojson", data: { type: "Feature", geometry: { type: "Point", coordinates: [0, 0] } } });
+
+            glMap.addLayer({
+              id: "route-glow",
+              type: "line",
+              source: "route-line",
+              layout: { "line-cap": "round", "line-join": "round" },
+              paint: { "line-color": "#f59e0b", "line-width": 7, "line-opacity": 0.16, "line-blur": 4 }
+            });
+            glMap.addLayer({
+              id: "route-core",
+              type: "line",
+              source: "route-line",
+              layout: { "line-cap": "round", "line-join": "round" },
+              paint: { "line-color": "#f59e0b", "line-width": 1.6, "line-opacity": 0.55, "line-dasharray": [2.2, 2.5] }
+            });
+            glMap.addLayer({
+              id: "route-pulse-layer",
+              type: "line",
+              source: "route-pulse",
+              layout: { "line-cap": "round", "line-join": "round" },
+              paint: { "line-color": "#f59e0b", "line-width": 3.2, "line-opacity": 0.92, "line-blur": 1 }
+            });
+            glMap.addLayer({
+              id: "route-pulse-head",
+              type: "circle",
+              source: "route-head",
+              paint: { "circle-radius": 3.6, "circle-color": "#ffffff", "circle-blur": 0.25, "circle-opacity": 0.95 }
+            });
+            renderMapRoute();
+          });
+
+          new ResizeObserver(() => glMap && glMap.resize()).observe($("map"));
+        } catch (err) {
+          console.error("Map init error:", err);
+        }
+      }
+      renderMapRoute();
     }
 
     function toggleIp() {
@@ -1618,7 +1841,7 @@
       $("data-used").textContent = `${mb} MB`;
     }
 
-    // Smooth SVG Path Builder + Interactive Hover Scrubbing
+    // Smooth SVG Path Builder + Reference Avg Line + Interactive Scrub Dots
     function buildSmoothPath(points, maxVal) {
       if (points.length === 0) return { line: "", area: "", last: null };
       const coords = points.length === 1
@@ -1644,11 +1867,10 @@
 
     function renderChart(activeSeries = null) {
       const allVals = [...dlPoints, ...ulPoints, 10];
-      const peak = Math.max(...allVals);
-      const maxVal = peak * 1.15;
+      chartMaxVal = Math.max(...allVals) * 1.15;
 
-      const dl = buildSmoothPath(dlPoints, maxVal);
-      const ul = buildSmoothPath(ulPoints, maxVal);
+      const dl = buildSmoothPath(dlPoints, chartMaxVal);
+      const ul = buildSmoothPath(ulPoints, chartMaxVal);
 
       $("dl-line").setAttribute("d", dl.line);
       $("dl-area").setAttribute("d", dl.area);
@@ -1656,11 +1878,29 @@
       $("ul-area").setAttribute("d", ul.area);
 
       if (dlPoints.length || ulPoints.length) {
-        $("y-max").textContent = `${convertSpeed(maxVal).toFixed(0)} ${speedUnit}`;
-        $("y-mid").textContent = `${convertSpeed(maxVal / 2).toFixed(0)}`;
+        $("y-max").textContent = `${convertSpeed(chartMaxVal).toFixed(0)} ${speedUnit}`;
+        $("y-mid").textContent = `${convertSpeed(chartMaxVal / 2).toFixed(0)}`;
       } else {
         $("y-max").textContent = "";
         $("y-mid").textContent = "";
+      }
+
+      // Update average reference lines if final results exist
+      if (lastResults && lastResults.dl > 0) {
+        const yDl = Math.max(4, Math.min(97, 97 - (lastResults.dl / chartMaxVal) * 88)).toFixed(1);
+        $("dl-avg-line").setAttribute("y1", yDl);
+        $("dl-avg-line").setAttribute("y2", yDl);
+        $("dl-avg-line").setAttribute("opacity", "1");
+      } else {
+        $("dl-avg-line").setAttribute("opacity", "0");
+      }
+      if (lastResults && lastResults.ul > 0) {
+        const yUl = Math.max(4, Math.min(97, 97 - (lastResults.ul / chartMaxVal) * 88)).toFixed(1);
+        $("ul-avg-line").setAttribute("y1", yUl);
+        $("ul-avg-line").setAttribute("y2", yUl);
+        $("ul-avg-line").setAttribute("opacity", "1");
+      } else {
+        $("ul-avg-line").setAttribute("opacity", "0");
       }
 
       const dot = $("chart-dot");
@@ -1675,7 +1915,7 @@
       }
     }
 
-    // Interactive chart hover scrub
+    // Interactive chart hover scrub with dual snap dots
     $("chart-wrap").addEventListener("mousemove", (e) => {
       if (!dlPoints.length && !ulPoints.length) return;
       const rect = $("chart").getBoundingClientRect();
@@ -1689,10 +1929,18 @@
       const parts = [];
       if (dlPoints.length) {
         const v = dlPoints[Math.round(frac * (dlPoints.length - 1))];
+        const y = Math.max(4, Math.min(97, 97 - (v / chartMaxVal) * 88)).toFixed(1);
+        $("hover-dl-dot").setAttribute("cx", xSvg);
+        $("hover-dl-dot").setAttribute("cy", y);
+        $("hover-dl-dot").setAttribute("opacity", "1");
         parts.push(`<span style="color:#fff">↓ ${formatSpeed(v)}</span>`);
       }
       if (ulPoints.length) {
         const v = ulPoints[Math.round(frac * (ulPoints.length - 1))];
+        const y = Math.max(4, Math.min(97, 97 - (v / chartMaxVal) * 88)).toFixed(1);
+        $("hover-ul-dot").setAttribute("cx", xSvg);
+        $("hover-ul-dot").setAttribute("cy", y);
+        $("hover-ul-dot").setAttribute("opacity", "1");
         parts.push(`<span style="color:#38bdf8">↑ ${formatSpeed(v)}</span>`);
       }
       const tip = $("chart-tooltip");
@@ -1702,6 +1950,8 @@
 
     $("chart-wrap").addEventListener("mouseleave", () => {
       $("chart-cursor").setAttribute("opacity", "0");
+      $("hover-dl-dot").setAttribute("opacity", "0");
+      $("hover-ul-dot").setAttribute("opacity", "0");
       $("chart-tooltip").classList.remove("visible");
     });
 
@@ -1751,13 +2001,14 @@
       $("line-1").classList.toggle("is-lit", activeIdx >= 1 || stage === "done");
       $("line-2").classList.toggle("is-lit", activeIdx >= 2 || stage === "done");
       if (summaries.ping) $("sum-ping").textContent = summaries.ping;
-      if (summaries.dl) $("sum-dl").textContent = summaries.dl;
-      if (summaries.ul) $("sum-ul").textContent = summaries.ul;
+      if (summaries.dl)   $("sum-dl").textContent = summaries.dl;
+      if (summaries.ul)   $("sum-ul").textContent = summaries.ul;
     }
 
     function setPhase(phaseKey, text, activeCard = null) {
       document.body.dataset.phase = phaseKey;
       $("phase-text").textContent = text;
+      setMapFlowMode(phaseKey);
       const isTesting = phaseKey === "ping" || phaseKey === "download" || phaseKey === "upload";
       $("progress").classList.toggle("running", isTesting);
       document.querySelectorAll(".metric-cell").forEach((el) => {
@@ -1771,6 +2022,20 @@
       el.classList.remove("locked");
       void el.offsetWidth;
       el.classList.add("locked");
+    }
+
+    function calcMedian(arr) {
+      if (!arr.length) return 0;
+      const s = [...arr].sort((a, b) => a - b);
+      const mid = Math.floor(s.length / 2);
+      return s.length % 2 !== 0 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+    }
+
+    function calcConsistency(samples, mean) {
+      if (samples.length < 3 || mean <= 0) return 100;
+      const variance = samples.reduce((acc, v) => acc + (v - mean) ** 2, 0) / samples.length;
+      const cv = Math.sqrt(variance) / mean;
+      return Math.max(40, Math.min(99, Math.round((1 - cv * 0.85) * 100)));
     }
 
     async function probePing(signal) {
@@ -1802,7 +2067,7 @@
       activeXhrs.clear();
     }
 
-    async function measurePing(token, samples = 20) {
+    async function measurePing(token, samples = 25) {
       setPhase("ping", "MEASURING PING", "ping");
       updatePipeline("ping");
       displayIsPing = true;
@@ -1827,14 +2092,14 @@
           if (token !== runToken) return { median: 0, jitter: 0, lossPct: 0 };
           failed++;
         }
-        $("progress").style.width = `${((i + 1) / samples) * 18}%`;
+        $("phase-text").textContent = `PING · ${i + 1}/${samples}`;
+        $("progress").style.width = `${((i + 1) / samples) * 14}%`;
         await new Promise((r) => setTimeout(r, 25));
       }
 
       if (!times.length) throw new Error("All ping probes failed");
       const sorted = [...times].sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      const median = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+      const median = calcMedian(sorted);
       const min = sorted[0], max = sorted[sorted.length - 1];
 
       let jitterSum = 0;
@@ -1843,30 +2108,32 @@
       const lossPct = (failed / samples) * 100;
 
       lockMetric("ping-res", `${median.toFixed(1)} ms`);
-      $("ping-range").textContent = `${min.toFixed(1)} / ${max.toFixed(1)} ms`;
+      $("ping-range").textContent = `Min ${min.toFixed(1)} / Max ${max.toFixed(1)} ms`;
+      $("bar-ping").style.width = `${Math.max(10, Math.min(100, 100 - Math.max(0, median - 8) * 0.9))}%`;
       lockMetric("jitter-res", `${jitter.toFixed(1)} ms`);
       $("loss-res").textContent = `Loss: ${lossPct.toFixed(1)}%`;
+      $("bar-jitter").style.width = `${Math.max(10, Math.min(100, 100 - jitter * 4 - lossPct * 25))}%`;
       updatePipeline("dl", { ping: `${median.toFixed(1)} ms` });
       return { median, jitter, lossPct };
     }
 
-    async function measureDownload(token, durationMs = 8000, streams = 6) {
-      setPhase("download", "DOWNLOADING", "dl");
+    async function measureDownload(token, durationMs = 14000, streams = 6) {
+      setPhase("download", "DOWNLOAD · 14.0s", "dl");
       displayIsPing = false;
       $("live-unit").textContent = speedUnit;
       targetDisplayVal = 0;
       currentDisplayVal = 0;
 
       let phaseBytes = 0, peakMbps = 0;
-      const loadedPings = [], history = [];
+      const loadedPings = [], history = [], steadySamples = [];
       const startTime = performance.now();
-      const warmupMs = 1400;
+      const warmupMs = 2000;
       let warmupBytes = null, warmupTime = null, active = true;
 
       const pingCtrl = makeAbortController();
       const pingProbe = (async () => {
         while (active && token === runToken) {
-          await new Promise((r) => setTimeout(r, 700));
+          await new Promise((r) => setTimeout(r, 650));
           if (!active || token !== runToken) break;
           try { loadedPings.push(await probePing(pingCtrl.signal)); } catch {}
         }
@@ -1902,6 +2169,8 @@
         if (!active || token !== runToken) return;
         const now = performance.now();
         const elapsed = now - startTime;
+        const rem = Math.max(0, (durationMs - elapsed) / 1000);
+        $("phase-text").textContent = `DOWNLOAD · ${rem.toFixed(1)}s`;
         history.push({ t: now, bytes: phaseBytes });
 
         if (warmupBytes === null && elapsed >= warmupMs) {
@@ -1909,46 +2178,52 @@
           warmupTime = now;
         }
 
-        const cutoff = now - 600;
+        const cutoff = now - 700;
         while (history.length > 2 && history[0].t < cutoff) history.shift();
-        if (elapsed > 250 && history.length >= 2) {
+        if (elapsed > 300 && history.length >= 2) {
           const dt = (now - history[0].t) / 1000;
           const db = phaseBytes - history[0].bytes;
           const instMbps = dt > 0 ? (db * 8) / (dt * 1_000_000) : 0;
-          if (elapsed > 1000 && instMbps > peakMbps) peakMbps = instMbps;
+          if (elapsed >= warmupMs) {
+            steadySamples.push(instMbps);
+            if (instMbps > peakMbps) peakMbps = instMbps;
+          }
           dlPoints.push(instMbps);
           renderChart("dl");
           targetDisplayVal = instMbps;
-          $("progress").style.width = `${18 + Math.min(elapsed / durationMs, 1) * 41}%`;
+          $("progress").style.width = `${14 + Math.min(elapsed / durationMs, 1) * 43}%`;
         }
-      }, 150);
+      }, 160);
 
       const cutoffTimer = setTimeout(() => {
         active = false;
         abortAllNetwork();
-      }, durationMs + 120);
+      }, durationMs + 150);
 
       await Promise.all([...Array.from({ length: streams }, (_, i) => worker(i)), pingProbe]);
       clearTimeout(cutoffTimer);
       clearInterval(ticker);
-      if (token !== runToken) return { mbps: 0, peak: 0, loadedPing: 0 };
+      if (token !== runToken) return { mbps: 0, peak: 0, consistency: 100, loadedPing: 0 };
 
       const endTime = performance.now();
       const steadyBytes = warmupBytes !== null ? phaseBytes - warmupBytes : phaseBytes;
       const steadySec = warmupTime !== null ? (endTime - warmupTime) / 1000 : (endTime - startTime) / 1000;
       const finalMbps = steadySec > 0 ? (steadyBytes * 8) / (steadySec * 1_000_000) : 0;
       const finalPeak = Math.max(peakMbps, finalMbps);
-      const avgPing = loadedPings.length ? loadedPings.reduce((a, b) => a + b, 0) / loadedPings.length : 0;
+      const consistency = calcConsistency(steadySamples, finalMbps);
+      const medLoadedPing = calcMedian(loadedPings);
 
       targetDisplayVal = finalMbps;
+      lastResults = { ...(lastResults || {}), dl: finalMbps, dlPeak: finalPeak, dlConsistency: consistency };
       renderChart(null);
       lockMetric("dl-res", formatSpeed(finalMbps));
-      $("dl-peak").textContent = `Peak: ${formatSpeed(finalPeak)}`;
+      $("dl-peak").textContent = `Peak ${formatSpeed(finalPeak)} · ${consistency}% steady`;
+      $("bar-dl").style.width = `${Math.max(6, speedToGaugeFrac(finalMbps) * 100).toFixed(1)}%`;
       updatePipeline("ul", { dl: formatSpeed(finalMbps) });
-      return { mbps: finalMbps, peak: finalPeak, loadedPing: avgPing };
+      return { mbps: finalMbps, peak: finalPeak, consistency, loadedPing: medLoadedPing };
     }
 
-    // Pre-generate incompressible random payload blobs (text/plain avoids CORS preflight)
+    // Pre-generate incompressible random payload blobs (text/plain skips CORS preflight)
     const uploadBlobs = {};
     function getUploadBlob(mb) {
       if (uploadBlobs[mb]) return uploadBlobs[mb];
@@ -1961,15 +2236,13 @@
       return uploadBlobs[mb];
     }
 
-    async function measureUpload(token, durationMs = 8500, dlHintMbps = 100) {
-      setPhase("upload", "UPLOADING", "ul");
+    async function measureUpload(token, durationMs = 14000, dlHintMbps = 100) {
+      setPhase("upload", "UPLOAD · 14.0s", "ul");
       displayIsPing = false;
       $("live-unit").textContent = speedUnit;
       targetDisplayVal = 0;
       currentDisplayVal = 0;
 
-      // Edge Direct: 6 streams x 6MB (or 4MB/2MB) over pure HTTP/2 TCP — unlocks 500+ Mbps fiber!
-      // Fallback (/api/speed): 4 streams x 1MB so Free-Plan Pages Function never hits 10ms CPU 503.
       const streams = useEdgeDirect ? 6 : 4;
       const chunkMb = useEdgeDirect
         ? (dlHintMbps >= 250 ? 6 : dlHintMbps >= 80 ? 4 : 2)
@@ -1977,15 +2250,15 @@
       const blob = getUploadBlob(chunkMb);
 
       let phaseBytes = 0, peakMbps = 0;
-      const loadedPings = [], history = [];
+      const loadedPings = [], history = [], steadySamples = [];
       const startTime = performance.now();
-      const warmupMs = 1500;
+      const warmupMs = 2000;
       let warmupBytes = null, warmupTime = null, active = true;
 
       const pingCtrl = makeAbortController();
       const pingProbe = (async () => {
         while (active && token === runToken) {
-          await new Promise((r) => setTimeout(r, 700));
+          await new Promise((r) => setTimeout(r, 650));
           if (!active || token !== runToken) break;
           try { loadedPings.push(await probePing(pingCtrl.signal)); } catch {}
         }
@@ -2037,6 +2310,8 @@
         if (!active || token !== runToken) return;
         const now = performance.now();
         const elapsed = now - startTime;
+        const rem = Math.max(0, (durationMs - elapsed) / 1000);
+        $("phase-text").textContent = `UPLOAD · ${rem.toFixed(1)}s`;
         history.push({ t: now, bytes: phaseBytes });
 
         if (warmupBytes === null && elapsed >= warmupMs) {
@@ -2044,19 +2319,22 @@
           warmupTime = now;
         }
 
-        const cutoff = now - 650;
+        const cutoff = now - 750;
         while (history.length > 2 && history[0].t < cutoff) history.shift();
-        if (elapsed > 300 && history.length >= 2) {
+        if (elapsed > 350 && history.length >= 2) {
           const dt = (now - history[0].t) / 1000;
           const db = phaseBytes - history[0].bytes;
           const instMbps = dt > 0 ? (db * 8) / (dt * 1_000_000) : 0;
-          if (elapsed > 1400 && instMbps > peakMbps) peakMbps = instMbps;
+          if (elapsed >= warmupMs) {
+            steadySamples.push(instMbps);
+            if (instMbps > peakMbps) peakMbps = instMbps;
+          }
           ulPoints.push(instMbps);
           renderChart("ul");
           targetDisplayVal = instMbps;
-          $("progress").style.width = `${59 + Math.min(elapsed / durationMs, 1) * 41}%`;
+          $("progress").style.width = `${57 + Math.min(elapsed / durationMs, 1) * 43}%`;
         }
-      }, 150);
+      }, 160);
 
       const cutoffTimer = setTimeout(() => {
         active = false;
@@ -2070,21 +2348,24 @@
       await pingProbe;
       clearInterval(ticker);
 
-      if (token !== runToken) return { mbps: 0, peak: 0, loadedPing: 0 };
+      if (token !== runToken) return { mbps: 0, peak: 0, consistency: 100, loadedPing: 0 };
 
       const endTime = performance.now();
       const steadyBytes = warmupBytes !== null ? phaseBytes - warmupBytes : phaseBytes;
       const steadySec = warmupTime !== null ? (endTime - warmupTime) / 1000 : (endTime - startTime) / 1000;
       const finalMbps = steadySec > 0 ? (steadyBytes * 8) / (steadySec * 1_000_000) : 0;
       const finalPeak = Math.max(peakMbps, finalMbps);
-      const avgPing = loadedPings.length ? loadedPings.reduce((a, b) => a + b, 0) / loadedPings.length : 0;
+      const consistency = calcConsistency(steadySamples, finalMbps);
+      const medLoadedPing = calcMedian(loadedPings);
 
       targetDisplayVal = finalMbps;
+      lastResults = { ...(lastResults || {}), ul: finalMbps, ulPeak: finalPeak, ulConsistency: consistency };
       renderChart(null);
       lockMetric("ul-res", formatSpeed(finalMbps));
-      $("ul-peak").textContent = `Peak: ${formatSpeed(finalPeak)}`;
+      $("ul-peak").textContent = `Peak ${formatSpeed(finalPeak)} · ${consistency}% steady`;
+      $("bar-ul").style.width = `${Math.max(6, speedToGaugeFrac(finalMbps) * 100).toFixed(1)}%`;
       updatePipeline("done", { ul: formatSpeed(finalMbps) });
-      return { mbps: finalMbps, peak: finalPeak, loadedPing: avgPing };
+      return { mbps: finalMbps, peak: finalPeak, consistency, loadedPing: medLoadedPing };
     }
 
     function computeBufferbloatGrade(idlePing, dlLoaded, ulLoaded) {
@@ -2097,7 +2378,6 @@
     }
 
     function computeNetworkQualityScore(dl, ul, idlePing, jitter, lossPct, bloatDelta) {
-      // Weighted 100-point composite score across 5 real-world pillars
       const dlPts   = Math.min(25, 25 * (Math.log10(Math.max(dl, 1) + 1) / Math.log10(601)));
       const ulPts   = Math.min(25, 25 * (Math.log10(Math.max(ul, 1) + 1) / Math.log10(401)));
       const pingPts = Math.max(0, Math.min(20, 20 - Math.max(0, idlePing - 10) * 0.16));
@@ -2123,7 +2403,6 @@
         { label: "LOAD", pts: Math.round(loadPts), max: 15, pct: (loadPts / 15) * 100, color: bloatDelta < 30 ? "#22c55e" : bloatDelta < 60 ? "#eab308" : "#ef4444" },
       ];
 
-      // Dynamic human verdict highlighting strength & any bottleneck
       let verdict = "";
       if (score >= 90) {
         verdict = "Top-tier throughput, crisp low latency, and rock-solid responsiveness under load.";
@@ -2153,7 +2432,7 @@
       const verdictEl = $("q-verdict");
       const breakdown = $("q-breakdown");
 
-      const circumference = 201.06; // 2 * PI * 32
+      const circumference = 201.06;
       ring.style.stroke = q.tier.color;
       ring.style.strokeDashoffset = String(circumference);
       numEl.style.color = q.tier.color;
@@ -2174,7 +2453,6 @@
 
       banner.classList.add("visible");
 
-      // Animate SVG score ring, number count-up, and sub-bars smoothly
       const start = performance.now();
       const dur = 850;
       requestAnimationFrame(() => {
@@ -2297,21 +2575,21 @@
       $("ul-res").textContent = "—"; $("ul-peak").textContent = "Peak: —";
       $("ping-res").textContent = "—"; $("ping-range").textContent = "Min/Max: —";
       $("jitter-res").textContent = "—"; $("loss-res").textContent = "Loss: 0.0%";
+      $("bar-dl").style.width = "0%"; $("bar-ul").style.width = "0%";
+      $("bar-ping").style.width = "0%"; $("bar-jitter").style.width = "0%";
       $("loaded-ping").textContent = "— / — ms";
       $("bloat-grade").innerHTML = `<span class="grade-badge">—</span>`;
       $("progress").style.width = "0%";
 
       try {
-        const pingRes = await measurePing(token);
+        const pingRes = await measurePing(token, 25);
         if (token !== runToken) return;
 
-        const dl = await measureDownload(token);
+        const dl = await measureDownload(token, 14000, 6);
         if (token !== runToken) return;
 
-        const ul = await measureUpload(token, 8500, dl.mbps);
+        const ul = await measureUpload(token, 14000, dl.mbps);
         if (token !== runToken) return;
-
-        lastResults = { dl: dl.mbps, dlPeak: dl.peak, ul: ul.mbps, ulPeak: ul.peak };
 
         const dlPingStr = dl.loadedPing ? `${dl.loadedPing.toFixed(0)} ms` : "—";
         const ulPingStr = ul.loadedPing ? `${ul.loadedPing.toFixed(0)} ms` : "—";
@@ -2328,7 +2606,7 @@
 
         lastSummary = [
           `speedtest.robot123.xyz [${clientMeta.colo}] — Quality Score: ${quality.score}/100 (Tier ${quality.tier.letter} · ${quality.tier.title})`,
-          `DL: ${dl.mbps.toFixed(1)} Mbps | UL: ${ul.mbps.toFixed(1)} Mbps`,
+          `DL: ${dl.mbps.toFixed(1)} Mbps (${dl.consistency}% steady) | UL: ${ul.mbps.toFixed(1)} Mbps (${ul.consistency}% steady)`,
           `Ping: ${pingRes.median.toFixed(1)} ms | Jitter: ${pingRes.jitter.toFixed(1)} ms | Loaded: ${dlPingStr} / ${ulPingStr} (${bloat.grade})`,
           `ISP: ${clientMeta.isp}`,
         ].join("\n");
